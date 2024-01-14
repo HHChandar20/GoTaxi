@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34221.43
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.PL", "GoTaxi.PL\GoTaxi.PL.csproj", "{91B316F8-3076-4AFE-8E4A-B68477DAF535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.BLL", "GoTaxi.BLL\GoTaxi.BLL.csproj", "{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.DAL", "GoTaxi.DAL\GoTaxi.DAL.csproj", "{21531839-2C3B-44CA-9E22-98B7B37705BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{91B316F8-3076-4AFE-8E4A-B68477DAF535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91B316F8-3076-4AFE-8E4A-B68477DAF535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91B316F8-3076-4AFE-8E4A-B68477DAF535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91B316F8-3076-4AFE-8E4A-B68477DAF535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F2FA186-021C-4626-8443-071F776041A3}
+	EndGlobalSection
+EndGlobal
