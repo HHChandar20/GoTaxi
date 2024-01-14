@@ -62,6 +62,11 @@ namespace GoTaxi.BLL.Services
             _repository.AddClient(ConvertToClient(phoneNumber, fullName, email, password));
         }
 
+        public void AddClient(Client client)
+        {
+            _repository.AddClient(client);
+        }
+
         public void UpdateClient(string phoneNumber, string fullName, string email, string password)
         {
             _repository.UpdateClient(ConvertToClient(phoneNumber, fullName, email, password));
@@ -157,7 +162,7 @@ namespace GoTaxi.BLL.Services
 
             if (driver.User!.Location != null && client.User!.Location != null)
             {
-                return CalculateDistance(driver.User.Location, client.User.Location) < 0.003; /// 300 m
+                return CalculateDistance(driver.User.Location, client.User.Location) < 0.033; /// 33 m
             }
 
             return false;
@@ -188,9 +193,9 @@ namespace GoTaxi.BLL.Services
             .Where(client =>
                 client.User!.IsVisible == true &&
                 client.ClaimedBy == null &&
-                CalculateDistance(currentLocation, client.User.Location!) <= 60) // Max Distance 60 km
+                DistanceCalculator.CalculateDistance(currentLocation, client.User.Location!) <= 60) // Max Distance 60 km
             .OrderBy(client =>
-                CalculateDistance(currentLocation, client.User!.Location!))
+                DistanceCalculator.CalculateDistance(currentLocation, client.User!.Location!))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 clients, otherwise, get all available clients.
@@ -198,25 +203,6 @@ namespace GoTaxi.BLL.Services
             List<Client> nearestLocations = filteredLocations.GetRange(0, count);
 
             return nearestLocations;
-        }
-
-        public static double CalculateDistance(Location location1, Location location2)
-        {
-            double dLat = DegreesToRadians(location2.Latitude - location1.Latitude);
-            double dLon = DegreesToRadians(location2.Longitude - location1.Longitude);
-
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                        Math.Cos(DegreesToRadians(location1.Latitude)) * Math.Cos(DegreesToRadians(location2.Latitude)) *
-                        Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            return 6371 * c; // Distance in kilometers (6371 - Earth radius in kilometers)
-        }
-
-        private static double DegreesToRadians(double degrees)
-        {
-            return degrees * Math.PI / 180;
         }
     }
 }

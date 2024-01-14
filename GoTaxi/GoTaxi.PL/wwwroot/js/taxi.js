@@ -254,10 +254,11 @@ function addDestinationMarker() {
 }
 
 function clearMarkers(phoneNumber = 0) {
-    driverMarkers.forEach(marker => {
-        marker.remove();
-        driverMarkers.shift();
-    });
+    function clearMarkers(phoneNumber = 0) {
+        driverMarkers.forEach(marker => {
+            marker.remove();
+        });
+        driverMarkers = [];
 
     clientMarkers = clientMarkers.filter(marker => {
         if ((marker.clientPhoneNumber !== phoneNumber) || clientIsInTheCar === true) {

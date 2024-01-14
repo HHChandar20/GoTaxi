@@ -12,6 +12,7 @@ namespace GoTaxi.BLL.Interfaces
     {
         public Client GetClientByPhoneNumber(string phoneNumber);
         public void AddClient(string phoneNumber, string fullName, string email, string password);
+        public void AddClient(Client client);
         public bool CheckClient(string phoneNumber);
         public Client? AuthenticateClient(string phoneNumber, string password);
         public void UpdateClient(string phoneNumber, string fullName, string email, string password);

@@ -68,6 +68,10 @@ namespace GoTaxi.BLL.Services
         {
             _repository.AddDriver(ConvertToDriver(plateNumber, fullName, email, password));
         }
+        public void AddDriver(Driver driver)
+        {
+            _repository.AddDriver(driver);
+        }
 
         public void UpdateDriver(string plateNumber, string fullName, string email, string password)
         {
@@ -117,9 +121,9 @@ namespace GoTaxi.BLL.Services
             List<Driver> filteredLocations = drivers
             .Where(driver =>
                 driver.User!.IsVisible == true &&
-                CalculateDistance(currentLocation, driver.User.Location!) <= 6000)
+                DistanceCalculator.CalculateDistance(currentLocation, driver.User.Location!) <= 6000)
             .OrderBy(driver =>
-                CalculateDistance(currentLocation, driver.User!.Location!))
+                DistanceCalculator.CalculateDistance(currentLocation, driver.User!.Location!))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 drivers, otherwise, get all available drivers.
@@ -128,26 +132,6 @@ namespace GoTaxi.BLL.Services
             List<Driver> nearestLocations = filteredLocations.GetRange(0, count);
 
             return nearestLocations;
-        }
-
-
-        public static double CalculateDistance(Location location1, Location location2)
-        {
-            double dLat = DegreesToRadians(location2.Latitude - location1.Latitude);
-            double dLon = DegreesToRadians(location2.Longitude - location1.Longitude);
-
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                        Math.Cos(DegreesToRadians(location1.Latitude)) * Math.Cos(DegreesToRadians(location2.Latitude)) *
-                        Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            return 6371 * c; // Distance in kilometers (6371 - Earth radius in kilometers)
-        }
-
-        private static double DegreesToRadians(double degrees)
-        {
-            return degrees * Math.PI / 180;
         }
 
     }

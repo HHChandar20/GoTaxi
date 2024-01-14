@@ -283,10 +283,9 @@ function addDestinationMarker() {
     markerBorder.className = 'marker-border destination-marker';
 
     let markerIcon = document.createElement('div');
-    markerIcon.className = 'marker-icon';
+    markerBorder.className = ' destination-marker marker-border';
     markerIcon.style.backgroundImage = 'url(/images/destination.png)';
-    markerIcon.style.backgroundSize = 'contain';
-    markerIcon.style.backgroundRepeat = 'no-repeat';
+
     markerBorder.appendChild(markerIcon);
 
     destinationMarker = new tt.Marker({

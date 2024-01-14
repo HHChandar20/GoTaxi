@@ -12,6 +12,7 @@ namespace GoTaxi.BLL.Interfaces
         public void SetDriverVisibility(Driver currentDriver, bool visibility);
         public Driver GetDriverByPlateNumber(string plateNumber);
         void AddDriver(string plateNumber, string fullName, string email, string password);
+        void AddDriver(Driver driver);
         bool CheckDriver(string plateNumber);
         Driver? AuthenticateDriver(string plateNumber, string password);
         public void UpdateDriver(string plateNumber, string fullName, string email, string password);
