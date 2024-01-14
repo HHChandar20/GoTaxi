@@ -22,20 +22,20 @@ body {
     scrollbar-color: #FFC100;
 }
 
-    /* Chrome, Edge, and Safari */
-    *::-webkit-scrollbar {
-        width: 16px;
-    }
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 16px;
+}
 
-    *::-webkit-scrollbar-track {
-        background: #ffffff;
-    }
+*::-webkit-scrollbar-track {
+    background: #ffffff;
+}
 
-    *::-webkit-scrollbar-thumb {
-        background-color: #FFC100;
-        border-radius: 10px;
-        border: 3px solid #ffffff;
-    }
+*::-webkit-scrollbar-thumb {
+    background-color: #FFC100;
+    border-radius: 10px;
+    border: 3px solid #ffffff;
+}
 
 
 #taxi-section {
@@ -94,9 +94,9 @@ body {
     transition: 0.3s ease-in-out;
 }
 
-    #register-button:hover {
-        background-color: #FFCF00;
-    }
+#register-button:hover {
+    background-color: #FFCF00;
+}
 
 #clients-section {
     background-color: #F5F7FA;
@@ -120,10 +120,10 @@ body {
     padding-bottom: 2em;
 }
 
-    #driver-title .primary-text {
-        font-size: 4em;
-        font-weight: bold;
-    }
+#driver-title .primary-text {
+    font-size: 4em;
+    font-weight: bold;
+}
 
 #driver {
     display: flex;
@@ -139,7 +139,7 @@ body {
 }
 
 #driver-photo {
-    width: 8em;
+    width: 10em;
     height: auto;
     border-radius: 10%;
     border: 1px solid #FFC100;
@@ -154,16 +154,16 @@ body {
     row-gap: 2em;
 }
 
-    #driver-details .primary-text {
-        padding-bottom: 0.5em;
-        font-size: 3em;
-        font-weight: 400;
-        letter-spacing: -5px;
-    }
+#driver-details .primary-text {
+    padding-bottom: 0.5em;
+    font-size: 3em;
+    font-weight: 400;
+    letter-spacing: -1px;
+}
 
-    #driver-details img {
-        width: 6em;
-    }
+#driver-details img {
+    width: 4em;
+}
 
 .driver-statistic {
     color: #4D4D4D;
@@ -221,7 +221,6 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1em;
     padding: 5em 5em 5em 10em;
 }
 
@@ -262,19 +261,20 @@ hr {
 
 #mockup-section {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
-    padding: 2em 4em 0em 4em;
+    width: 100vw;
+    padding: 2em 4em 2em 4em;
 }
 
 .mockups {
     width: auto;
-    height: 25em;
+    height: 17em;
 }
 
 #go-taxi-logo {
     padding-right: 11vw;
-    height: 20em;
+    height: 10em;
 }
 
 #up-button {
@@ -289,9 +289,9 @@ hr {
     transition: 0.3s ease-in-out;
 }
 
-    #up-button:hover {
-        background: #FEA100
-    }
+#up-button:hover {
+    background: #FEA100
+}
 
 a, a:hover, a:focus, a:active {
     text-decoration: none;
@@ -303,5 +303,104 @@ a, a:hover, a:focus, a:active {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    row-gap: 8em;
+    width: 40vw;
+}
+
+
+
+@media only screen and (max-width: 768px) {
+    #ride-book {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    #quote-text {
+        padding: 10%;
+    }
+
+    #taxi-driver-illustration {
+        width: 100%;
+        padding: 0;
+        margin-top: 2em;
+    }
+
+
+    #driver-of-the-week {
+        display: none;
+    }
+
+
+    #driver-details {
+        display: none;
+    }
+
+    .driver-statistic {
+        display: none;
+    }
+
+    #driver {
+        display: none;
+        width: 100%;
+        padding: 2em;
+    }
+
+    #driver-photo {
+        display: none;
+        width: 70%;
+        margin: 0 auto;
+    }
+
+    #driver-details {
+        display: none;
+        text-align: center;
+    }
+
+    #clients-section {
+        margin-top: 10em;
+    }
+
+    #our-clients {
+        height: auto;
+        padding-bottom: 3em;
+    }
+
+    #client-logos {
+        column-gap: 5em;
+    }
+
+    #statistics {
+        flex-direction: column;
+        padding: 5em 2em;
+    }
+
+    #statistics-right {
+        grid-template-columns: 1fr;
+        row-gap: 2em;
+        column-gap: 0;
+    }
+
+    #mockup-section {
+        padding: 1em;
+    }
+
+    #logo-and-button {
+        width: auto;
+        gap: 1em;
+    }
+
+    .mockups {
+        height: 10em;
+        width: auto;
+    }
+
+    #go-taxi-logo {
+        padding-right: 0;
+        padding-left: 1em;
+        width: 5em;
+        height: auto;
+    }
+
+    img {
+        height: auto;
+    }
 }

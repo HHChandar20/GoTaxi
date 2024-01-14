@@ -9,6 +9,11 @@ namespace GoTaxi.PL.Controllers
         private readonly IDriverService _driverService;
         private readonly IClientService _clientService;
 
+
+        // Get current user details from cookies
+        private string CurrentPhoneNumber => HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+        private string? CurrentUserType => HttpContext.Request.Cookies["CurrentUserType"];
+
         // Constructor to inject dependencies for driver and client services
         public HomeController(IDriverService driverService, IClientService clientService)
         {
@@ -57,6 +62,8 @@ namespace GoTaxi.PL.Controllers
         // Action method to log out
         public IActionResult LogOutUser()
         {
+            _clientService.UpdateClientDestination(CurrentPhoneNumber, "", 90, 90, false);
+
             // Clear the cookies for user type and plate/phone number
             HttpContext.Response.Cookies.Delete("CurrentUserType");
             HttpContext.Response.Cookies.Delete("CurrentPlateNumber");

@@ -2,19 +2,19 @@
     cursor: pointer;
 }
 
-    .registration-option:hover {
-        background-color: #efefef;
-    }
+.registration-option:hover {
+    background-color: #efefef;
+}
 
 .selected {
-    background-color: #007bff;
+    background-color: #FFC100;
     color: #fff;
 }
 
-    .selected:hover {
-        background-color: #007bff;
-        color: #fff;
-    }
+.selected:hover {
+    background-color: #FFC100;
+    color: #fff;
+}
 
 .btn {
     width: 20%;
