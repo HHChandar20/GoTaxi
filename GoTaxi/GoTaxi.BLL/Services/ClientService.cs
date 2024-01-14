@@ -124,7 +124,10 @@ namespace GoTaxi.BLL.Services
 
         public Driver? ClientClaimedBy(Client client)
         {
-            if (client.ClaimedBy == null) return null;
+            if (client.ClaimedBy == null)
+            {
+                return null;
+            }
 
             return _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
         }

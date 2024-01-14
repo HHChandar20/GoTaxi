@@ -99,7 +99,7 @@ public class HomeController : Controller
         if (!isExisting)
         {
             _clientService.AddClient(phoneNumber, email, fullName, password);
-            return RedirectToAction("Index");
+            return RedirectToAction("Login");
         }
         else
         {
@@ -121,7 +121,7 @@ public class HomeController : Controller
         if (!isExisting)
         {
             _driverService.AddDriver(plateNumber, email, fullName, password);
-            return RedirectToAction("Index");
+            return RedirectToAction("Login");
         }
         else
         {

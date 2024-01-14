@@ -119,9 +119,8 @@ namespace GoTaxi.PL.Controllers
 
                 return Json(claimedClient);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error fetching claimed client: {ex.Message}");
                 return Json(null);
             }
         }

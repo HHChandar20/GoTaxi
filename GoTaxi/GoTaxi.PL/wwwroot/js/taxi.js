@@ -30,8 +30,7 @@ function addDriverMarker(driver) {
     }).setDOMContent(markerDiv);
 
     let markerBorder = document.createElement('div');
-    markerBorder.className = 'marker-border';
-    markerBorder.style.background = 'green';
+    markerBorder.className = 'marker-border secondary-driver-marker';
 
     let markerIcon = document.createElement('div');
     markerIcon.className = 'marker-icon';
@@ -53,7 +52,7 @@ function addClientMarker(client) {
 
     let markerDiv = document.createElement('div');
     markerDiv.innerHTML =
-        `   <h6 class="destination">${client.destination.name}</h3>
+        `   <p class="destination">${client.destination.name}</p>
         <p class="name>${client.user.fullName}</p>
         <p class="email>${client.user.email}</p>
         <p class="phone">${client.phoneNumber}</h6>
@@ -71,8 +70,7 @@ function addClientMarker(client) {
     markerPopup.className = 'marker-popup';
 
     let markerBorder = document.createElement('div');
-    markerBorder.className = 'marker-border';
-    markerBorder.style.background = 'red';
+    markerBorder.className = 'marker-border client-marker';
 
     let markerIcon = document.createElement('div');
     markerIcon.className = 'marker-icon';
@@ -120,7 +118,7 @@ function updateClientMarker(marker, client) {
         const markerDiv = marker.getPopup().getElement();
         // Check if the required elements inside the popup exist
         if (markerDiv) {
-            const destination = markerDiv.querySelector('h3');
+            const destination = markerDiv.querySelector('p.destination');
             const name = markerDiv.querySelector('p.name');
             const email = markerDiv.querySelector('p.email');
             const phoneNumber = markerDiv.querySelector('p.phone');
@@ -223,7 +221,6 @@ function getNearestClients(currentPosition) {
 function addDestinationMarker() {
     clearMarkers();
 
-    console.log(claimedClient)
 
     let destinationPosition = [claimedClient.destination.location.longitude, claimedClient.destination.location.latitude];
 
@@ -240,8 +237,7 @@ function addDestinationMarker() {
     }).setDOMContent(markerDiv);
 
     let markerBorder = document.createElement('div');
-    markerBorder.className = 'marker-border';
-    markerBorder.style.background = 'orange';
+    markerBorder.className = 'marker-border destination-marker';
 
     let markerIcon = document.createElement('div');
     markerIcon.className = 'marker-icon';
@@ -265,7 +261,7 @@ function clearMarkers(phoneNumber = 0) {
 
     clientMarkers = clientMarkers.filter(marker => {
         if ((marker.clientPhoneNumber !== phoneNumber) || clientIsInTheCar === true) {
-            console.log("no")
+            console.log("no", phoneNumber)
             marker.remove();
             return false;  // Exclude this marker from the new array
         }
@@ -300,8 +296,9 @@ function displayRoute(geoJSON) {
             'type': 'line',
             'source': 'route',
             'paint': {
-                'line-color': 'red',
-                'line-width': 5
+                'line-color': '#FFC100',
+                'line-blur': 0,
+                'line-width': 5,
             }
         });
 
@@ -397,7 +394,7 @@ function checkClaimedClient() {
             .then(response => response.json())
             .then(client => {
 
-                if (client === null && claimedClientMarker) {
+                if (client === null && claimedClient && claimedClientMarker) {
                     claimedClientMarker.remove();
                     claimedClientMarker = null;
                     clearMarkers();
@@ -420,7 +417,7 @@ function isInTheCar() {
         fetch(`/Taxi/IsInTheCar?phoneNumber=${claimedClient.phoneNumber}`)
             .then(response => response.json())
             .then(result => {
-                clientIsInTheCar = JSON.parse(result);
+                clientIsInTheCar = JSON.parse(result) && claimedClient.destination.location.longitude != 90 && claimedClient.destination.location.latitude != 90;
                 console.log("In the car:", clientIsInTheCar);
 
                 if (clientIsInTheCar === true && claimedClientMarker !== null) {
@@ -475,7 +472,8 @@ function getCurrentLocation() {
     return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
             position => {
-                userPosition = [position.coords.longitude, position.coords.latitude];
+                //userPosition = [position.coords.longitude, position.coords.latitude];
+                userPosition = [27.42, 42.56]
                 sendLocationToServer(userPosition[0], userPosition[1]);
                 resolve(userPosition);
             },
@@ -495,6 +493,7 @@ function createMap(userPosition) {
         key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
         container: 'map',
         center: userPosition,
+        style: 'https://api.tomtom.com/style/2/custom/style/dG9tdG9tQEBAWk5Zc08wRVFuZGJ5NjhZUjtjNDlhMDc0OS05M2M4LTRjNTQtODQyYS1hZTg0N2UwMTlmZmQ=/drafts/0.json?key=MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G',
         zoom: 13
     });
     let div = document.createElement('div');
@@ -507,7 +506,7 @@ function createMap(userPosition) {
     }).setDOMContent(div);
 
     let border = document.createElement('div');
-    border.className = 'marker-border';
+    border.className = 'marker-border driver-marker';
 
     let icon = document.createElement('div');
     icon.className = 'marker-icon';
@@ -567,7 +566,7 @@ async function initMap() {
             clientIsInTheCar = false;
         }
 
-    }, 4000); // Repeat every 4 seconds
+    }, 2000); // Repeat every 4 seconds
 }
 
 window.onload = function () {
@@ -593,15 +592,15 @@ window.addEventListener("keydown", function (event) {
         userPosition[1] -= 0.001;
     }
     else if (event.key == "d") {
-        userPosition[0] += 0.00001;
+        userPosition[0] += 0.0001;
     }
     else if (event.key == "a") {
-        userPosition[0] -= 0.00001;
+        userPosition[0] -= 0.0001;
     }
     else if (event.key == "w") {
-        userPosition[1] += 0.00001;
+        userPosition[1] += 0.0001;
     }
     else if (event.key == "s") {
-        userPosition[1] -= 0.00001;
+        userPosition[1] -= 0.0001;
     }
 })

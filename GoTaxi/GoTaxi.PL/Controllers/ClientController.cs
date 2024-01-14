@@ -98,17 +98,12 @@ namespace GoTaxi.PL.Controllers
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
                 Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
 
-                if (_clientService.ClientClaimedBy(currentClient) == null)
-                {
-                    return Json("0");
-                }
-
                 return Json(_clientService.ClientClaimedBy(currentClient));
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return Json("0");
+                return Json(null);
             }
         }
 

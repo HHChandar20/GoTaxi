@@ -2,6 +2,7 @@
 let map;
 let marker;
 let driverMarker;
+let destinationMarker = null;
 let sharingLocation;
 
 const button = document.getElementById('locationButton');
@@ -54,6 +55,13 @@ function updateDestination(destination, longitude, latitude, visibility) {
     xhr.send(jsonData);
 }
 
+function removeDestinationMarker() {
+    if (destinationMarker) {
+        destinationMarker.remove();
+        destinationMarker = null;
+    }
+}
+
 function toggleLocationSharing() {
 
     let longitude = 90;
@@ -69,6 +77,10 @@ function toggleLocationSharing() {
         if (selectedPlace) {
             longitude = selectedPlace.lon;
             latitude = selectedPlace.lat;
+            if (selectedPlace) {
+                addDestinationMarker();
+                map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
+            }
         }
 
         updateDestination(input.value, longitude, latitude, true);
@@ -77,6 +89,8 @@ function toggleLocationSharing() {
         // Stop sharing location
         destinationForm.style.visibility = "visible";
 
+        flyToUser();
+        removeDestinationMarker();
         sharingLocation = false;
         button.innerHTML = 'Request Taxi';
         clearInterval(interval);
@@ -90,10 +104,14 @@ function startSharingLocation() {
     button.innerHTML = 'Cancel Request';
     interval = setInterval(function () {
         clientClaimedBy().then(driver => {
-            if (driver != "0") {
+            if (driver) {
                 updateDriverMarker(driver);
             }
             shareLocation();
+            if (selectedPlace) {
+                addDestinationMarker();
+                map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
+            }
         });
     }, 6000); // Repeat every 6 seconds
 }
@@ -108,7 +126,7 @@ function clientClaimedBy() {
 
 function updateDriverMarker(driver) {
 
-    const driverPosition = [driver.longitude, driver.latitude];
+    const driverPosition = [driver.user.location.longitude, driver.user.location.latitude];
 
     if (driverMarker && driverMarker.getElement() && driverMarker.getPopup()) {
         driverMarker.setLngLat(driverPosition);
@@ -122,7 +140,7 @@ function updateDriverMarker(driver) {
 
             // Update the elements if they exist
             if (plateNumber) plateNumber.innerText = driver.plateNumber;
-            if (name) name.innerText = driver.fullName;
+            if (name) name.innerText = driver.user.fullName;
 
         }
     }
@@ -131,7 +149,7 @@ function updateDriverMarker(driver) {
         driverMarkerDiv.innerHTML =
             `
                     <p class="plate">${driver.plateNumber}</>
-                    <p class="name">${driver.fullName}</p>
+                    <p class="name">${driver.user.fullName}</p>
                 `;
 
         let driverMarkerPopup = new tt.Popup({
@@ -141,8 +159,7 @@ function updateDriverMarker(driver) {
         }).setDOMContent(driverMarkerDiv);
 
         let driverMarkerBorder = document.createElement('div');
-        driverMarkerBorder.className = 'marker-border';
-        driverMarkerBorder.style.background = 'yellow';
+        driverMarkerBorder.className = 'marker-border driver-marker';
 
         let driverMarkerIcon = document.createElement('div');
         driverMarkerIcon.className = 'marker-icon';
@@ -182,9 +199,10 @@ function getClientDestination() {
     fetch(`/Client/GetClientDestination`)
         .then(response => response.json())
         .then(destination => {
-            if (destination != null) {
+            if (destination.location.longitude !== 90) {
                 input.value = destination.name;
-                selectedPlace = destination.name;
+                selectedPlace = { display_name: destination.name, lon: destination.location.longitude, lat: destination.location.latitude };
+                console.log(destination)
             }
         })
         .catch(error => {
@@ -203,7 +221,8 @@ function initMap() {
                 container: 'map',
                 center: userPosition,
                 style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=2/basic_street-dark&poi=2/poi_dark',
-                zoom: 13
+                zoom: 13,
+                pitch: 60
             });
             let div = document.createElement('div');
             div.innerHTML = '<p>You</p>';
@@ -215,7 +234,7 @@ function initMap() {
             }).setDOMContent(div);
 
             let border = document.createElement('div');
-            border.className = 'marker-border';
+            border.className = 'marker-border client-marker';
 
             let icon = document.createElement('div');
             icon.className = 'marker-icon';
@@ -227,6 +246,10 @@ function initMap() {
             }).setLngLat(userPosition).setPopup(popup);
 
             marker.addTo(map);
+            map.on('load', function () {
+                requestAnimationFrame(rotateCamera);
+            });
+
         },
         error => {
             console.error('Error getting user location:', error);
@@ -240,6 +263,59 @@ function initMap() {
     isClientVisible();
     getClientDestination();
 }
+
+function addDestinationMarker() {
+    let destinationPosition = [selectedPlace.lon, selectedPlace.lat];
+
+    let markerDiv = document.createElement('div');
+    markerDiv.innerHTML =
+        `
+        <p class="destinationName">${selectedPlace.display_name}</p>
+    `;
+
+    let markerPopup = new tt.Popup({
+        closeButton: false,
+        offset: 25,
+        anchor: 'bottom'
+    }).setDOMContent(markerDiv);
+
+    let markerBorder = document.createElement('div');
+    markerBorder.className = 'marker-border destination-marker';
+
+    let markerIcon = document.createElement('div');
+    markerIcon.className = 'marker-icon';
+    markerIcon.style.backgroundImage = 'url(/images/destination.png)';
+    markerIcon.style.backgroundSize = 'contain';
+    markerIcon.style.backgroundRepeat = 'no-repeat';
+    markerBorder.appendChild(markerIcon);
+
+    destinationMarker = new tt.Marker({
+        element: markerBorder
+    }).setLngLat(destinationPosition).setPopup(markerPopup);
+
+    destinationMarker.addTo(map);
+}
+
+function rotateCamera(timestamp) {
+
+    if (sharingLocation) {
+        if (selectedPlace) {
+            addDestinationMarker();
+            map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
+        }
+
+        return;
+    }
+
+    var rotationDegree = timestamp / 100 % 360;
+    map.rotateTo(rotationDegree, { duration: 0 });
+    requestAnimationFrame(rotateCamera);
+}
+
+function flyToUser() {
+    map.flyTo({ center: marker.getLngLat(), zoom: 13 });
+}
+
 
 window.onload = initMap;
 
