@@ -5,9 +5,21 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .checked {
+            color: #FFC100;
+        }
+
+        .fa {
+            font-size: 1.5em;
+        }
 
         body {
             overflow-x: hidden;
@@ -38,8 +50,7 @@
 
         #taxi-section {
             width: 100vw;
-            height: 80vh;
-            background-color: #F5F7FA;
+            height: 96vh;
         }
 
         #ride-book {
@@ -86,7 +97,7 @@
             width: 10em;
             height: 3em;
             background-color: #FFC100;
-            color: #ffffff;
+            color: #fff;
             font-weight: bold;
             border: none;
             border-radius: 6px;
@@ -97,8 +108,94 @@
                 background-color: #FFCF00;
             }
 
+        #clients-section {
+            background-color: #F5F7FA;
+        }
+
+        #driver-of-the-week {
+            background-color: #F5F7FA;
+            height: 50vh;
+            padding-top: 7em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 8em;
+        }
+
+        #driver-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 2em;
+        }
+
+            #driver-title .primary-text {
+                font-size: 4em;
+                font-weight: bold;
+            }
+
+        #driver {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            box-shadow: 0px 0px 10px 5px #fff;
+            width: 70%;
+            height: 100%;
+            border-radius: 1em;
+            border: 2px solid #FFC100;
+            padding: 2em 3em 2em 3em;
+        }
+
+        #driver-photo {
+            width: 8em;
+            height: auto;
+            border-radius: 10%;
+            border: 1px solid #FFC100;
+        }
+
+        #driver-details {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            row-gap: 2em;
+        }
+
+            #driver-details .primary-text {
+                padding-bottom: 0.5em;
+                font-size: 3em;
+                font-weight: 400;
+                letter-spacing: -5px;
+            }
+
+            #driver-details img {
+                width: 6em;
+            }
+
+        .driver-statistic {
+            color: #4D4D4D;
+            font-style: normal;
+        }
+
+        #driver-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        hr {
+            background: #FFC100;
+            box-shadow: 0 0 5px 0 #FFC100;
+        }
+
         #our-clients {
-            padding-top: 5em;
+            background: #fff;
+            height: 50vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -106,6 +203,7 @@
         }
 
         #our-clients-primary {
+            font-size: 4em;
             font-weight: bold;
         }
 
@@ -129,13 +227,12 @@
         }
 
         #statistics {
-            width: 100vw;
+            background-color: #F5F7FA;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 5em;
+            margin-top: 1em;
             padding: 5em 5em 5em 10em;
-            background-color: #F5F7FA;
         }
 
         .statistics-primary-text {
@@ -173,6 +270,52 @@
             font-weight: 600;
         }
 
+        #mockup-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2em 4em 0em 4em;
+        }
+
+        .mockups {
+            width: auto;
+            height: 25em;
+        }
+
+        #go-taxi-logo {
+            padding-right: 11vw;
+            height: 20em;
+        }
+
+        #up-button {
+            align-self: end;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #FFC100;
+            height: 3em;
+            width: 3em;
+            border-radius: 50%;
+            transition: 0.3s ease-in-out;
+        }
+
+            #up-button:hover {
+                background: #FEA100
+            }
+
+        a, a:hover, a:focus, a:active {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        #logo-and-button {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            row-gap: 8em;
+        }
+
     </style>
 
 </head>
@@ -200,66 +343,125 @@
         </div>
     </div>
 
-    <div id="our-clients">
-        <h1 class="primary-text" id="our-clients-primary">Our Clients</h1>
+    <div id="clients-section">
 
-        <h6 class="info-text" id="our-clients-description">We are honored to partner with businesses of all sizes, providing seamless transportation solutions for corporate events</h6>
+        <div id="driver-of-the-week">
 
-        <div id="client-logos">
-            <img class="client-logo" style="width: 4em" src="~/images/Home/logos/burgas.png" />
-            <img class="client-logo" src="~/images/Home/logos/addison-lee.png" />
-            <img class="client-logo" src="~/images/Home/logos/akasya.png" />
-            <img class="client-logo" src="~/images/Home/logos/burgasbus.png" />
-            <img class="client-logo" style="width: 4em" src="~/images/Home/logos/codingburgas.png" />
-            <img class="client-logo" src="~/images/Home/logos/top-rent-a-car.png" />
-            <img class="client-logo" src="~/images/Home/logos/yellow333.png" />
+            <div id="driver-title">
+                <h1 class="primary-text">Driver of the week</h1>
+            </div>
+
+            <div id="driver">
+                <img id="driver-photo" src="https://cf.kizlarsoruyor.com/q18165370/4f07af48-908d-44fe-97c2-48cf71361fe8.jpg">
+
+                <div id="driver-details">
+
+                    <div id="driver-info">
+                        <h1 class="primary-text">Osman Aga</h1>
+
+                        <div id="rating-stars">
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star-half-full checked"></span>
+                        </div>
+                    </div>
+
+
+
+                    <img src="~/images/Home/logos/akasya.png">
+
+                </div>
+
+                <div id="" driver-statistics">
+                    <p class="info-text driver-statistic">Clients served: 5</p>
+                    <p class="info-text driver-statistic">Km travelled: 100</p>
+                    <p class="info-text driver-statistic">Driving Time: 5h 30m 23s</p>
+                    <p class="info-text driver-statistic">Average speed: 67 km/h</p>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="our-clients">
+            <h1 class="primary-text" id="our-clients-primary">Our Clients</h1>
+
+            <h6 class="info-text" id="our-clients-description">We are honored to partner with businesses of all sizes, providing seamless transportation solutions for corporate events</h6>
+
+            <div id="client-logos">
+                <img class="client-logo" style="width: 4em" src="~/images/Home/logos/burgas.png" />
+                <img class="client-logo" src="~/images/Home/logos/addison-lee.png" />
+                <img class="client-logo" src="~/images/Home/logos/akasya.png" />
+                <img class="client-logo" src="~/images/Home/logos/burgasbus.png" />
+                <img class="client-logo" style="width: 4em" src="~/images/Home/logos/codingburgas.png" />
+                <img class="client-logo" src="~/images/Home/logos/top-rent-a-car.png" />
+                <img class="client-logo" src="~/images/Home/logos/yellow333.png" />
+            </div>
+
         </div>
 
     </div>
 
-    <div id="statistics">
-        <div id="statistics-left">
-            <h1 class="primary-text statistics-primary-text">Helping people find<br></h1>
-            <h1 class="secondary-text statistics-primary-text">each other</h1>
-            <p class="info-text" id="statistics-info-text">We reached here with our hard work and dedication</p>
+    <div id="app-info">
+        <div id="statistics">
+            <div id="statistics-left">
+                <h1 class="primary-text statistics-primary-text">Helping people find<br></h1>
+                <h1 class="secondary-text statistics-primary-text">each other</h1>
+                <p class="info-text" id="statistics-info-text">We reached here with our hard work and dedication</p>
+            </div>
+
+            <div id="statistics-right">
+                <div class="statistic">
+                    <img class="statistics-icons" src="~/images/Home/icons/passengers-icon.svg" />
+
+                    <div class="statistics-text">
+                        <h2 class="primary-text statistics-numbers">123,444</h2>
+                        <p class="info-text">Passengers</p>
+                    </div>
+                </div>
+
+                <div class="statistic">
+                    <img class="statistics-icons" src="~/images/Home/icons/car-icon.svg" />
+
+                    <div class="statistics-text">
+                        <h2 class="primary-text statistics-numbers">432</h2>
+                        <p class="info-text">Taxis</p>
+                    </div>
+                </div>
+
+                <div class="statistic">
+                    <img class="statistics-icons" src="~/images/Home/icons/road-icon.svg" />
+
+                    <div class="statistics-text">
+                        <h2 class="primary-text statistics-numbers">675,392</h2>
+                        <p class="info-text">km travelled</p>
+                    </div>
+                </div>
+
+                <div class="statistic">
+                    <img class="statistics-icons" src="~/images/Home/icons/city-icon.svg" />
+
+                    <div class="statistics-text">
+                        <h2 class="primary-text statistics-numbers">7</h2>
+                        <p class="info-text">cities</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div id="statistics-right">
-            <div class="statistic">
-                <img class="statistics-icons" src="~/images/Home/icons/passengers-icon.svg" />
-
-                <div class="statistics-text">
-                    <h2 class="primary-text statistics-numbers">123,444</h2>
-                    <p class="info-text">Passengers</p>
-                </div>
+        <div id="mockup-section">
+            <div id="mockups">
+                <img class="mockups" src="~/images/Home/mockup/iphone-mockup-portrait.png" />
+                <img class="mockups" src="~/images/Home/mockup/mac-mockup.png" />
             </div>
 
-            <div class="statistic">
-                <img class="statistics-icons" src="~/images/Home/icons/car-icon.svg" />
-
-                <div class="statistics-text">
-                    <h2 class="primary-text statistics-numbers">432</h2>
-                    <p class="info-text">Taxis</p>
-                </div>
+            <div id="logo-and-button">
+                <a id="up-button" href="#taxi-section" class="fa fa-arrow-up"></a>
+                <img id="go-taxi-logo" src="~/images/Home/logos/top-rent-a-car.png" />
             </div>
 
-            <div class="statistic">
-                <img class="statistics-icons" src="~/images/Home/icons/road-icon.svg" />
 
-                <div class="statistics-text">
-                    <h2 class="primary-text statistics-numbers">675,392</h2>
-                    <p class="info-text">km travelled</p>
-                </div>
-            </div>
-
-            <div class="statistic">
-                <img class="statistics-icons" src="~/images/Home/icons/city-icon.svg" />
-
-                <div class="statistics-text">
-                    <h2 class="primary-text statistics-numbers">7</h2>
-                    <p class="info-text">cities</p>
-                </div>
-            </div>
         </div>
     </div>
 
