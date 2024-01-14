@@ -91,7 +91,7 @@ namespace GoTaxi.PL.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error claiming client 2: {ex.Message} Phone: {phoneNumber}");
+                Console.WriteLine($"Error claiming client: {ex.Message} Phone: {phoneNumber}");
                 return Json(new { success = false, message = "Internal server error" });
             }
         }
@@ -109,6 +109,20 @@ namespace GoTaxi.PL.Controllers
             {
                 Console.WriteLine($"Error fetching claimed client: {ex.Message}");
                 return Json(new { success = false, message = "Error fetching claimed client" });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult IsInTheCar()
+        {
+            try
+            {
+                return Json(_clientService.IsInTheCar());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if the client is in the car: {ex.Message}");
+                return Json("0");
             }
         }
 

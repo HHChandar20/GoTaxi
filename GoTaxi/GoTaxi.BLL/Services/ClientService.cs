@@ -1,7 +1,6 @@
 ﻿using GoTaxi.BLL.Interfaces;
 using GoTaxi.DAL.Models;
 using GoTaxi.DAL.Repositories;
-using Microsoft.IdentityModel.Tokens;
 
 namespace GoTaxi.BLL.Services
 {
@@ -101,13 +100,28 @@ namespace GoTaxi.BLL.Services
         public void UpdateCurrentClientDestination(string newDestination, bool newVisibility)
         {
             currentClient.Destination = newDestination;
+            currentClient.IsVisible = newVisibility;
+
+            Driver driver = new Driver();
+
+            if (currentClient.ClaimedBy != null)
+            {
+                driver = _driverService.GetDriverByPlateNumber(currentClient.ClaimedBy);
+            }
+
+            if (!newVisibility && driver != null)
+            {
+                driver.IsVisible = true;
+                _driverService.UpdateDriver(driver);
+
+                currentClient.ClaimedBy = null;
+            }
 
             _repository.UpdateClient(currentClient);
         }
 
         public void ClaimClient(string phoneNumber)
         {
-            Console.WriteLine(phoneNumber.IsNullOrEmpty().ToString());
             Client client = _repository.GetClientByPhoneNumber(phoneNumber);
             client.ClaimedBy = _driverService.GetCurrentDriver().PlateNumber;
             _repository.UpdateClient(client);
@@ -126,6 +140,21 @@ namespace GoTaxi.BLL.Services
         {
             return _repository.GetAllClients().First(client => client.ClaimedBy == DriverService.currentDriver.PlateNumber);
         }
+
+        public bool IsInTheCar()
+        {
+            Driver driver = DriverService.currentDriver;
+            Client client = GetClaimedClient();
+
+            return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.002;
+        }
+
+        public double[] GetClaimedClientLocation()
+        {
+            Client claimedClient = _repository.GetAllClients().First(client => client.ClaimedBy == DriverService.currentDriver.PlateNumber);
+            return new double[] { claimedClient.Longitude, claimedClient.Latitude };
+        }
+
 
         public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
