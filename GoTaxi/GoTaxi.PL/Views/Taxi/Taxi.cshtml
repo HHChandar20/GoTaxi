@@ -47,9 +47,7 @@
         let driverMarkers = [];
         let clientMarkers = [];
 
-
         function addDriverMarker(driver, counter) {
-
             const driverPosition = [driver.longitude, driver.latitude];
             console.log("Driver position: ", driverPosition);
 
@@ -74,18 +72,34 @@
             driverMarkers[counter] = new tt.Marker({
                 element: markerBorder
             }).setLngLat(driverPosition).setPopup(markerPopup);
+        }
 
+        function updateDriverMarker(marker, driver) {
+            const driverPosition = [driver.longitude, driver.latitude];
+            marker.setLngLat(driverPosition);
+
+            // Check if the marker's element and the 'p' element inside it exist
+            const markerElement = marker.getElement();
+            if (markerElement) {
+                const paragraphElement = markerElement.querySelector('p');
+                if (paragraphElement) {
+                    paragraphElement.innerText = driver.fullName;
+                }
+            } else {
+                console.error('Marker element not found:', marker);
+            }
         }
 
         function addDriverMarkers(map, drivers) {
-
             let counter = 0;
 
             drivers.forEach(driver => {
-
-                addDriverMarker(driver, counter);
-                driverMarkers[counter].addTo(map);
-
+                if (driverMarkers[counter]) {
+                    updateDriverMarker(driverMarkers[counter], driver);
+                } else {
+                    addDriverMarker(driver, counter);
+                    driverMarkers[counter].addTo(map);
+                }
                 counter++;
             });
         }
@@ -106,12 +120,71 @@
                 });
         }
 
-        function addClientMarker(client, counter) {
+        function updateClientMarker(marker, client) {
+            const clientPosition = [client.longitude, client.latitude];
 
+            // Check if the marker is defined and has an element and popup
+            if (marker && marker.getElement() && marker.getPopup()) {
+                marker.setLngLat(clientPosition);
+
+                const markerDiv = marker.getPopup().getElement();
+                // Check if the required elements inside the popup exist
+                if (markerDiv) {
+                    const h3Element = markerDiv.querySelector('h3');
+                    const pElement = markerDiv.querySelector('p');
+                    const h6Element = markerDiv.querySelector('h6');
+                    const reportsElement = markerDiv.querySelector('p.reports');
+
+                    // Update the elements if they exist
+                    if (h3Element) h3Element.innerText = client.fullName;
+                    if (pElement) pElement.innerText = client.email;
+                    if (h6Element) h6Element.innerText = client.phoneNumber;
+                    if (reportsElement) reportsElement.innerText = `Reports: ${client.reports}`;
+                }
+            } else {
+                console.error('Invalid marker or missing elements:', marker);
+            }
+        }
+
+        function updateClientMarkers(map, newClients) {
+            const existingClientPhoneNumbers = clientMarkers.map(marker => marker.clientPhoneNumber);
+            const newClientPhoneNumbers = newClients.map(client => client.phoneNumber);
+
+            console.log("Existing: ", existingClientPhoneNumbers);
+            console.log("NewC: ", newClientPhoneNumbers);
+            console.log("clientsMarkers: ", clientMarkers);
+
+            // Remove markers for clients that are not in the new list
+            const clientsToRemove = clientMarkers.filter(marker => !newClientPhoneNumbers.includes(marker.clientPhoneNumber));
+            clientsToRemove.forEach(marker => {
+                marker.remove();
+                clientMarkers.splice(clientMarkers.indexOf(marker));
+
+            });
+
+            // Update or add markers for the new clients
+            newClients.forEach(client => {
+                const index = existingClientPhoneNumbers.indexOf(client.phoneNumber);
+                if (index !== -1) {
+                    // Update existing marker
+                    updateClientMarker(clientMarkers[index], client);
+                } else {
+                    // Add new marker
+                    addClientMarker(map, client);
+                }
+            });
+        }
+
+        function addClientMarker(map, client) {
             const clientPosition = [client.longitude, client.latitude];
 
             let markerDiv = document.createElement('div');
-            markerDiv.innerHTML = `<p>${client.fullName}</p>`;
+            markerDiv.innerHTML =
+                `<h3>${client.fullName}</h3>
+                        <p>${client.email}</p>
+                        <h6>${client.phoneNumber}</h6>
+                        <p class="reports">Reports: ${client.reports}</p>
+                        <button id="claim-button">Claim</button>`;
 
             let markerPopup = new tt.Popup({
                 closeButton: false,
@@ -128,24 +201,14 @@
             markerIcon.style.backgroundImage = 'url(/images/client-icon.png)';
             markerBorder.appendChild(markerIcon);
 
-            clientMarkers[counter] = new tt.Marker({
+            const newMarker = new tt.Marker({
                 element: markerBorder
             }).setLngLat(clientPosition).setPopup(markerPopup);
 
-        }
+            newMarker.addTo(map);
+            newMarker.clientPhoneNumber = client.phoneNumber; // Store client phone number in the marker
 
-
-        function addClientMarkers(map, clients) {
-
-            let counter = 0;
-
-            clients.forEach(client => {
-
-                addClientMarker(client, counter);
-                clientMarkers[counter].addTo(map);
-
-                counter++;
-            })
+            clientMarkers.push(newMarker);
         }
 
         function getNearestClients(map, currentPosition) {
@@ -154,24 +217,15 @@
                 .then(nearestClients => {
                     console.log(nearestClients);
                     if (Array.isArray(nearestClients)) {
-                        addClientMarkers(map, nearestClients);
-                    } else {
+                        updateClientMarkers(map, nearestClients);
+                    }
+                    else {
                         console.error('Invalid response format:', nearestClients);
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching nearest drivers:', error);
+                    console.error('Error fetching nearest clients:', error);
                 });
-        }
-
-        function clearMarkers() {
-            driverMarkers.forEach(marker => {
-                marker.remove();
-            })
-
-            clientMarkers.forEach(marker => {
-                marker.remove();
-            })
         }
 
 
@@ -211,7 +265,6 @@
                         center: userPosition,
                         zoom: 13
                     });
-
                     let div = document.createElement('div');
                     div.innerHTML = '<p>You</p>';
 
@@ -256,11 +309,10 @@
                             }
                         );
 
-                        clearMarkers();
                         getNearestDrivers(map, userPosition);
                         getNearestClients(map, userPosition);
 
-                    }, 6000); // Repeat every minute
+                    }, 6000); // Repeat every 6 seconds
                 },
                 error => {
                     console.error('Error getting user location:', error);

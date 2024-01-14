@@ -77,7 +77,7 @@ public class TaxiController : Controller
         {
             // Log the exception for debugging purposes
             Console.WriteLine($"Error fetching nearest clients: {ex.Message}");
-            return Json(new { success = false, message = "Error fetching nearest drivers" });
+            return Json(new { success = false, message = "Error fetching nearest clients" });
         }
     }
 

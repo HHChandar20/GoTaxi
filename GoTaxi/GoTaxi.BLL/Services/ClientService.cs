@@ -100,7 +100,7 @@ namespace GoTaxi.BLL.Services
 
         public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
-            List<Client> clients = _repository.GetAllClientsExceptCurrent(currentClient.PhoneNumber);
+            List<Client> clients = _repository.GetAllClients()  ;
 
             if (clients == null)
             {
