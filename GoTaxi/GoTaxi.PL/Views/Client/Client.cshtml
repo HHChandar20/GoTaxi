@@ -63,6 +63,50 @@
             border-radius: 10px;
         }
 
+        #destination-search {
+            display: flex;
+            gap: 5%;
+        }
+
+        #destination-button {
+            background-color: yellow;
+            width: 15%;
+        }
+
+        #autocomplete-results {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            width: 12.2em;
+            overflow-y: auto;
+            display: none;
+            position: absolute; /* Set position to absolute */
+            z-index: 1000; /* Set a high z-index value */
+        }
+
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+
+            .autocomplete-item:hover {
+                background-color: lightgoldenrodyellow;
+            }
+
+        #autocomplete-results::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #autocomplete-results::-webkit-scrollbar-track {
+            background-color: darkgrey;
+        }
+
+        #autocomplete-results::-webkit-scrollbar-thumb {
+            background: yellow;
+            border-radius: 5em;
+        }
+
     </style>
 
 </head>
@@ -71,16 +115,21 @@
 
     <div id="client-page">
 
-        <form id="request-form">
+        <div id="request-form">
             <div class="form-group">
                 <label for="destination">Where are you going?</label>
-                <input type="text" class="form-control" id="destination" name="destination" />
+
+                <div id="destination-search">
+                    <input type="text" autocomplete="off" class="form-control" id="destination" name="destination" placeholder="Search..." />
+                    <button type="button" id="destination-button" class="btn btn-secondary" onclick="handleAutocomplete()">P</button>
+                </div>
+                <div id="autocomplete-results"></div>
             </div>
 
             <div class="form-group text-center pt-1 mt-4">
                 <button type="button" id="locationButton" class="btn btn-primary" onclick="toggleLocationSharing()">Request Taxi</button>
             </div>
-        </form>
+        </div>
 
 
         <div id="map"></div>
@@ -88,6 +137,46 @@
     </div>
 
     <script type="text/javascript" src="~/js/client.js"></script>
+
+    <script>
+        let destination = document.getElementById("destination");
+        let autocompleteResults = document.getElementById("autocomplete-results");
+        function handleAutocomplete() {
+            console.log("Submitted");
+            fetch(`https://nominatim.openstreetmap.org/search?q=${destination.value}&format=json&limit=5&countrycodes=BG`)
+                .then(response => response.json())
+                .then(data => {
+                    displayAutocompleteResults(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                })
+        }
+        function displayAutocompleteResults(results) {
+            autocompleteResults.innerHTML = "";
+            results.forEach(place => {
+                let autocompleteItem = document.createElement("div");
+                autocompleteItem.className = "autocomplete-item";
+                autocompleteItem.textContent = place.name;
+                autocompleteItem.addEventListener("click", () => {
+                    destination.value = place.name;
+                    autocompleteResults.style.display = "none";
+                });
+                autocompleteResults.appendChild(autocompleteItem);
+            });
+            if (results.length > 0) {
+                autocompleteResults.style.display = "block";
+            } else {
+                autocompleteResults.style.display = "none";
+            }
+        }
+        // Close autocomplete results if user clicks outside the input and results
+        window.addEventListener("click", (event) => {
+            if (!event.target.matches("#destination") && !event.target.matches(".autocomplete-item")) {
+                autocompleteResults.style.display = "none";
+            }
+        });
+    </script>
 
 </body>
 

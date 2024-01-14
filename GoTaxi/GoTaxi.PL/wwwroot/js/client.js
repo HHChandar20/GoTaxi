@@ -52,6 +52,8 @@ function updateDestination(destination, visibility) {
 
     const jsonData = JSON.stringify(data);
     xhr.send(jsonData);
+
+    getResults(destination);
 }
 
 function toggleLocationSharing() {
@@ -186,7 +188,8 @@ function initMap() {
                 key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
                 container: 'map',
                 center: userPosition,
-                zoom: 13
+                style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=2/basic_street-dark&poi=2/poi_dark',
+                zoom: 13,
             });
             let div = document.createElement('div');
             div.innerHTML = '<p>You</p>';

@@ -149,13 +149,6 @@ namespace GoTaxi.BLL.Services
             return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.002;
         }
 
-        public double[] GetClaimedClientLocation()
-        {
-            Client claimedClient = _repository.GetAllClients().First(client => client.ClaimedBy == DriverService.currentDriver.PlateNumber);
-            return new double[] { claimedClient.Longitude, claimedClient.Latitude };
-        }
-
-
         public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
             List<Client> clients = _repository.GetAllClients();
