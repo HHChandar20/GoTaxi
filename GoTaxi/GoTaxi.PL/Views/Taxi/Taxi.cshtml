@@ -1,0 +1,99 @@
+﻿@{
+    ViewData["Title"] = "Taxi";
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css" type="text/css" />
+    <script type="text/javascript" src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+    <style>
+        #taxi-page {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 90vh;
+            width: 100%;
+        }
+
+        #map {
+            width: 900vw;
+            height: 80%;
+        }
+
+        .marker-border {
+            background: yellow;
+            border-radius: 50%;
+            height: 40px;
+            width: 40px;
+        }
+
+        .marker-icon {
+            background-position: center;
+            background-size: 25px 20px;
+            position: absolute;
+            left: 7.5px;
+            top: 10px;
+            height: 20px;
+            width: 25px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="taxi-page">
+        <div id="map"></div>
+    </div>
+    <script type="text/javascript">
+        function initMap() {
+            // Get the user's location
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const userPosition = [4, 44.4] //[position.coords.longitude, position.coords.latitude];
+                    // Initialize the map with the user's location
+                    const map = tt.map({
+                        key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
+                        container: 'map',
+                        center: userPosition,
+                        zoom: 13
+                    })
+                    map.on('load', () => {
+                        let div = document.createElement('div')
+                        div.innerHTML = '<p> You </p>'
+                        let popup = new tt.Popup({
+                            closeButton: false,
+                            offset: 25,
+                            anchor: 'bottom'
+                        }).setDOMContent(div)
+                        let border = document.createElement('div')
+                        border.className = 'marker-border'
+
+                        let icon = document.createElement('div')
+                        icon.className = 'marker-icon'
+                        icon.style.backgroundImage = 'url(/images/taxi-icon.png)'
+                        border.appendChild(icon)
+                        let marker = new tt.Marker({
+                            element: border
+                        }).setLngLat(userPosition).setPopup(popup)
+                        marker.addTo(map)
+                    });
+                    // Add a marker at the user's location
+                    //new tt.Marker().setLngLat(userPosition).addTo(map);
+                },
+                error => {
+                    console.error("Error getting user location:", error);
+                },
+                {
+                    enableHighAccuracy: true, // Request high accuracy
+                    timeout: 5000,           // Set a timeout (in milliseconds)
+                    maximumAge: 0            // Disable caching of the location
+                }
+            );
+        }
+        // Load the map after the page has fully loaded
+        window.onload = initMap;
+    </script>
+</body>
+</html>

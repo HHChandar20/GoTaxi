@@ -4,13 +4,11 @@ using GoTaxi.BLL.Interfaces;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly IAccountService _accountService;
+    private readonly IDriverService _driverService;
 
-    public HomeController(ILogger<HomeController> logger, IAccountService accountService)
+    public HomeController(IDriverService driverService)
     {
-        _logger = logger;
-        _accountService = accountService;
+        _driverService = driverService;
     }
 
     public IActionResult Index()
@@ -18,29 +16,51 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Taxi()
+    public IActionResult Register()
+    {
+        return View();
+    }
+    public IActionResult Privacy()
     {
         return View();
     }
 
     [HttpPost]
-    public IActionResult Login(string username, string password)
+    public IActionResult Login(string username)
     {
-        bool isAuthenticated = _accountService.AuthenticateAccount(username, password);
+        bool isAuthenticated = _driverService.CheckDriver(username);
 
         if (isAuthenticated)
         {
-            return RedirectToAction("Taxi");
+            return RedirectToAction("Taxi", "Taxi");
         }
         else
         {
             // Return a message indicating account not found
             return Json(new { success = false, message = "Account not found" });
         }
+}
+
+    [HttpPost]
+    public IActionResult RegisterDriver(string plateNumber, string username, string email, string password)
+    {
+        ViewBag.ErrorMessage = "";
+
+        bool isExisting = _driverService.CheckDriver(plateNumber);
+
+        if (!isExisting)
+        {
+            _driverService.AddDriver(plateNumber, username, email, password);
+            return RedirectToAction("Index");
+        }
+        else
+        {
+            // Return a message indicating account is already registered
+            ViewBag.ErrorMessage = "Account is already registered";
+
+            // Render the Register view again with the error message
+            return View("Register");
+        }
     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
 }
