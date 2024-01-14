@@ -22,7 +22,7 @@ namespace GoTaxi.DAL.Repositories
             return _context.Clients.Where(client => client.PhoneNumber != phoneNumber).ToList();
         }
 
-        public Client GetClientByPlateNumber(string phoneNumber)
+        public Client GetClientByPhoneNumber(string phoneNumber)
         {
             return _context.Clients.FirstOrDefault(client => client.PhoneNumber == phoneNumber);
         }
@@ -42,6 +42,8 @@ namespace GoTaxi.DAL.Repositories
                 existingClient.Email = updatedClient.Email;
                 existingClient.FullName = updatedClient.FullName;
                 existingClient.Password = updatedClient.Password;
+                existingClient.Destination = updatedClient.Destination;
+                existingClient.ClaimedBy = updatedClient.ClaimedBy;
                 existingClient.Longitude = updatedClient.Longitude;
                 existingClient.Latitude = updatedClient.Latitude;
 

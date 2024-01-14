@@ -43,7 +43,6 @@ public class TaxiController : Controller
         }
         catch (Exception ex)
         {
-            // Log the exception for debugging purposes
             Console.WriteLine($"Error updating location: {ex.Message}");
             return Json(new { success = false, message = "Internal server error" });
         }
@@ -59,7 +58,6 @@ public class TaxiController : Controller
         }
         catch (Exception ex)
         {
-            // Log the exception for debugging purposes
             Console.WriteLine($"Error fetching nearest drivers: {ex.Message}");
             return Json(new { success = false, message = "Error fetching nearest drivers" });
         }
@@ -75,9 +73,24 @@ public class TaxiController : Controller
         }
         catch (Exception ex)
         {
-            // Log the exception for debugging purposes
             Console.WriteLine($"Error fetching nearest clients: {ex.Message}");
             return Json(new { success = false, message = "Error fetching nearest clients" });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult ClaimClient([FromBody] string phoneNumber)
+    {
+        try
+        {
+            _clientService.ClaimClient(phoneNumber);
+            return Json(new { success = true, message = "Location updated successfully" });
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error claiming client 2: {ex.Message} Phone: {phoneNumber}");
+            return Json(new { success = false, message = "Internal server error" });
         }
     }
 

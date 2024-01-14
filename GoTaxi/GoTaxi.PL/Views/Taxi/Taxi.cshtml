@@ -35,6 +35,22 @@
             height: 20px;
             width: 25px;
         }
+
+        .marker-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mapboxgl-popup-content {
+            border-radius: 10px;
+        }
+
+        #claim-button {
+            background-color: red;
+        }
+
     </style>
 </head>
 
@@ -130,16 +146,21 @@
                 const markerDiv = marker.getPopup().getElement();
                 // Check if the required elements inside the popup exist
                 if (markerDiv) {
-                    const h3Element = markerDiv.querySelector('h3');
-                    const pElement = markerDiv.querySelector('p');
-                    const h6Element = markerDiv.querySelector('h6');
-                    const reportsElement = markerDiv.querySelector('p.reports');
+                    const destination = markerDiv.querySelector('h3');
+                    const name = markerDiv.querySelector('p.name');
+                    const email = markerDiv.querySelector('p.email');
+                    const phoneNumber = markerDiv.querySelector('p.phone');
+                    const reports = markerDiv.querySelector('p.reports');
+                    const button = markerDiv.querySelector('button');
 
                     // Update the elements if they exist
-                    if (h3Element) h3Element.innerText = client.fullName;
-                    if (pElement) pElement.innerText = client.email;
-                    if (h6Element) h6Element.innerText = client.phoneNumber;
-                    if (reportsElement) reportsElement.innerText = `Reports: ${client.reports}`;
+                    if (destination) destination.innerText = client.destination;
+                    if (name) name.innerText = client.fullName;
+                    if (email) email.innerText = client.email;
+                    if (phoneNumber) phoneNumber.innerText = client.phoneNumber;
+                    if (reports) reports.innerText = `Reports: ${client.reports}`;
+                    if (button) button.onclick = function () { claimClient(client.phoneNumber); };
+
                 }
             } else {
                 console.error('Invalid marker or missing elements:', marker);
@@ -180,17 +201,20 @@
 
             let markerDiv = document.createElement('div');
             markerDiv.innerHTML =
-                `<h3>${client.fullName}</h3>
-                        <p>${client.email}</p>
-                        <h6>${client.phoneNumber}</h6>
+                `<h6 class="destination">${client.destination}</h3>
+                        <p class="name>${client.fullName}</p>
+                        <p class="email>${client.email}</p>
+                        <p class="phone">${client.phoneNumber}</h6>
                         <p class="reports">Reports: ${client.reports}</p>
-                        <button id="claim-button">Claim</button>`;
+                        <button id="claim-button" onclick="claimClient('${client.phoneNumber}')">Claim</button>`;
+            markerDiv.className = 'marker-info';
 
             let markerPopup = new tt.Popup({
                 closeButton: false,
                 offset: 25,
                 anchor: 'bottom'
             }).setDOMContent(markerDiv);
+            markerPopup.className = 'marker-popup';
 
             let markerBorder = document.createElement('div');
             markerBorder.className = 'marker-border';
@@ -228,6 +252,26 @@
                 });
         }
 
+
+        function claimClient(phoneNumber) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Taxi/ClaimClient', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Location update successful:', xhr.responseText);
+                    } else {
+                        console.error('Error updating location. Status code:', xhr.status);
+                    }
+                }
+            };
+
+            const jsonData = JSON.stringify(phoneNumber);
+            console.log(phoneNumber);
+            xhr.send(jsonData);
+        }
 
         function sendLocationToServer(longitude, latitude) {
             const locationData = {

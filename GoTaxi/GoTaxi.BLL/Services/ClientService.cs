@@ -1,11 +1,7 @@
 ﻿using GoTaxi.BLL.Interfaces;
 using GoTaxi.DAL.Models;
 using GoTaxi.DAL.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GoTaxi.BLL.Services
 {
@@ -13,10 +9,12 @@ namespace GoTaxi.BLL.Services
     {
         public static Client currentClient = new Client();
         private readonly ClientRepository _repository;
+        private readonly IDriverService _driverService;
 
-        public ClientService(ClientRepository repository)
+        public ClientService(ClientRepository repository, IDriverService driverService)
         {
             _repository = repository;
+            _driverService = driverService;
         }
 
         public List<Client> GetClients()
@@ -73,8 +71,6 @@ namespace GoTaxi.BLL.Services
             client.Email = email;
             client.FullName = fullName;
             client.Password = password;
-            client.Longitude = 1.1000;
-            client.Latitude = 1.1000;
 
             return client;
         }
@@ -86,7 +82,7 @@ namespace GoTaxi.BLL.Services
 
         public void UpdateClient(string phoneNumber, string fullName, string email, string password)
         {
-            _repository.AddClient(ConvertToClient(phoneNumber, fullName, email, password));
+            _repository.UpdateClient(ConvertToClient(phoneNumber, fullName, email, password));
         }
 
         public void UpdateCurrentClientLocation(double longitude, double latitude)
@@ -97,10 +93,24 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(currentClient);
         }
 
+        public void UpdateCurrentClientDestination(string newDestination)
+        {
+            currentClient.Destination = newDestination;
+
+            _repository.UpdateClient(currentClient);
+        }
+
+        public void ClaimClient(string phoneNumber)
+        {
+            Console.WriteLine(phoneNumber.IsNullOrEmpty().ToString());
+            Client client = _repository.GetClientByPhoneNumber(phoneNumber);
+            client.ClaimedBy = _driverService.GetCurrentDriver().PlateNumber;
+            _repository.UpdateClient(client);
+        }
 
         public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
-            List<Client> clients = _repository.GetAllClients()  ;
+            List<Client> clients = _repository.GetAllClients();
 
             if (clients == null)
             {

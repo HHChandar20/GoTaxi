@@ -6,12 +6,17 @@ namespace GoTaxi.BLL.Services
 {
     public class DriverService : IDriverService
     {
-        public static Driver currentDriver = new Driver();
+        private static Driver currentDriver = new Driver();
         private readonly DriverRepository _repository;
 
         public DriverService(DriverRepository repository)
         {
             _repository = repository;
+        }
+
+        public Driver GetCurrentDriver()
+        {
+            return currentDriver;
         }
 
         public List<Driver> GetDrivers()

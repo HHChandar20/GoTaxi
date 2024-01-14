@@ -14,17 +14,34 @@
 
 <body>
 
-    <button type="submit" onclick="shareLocation()">Click to share location!</button>
+    <form id="request-form">
+        <div class="form-group">
+            <label for="destination">Where are you going?</label>
+            <input type="text" class="form-control" id="destination" name="destination" />
+        </div>
+
+        <div class="form-group text-center pt-1 mt-4">
+            <button type="button" id="locationButton" class="btn btn-primary" onclick="toggleLocationSharing()">Request Taxi</button>
+        </div>
+    </form>
 
     <script type="text/javascript">
+
+
+        let sharingLocation = false;
+        const button = document.getElementById('locationButton');
+        const input = document.getElementById('destination');
+
         function sendLocationToServer(longitude, latitude) {
             const locationData = {
                 longitude: longitude,
                 latitude: latitude
             };
+
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/Client/UpdateLocation', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
+
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
@@ -34,25 +51,68 @@
                     }
                 }
             };
+
             const jsonData = JSON.stringify(locationData);
             xhr.send(jsonData);
         }
+
         function shareLocation() {
-            setInterval(function () {
-                navigator.geolocation.getCurrentPosition(
-                    newPosition => {
-                        const newDriverPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
-                        sendLocationToServer(newDriverPosition[0], newDriverPosition[1]);
-                    },
-                    error => {
-                        console.error('Error getting user location:', error);
-                    },
-                    {
-                        enableHighAccuracy: true
+            navigator.geolocation.getCurrentPosition(
+                newPosition => {
+                    const newDriverPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
+                    sendLocationToServer(newDriverPosition[0], newDriverPosition[1]);
+                },
+                error => {
+                    console.error('Error getting user location:', error);
+                },
+                {
+                    enableHighAccuracy: true
+                }
+            );
+        }
+
+        function updateDestination(destination) {
+            fetch('/Client/UpdateDestination', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(destination),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error updating destination. Status code: ${response.status}`);
                     }
-                );
-            }, 6000); // Repeat every minute
+                    console.log('Destination update successful');
+                    console.log(destination);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        function toggleLocationSharing() {
+
+            if (!sharingLocation) {
+                // Start sharing location
+                sharingLocation = true;
+                button.innerHTML = 'Cancel Request';
+                interval = setInterval(shareLocation, 6000); // Repeat every minute
+                updateDestination(input.value);
+                console.log("Start");
+
+            }
+            else {
+                // Stop sharing location
+                sharingLocation = false;
+                button.innerHTML = 'Request Taxi';
+                clearInterval(interval);
+                sendLocationToServer(90, 90);
+                updateDestination("");
+                console.log("Stop");
+            }
         }
     </script>
 </body>
+
 </html>

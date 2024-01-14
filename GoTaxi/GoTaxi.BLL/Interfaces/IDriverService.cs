@@ -9,6 +9,7 @@ namespace GoTaxi.BLL.Interfaces
 {
     public interface IDriverService
     {
+        public Driver GetCurrentDriver();
         void AddDriver(string plateNumber, string fullName, string email, string password);
         bool CheckDriver(string plateNumber);
         bool AuthenticateDriver(string plateNumber, string password);

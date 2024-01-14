@@ -40,5 +40,23 @@ namespace GoTaxi.PL.Controllers
                 return Json(new { success = false, message = "Internal server error" });
             }
         }
+
+
+        [HttpPost]
+        public IActionResult UpdateDestination([FromBody] string newDestination)
+        {
+            try
+            {
+                _clientService.UpdateCurrentClientDestination(newDestination);
+
+                return Json(new { success = true, message = "Location updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                Console.WriteLine($"Error updating destination: {ex.Message}");
+                return Json(new { success = false, message = "Internal server error" });
+            }
+        }
     }
 }
