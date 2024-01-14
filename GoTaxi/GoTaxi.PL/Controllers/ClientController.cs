@@ -3,6 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoTaxi.PL.Controllers
 {
+    public class DestinationData
+    {
+        public string NewDestination { get; set; }
+        public bool NewVisibility { get; set; }
+    }
+
     public class ClientController : Controller
     {
 
@@ -43,11 +49,12 @@ namespace GoTaxi.PL.Controllers
 
 
         [HttpPost]
-        public IActionResult UpdateDestination([FromBody] string newDestination)
+        public IActionResult UpdateDestination([FromBody] DestinationData destinationData)
         {
             try
             {
-                _clientService.UpdateCurrentClientDestination(newDestination);
+                Console.WriteLine($"Dest {destinationData.NewDestination}");
+                _clientService.UpdateCurrentClientDestination(destinationData.NewDestination, destinationData.NewVisibility);
 
                 return Json(new { success = true, message = "Location updated successfully" });
             }
@@ -55,6 +62,20 @@ namespace GoTaxi.PL.Controllers
             {
                 // Log the exception for debugging purposes
                 Console.WriteLine($"Error updating destination: {ex.Message}");
+                return Json(new { success = false, message = "Internal server error" });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ClientClaimedBy()
+        {
+            try
+            {
+                return Json(_clientService.ClientClaimedBy());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking client: {ex.Message}");
                 return Json(new { success = false, message = "Internal server error" });
             }
         }

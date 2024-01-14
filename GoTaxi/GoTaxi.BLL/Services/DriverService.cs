@@ -24,6 +24,11 @@ namespace GoTaxi.BLL.Services
             return _repository.GetAllDrivers();
         }
 
+        public Driver GetDriverByPlateNumber(string plateNumber)
+        {
+            return _repository.GetDriverByPlateNumber(plateNumber);
+        }
+
         public bool CheckDriver(string plateNumber)
         {
             List<Driver> drivers = _repository.GetAllDrivers();

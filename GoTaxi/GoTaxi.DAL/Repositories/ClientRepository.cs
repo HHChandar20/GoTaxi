@@ -44,6 +44,7 @@ namespace GoTaxi.DAL.Repositories
                 existingClient.Password = updatedClient.Password;
                 existingClient.Destination = updatedClient.Destination;
                 existingClient.ClaimedBy = updatedClient.ClaimedBy;
+                existingClient.IsVisible = updatedClient.IsVisible;
                 existingClient.Longitude = updatedClient.Longitude;
                 existingClient.Latitude = updatedClient.Latitude;
 

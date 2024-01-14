@@ -7,7 +7,7 @@ namespace GoTaxi.BLL.Services
 {
     public class ClientService : IClientService
     {
-        public static Client currentClient = new Client();
+        public static Client? currentClient = new Client();
         private readonly ClientRepository _repository;
         private readonly IDriverService _driverService;
 
@@ -93,7 +93,7 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(currentClient);
         }
 
-        public void UpdateCurrentClientDestination(string newDestination)
+        public void UpdateCurrentClientDestination(string newDestination, bool newVisibility)
         {
             currentClient.Destination = newDestination;
 
@@ -108,6 +108,15 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(client);
         }
 
+        public Driver ClientClaimedBy()
+        {
+            currentClient = _repository.GetClientByPhoneNumber(currentClient.PhoneNumber);
+
+            if (currentClient.ClaimedBy == null) return null;
+
+            return _driverService.GetDriverByPlateNumber(currentClient.ClaimedBy);
+        }
+
         public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
             List<Client> clients = _repository.GetAllClients();
@@ -117,11 +126,12 @@ namespace GoTaxi.BLL.Services
                 return new List<Client>(); // Return an empty list if there are no other clients or only the current client.
             }
 
-            clients.Remove(currentClient);
+            //clients.Remove(currentClient);
 
             List<Client> filteredLocations = clients
             .Where(client =>
-                CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude) <= 60)
+                client.IsVisible == true &&
+                CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
             .OrderBy(client =>
                 CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude))
             .ToList();
