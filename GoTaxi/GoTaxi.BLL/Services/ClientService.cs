@@ -44,9 +44,16 @@ namespace GoTaxi.BLL.Services
             return false;
         }
 
-        public Client? AuthenticateClient(string phoneNumber, string password)
+        public bool AuthenticateClient(string phoneNumber, string password)
         {
-            return _repository.GetAllClientsWithUsers().First(client => client.PhoneNumber == phoneNumber && client.User!.Password == password);
+            Client? client = _repository.GetAllClientsWithUsers().FirstOrDefault(client => client.PhoneNumber == phoneNumber && client.User?.Password == password);
+
+            if (client == null)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public Client ConvertToClient(string phoneNumber, string fullName, string email, string password)
@@ -72,8 +79,10 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(ConvertToClient(phoneNumber, fullName, email, password));
         }
 
-        public void UpdateClientLocation(Client client, double newLongitude, double newLatitude)
+        public void UpdateClientLocation(string phoneNumber, double newLongitude, double newLatitude)
         {
+            Client client = _repository.GetClientByPhoneNumber(phoneNumber);
+
             if (client != null && client.User != null && client.User.Location != null)
             {
                 client.User.Location.Longitude = newLongitude;
@@ -87,8 +96,10 @@ namespace GoTaxi.BLL.Services
             }
         }
 
-        public void UpdateClientDestination(Client client, string? newDestination, double newLongitude, double newLatitude, bool newVisibility)
+        public void UpdateClientDestination(string phoneNumber, string? newDestination, double newLongitude, double newLatitude, bool newVisibility)
         {
+            Client client = _repository.GetClientByPhoneNumber(phoneNumber);
+
             if (client != null && client.Destination != null)
             {
                 Driver driver;
@@ -120,15 +131,20 @@ namespace GoTaxi.BLL.Services
         }
 
 
-        public void ClaimClient(Driver driver, string phoneNumber)
+        public void ClaimClient(string plateNumber, string phoneNumber)
         {
+            Driver driver = _driverService.GetDriverByPlateNumber(plateNumber);
             Client client = _repository.GetClientByPhoneNumber(phoneNumber);
+
             client.DriverId = driver.DriverId;
+
             _repository.UpdateClient(client);
         }
 
-        public Driver? ClientClaimedBy(Client client)
+        public Driver? ClientClaimedBy(string phoneNumber)
         {
+            Client client = _repository.GetClientByPhoneNumber(phoneNumber);
+
             if (client.ClaimedBy == null)
             {
                 return null;
@@ -137,8 +153,9 @@ namespace GoTaxi.BLL.Services
             return _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
         }
 
-        public Client? GetClaimedClient(Driver driver)
+        public Client? GetClaimedClient(string plateNumber)
         {
+            Driver driver = _driverService.GetDriverByPlateNumber(plateNumber);
             Client claimedClient = _repository.GetAllClientsWithUsers().First(client => client.ClaimedBy?.PlateNumber == driver.PlateNumber);
 
             if (claimedClient.User!.IsVisible == true)
@@ -162,27 +179,28 @@ namespace GoTaxi.BLL.Services
 
             if (driver.User!.Location != null && client.User!.Location != null)
             {
-                return CalculateDistance(driver.User.Location, client.User.Location) < 0.033; /// 33 m
+                return DistanceCalculator.CalculateDistance(driver.User.Location, client.User.Location) < 0.033; /// 33 m
             }
 
             return false;
 
         }
 
-        public List<Client> GetNearestClients(Driver currentDriver, double currentLongitude, double currentLatitude)
+        public List<Client> GetNearestClients(string plateNumber, double currentLongitude, double currentLatitude)
         {
             Location currentLocation = new Location(currentLongitude, currentLatitude);
 
+            Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
             List<Client> clients = new List<Client>();
 
 
             if (currentDriver.User!.IsVisible == false)
             {
-                if (GetClaimedClient(currentDriver) == null)
+                if (GetClaimedClient(plateNumber) == null)
                 {
                     return clients;
                 }
-                clients.Add(GetClaimedClient(currentDriver)!);
+                clients.Add(GetClaimedClient(plateNumber)!);
 
                 return clients;
             }

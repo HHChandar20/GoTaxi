@@ -10,19 +10,19 @@ namespace GoTaxi.BLL.Interfaces
 {
     public interface IClientService
     {
-        public Client GetClientByPhoneNumber(string phoneNumber);
-        public void AddClient(string phoneNumber, string fullName, string email, string password);
-        public void AddClient(Client client);
-        public bool CheckClient(string phoneNumber);
-        public Client? AuthenticateClient(string phoneNumber, string password);
-        public void UpdateClient(string phoneNumber, string fullName, string email, string password);
-        public void UpdateClientLocation(Client client, double longitude, double latitude);
-        public void UpdateClientDestination(Client client, string? newDestination, double newLongitude, double newLatitude, bool newVisibility);
-        public void ClaimClient(Driver driver, string phoneNumber);
-        public bool IsInTheCar(string phoneNumber);
-        public Client? GetClaimedClient(Driver driver);
-        public Driver? ClientClaimedBy(Client client);
-        public List<Client> GetNearestClients(Driver driver, double currentClientLongitude, double currentClientLatitude);
+        Client GetClientByPhoneNumber(string phoneNumber);
+        void AddClient(string phoneNumber, string fullName, string email, string password);
+        void AddClient(Client client);
+        bool CheckClient(string phoneNumber);
+        bool AuthenticateClient(string phoneNumber, string password);
+        void UpdateClient(string phoneNumber, string fullName, string email, string password);
+        void UpdateClientLocation(string phoneNumber, double longitude, double latitude);
+        void UpdateClientDestination(string phoneNumber, string? newDestination, double newLongitude, double newLatitude, bool newVisibility);
+        void ClaimClient(string plateNumber, string phoneNumber);
+        bool IsInTheCar(string phoneNumber);
+        Client? GetClaimedClient(string plateNumber);
+        Driver? ClientClaimedBy(string phoneNumber);
+        List<Client> GetNearestClients(string plateNumber, double currentClientLongitude, double currentClientLatitude);
         Client ConvertToClient(string phoneNumber, string fullName, string email, string password);
         List<Client> GetClients();
 

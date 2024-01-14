@@ -1,5 +1,4 @@
 ﻿using GoTaxi.BLL.Interfaces;
-using GoTaxi.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTaxi.PL.Controllers
@@ -36,9 +35,8 @@ namespace GoTaxi.PL.Controllers
                 {
                     // Get PhoneNumber from cookie
                     string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+                    _clientService.UpdateClientLocation(phoneNumber, locationData.Longitude, locationData.Latitude);
 
-                    Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
-                    _clientService.UpdateClientLocation(currentClient, locationData.Longitude, locationData.Latitude);
                     return Json(new { success = true, message = "Location updated successfully" });
                 }
                 else
@@ -60,8 +58,7 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
-                _clientService.UpdateClientDestination(currentClient, destinationData.NewDestination, destinationData.NewLongitude, destinationData.NewLatitude, destinationData.NewVisibility);
+                _clientService.UpdateClientDestination(phoneNumber, destinationData.NewDestination, destinationData.NewLongitude, destinationData.NewLatitude, destinationData.NewVisibility);
 
                 return Json(new { success = true, message = "Location updated successfully" });
             }
@@ -80,8 +77,8 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
-                return Json(currentClient.Destination);
+
+                return Json(_clientService.GetClientByPhoneNumber(phoneNumber).Destination);
             }
             catch (Exception ex)
             {
@@ -96,9 +93,8 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
 
-                return Json(_clientService.ClientClaimedBy(currentClient));
+                return Json(_clientService.ClientClaimedBy(phoneNumber));
             }
             catch (Exception ex)
             {
@@ -113,8 +109,8 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
-                return Json(currentClient.User!.IsVisible);
+
+                return Json(_clientService.GetClientByPhoneNumber(phoneNumber).User!.IsVisible);
             }
             catch (Exception ex)
             {

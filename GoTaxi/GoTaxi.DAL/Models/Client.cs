@@ -5,16 +5,52 @@ namespace GoTaxi.DAL.Models
 {
     public class Client
     {
+        private int clientId;
+        private string phoneNumber;
+        private int reports;
+        private int? userId;
+        private int? destinationId;
+        private int? driverId;
+
         [Key]
-        public int ClientId { get; set; }
+        public int ClientId
+        {
+            get { return clientId; }
+            set { clientId = value; }
+        }
+
         [Required]
         [MaxLength(15)]
-        public string PhoneNumber { get; set; }
-        public int Reports { get; set; }
-        public int? UserId { get; set; }
-        public int? DestinationId { get; set; }
+        public string PhoneNumber
+        {
+            get { return phoneNumber; }
+            set { phoneNumber = value; }
+        }
+
+        public int Reports
+        {
+            get { return reports; }
+            set { reports = value; }
+        }
+
+        public int? UserId
+        {
+            get { return userId; }
+            set { userId = value; }
+        }
+
+        public int? DestinationId
+        {
+            get { return destinationId; }
+            set { destinationId = value; }
+        }
+
         [MaxLength(15)]
-        public int? DriverId { get; set; }
+        public int? DriverId
+        {
+            get { return driverId; }
+            set { driverId = value; }
+        }
 
         [ForeignKey("UserId")]
         public User? User { get; set; }
@@ -24,6 +60,7 @@ namespace GoTaxi.DAL.Models
 
         [ForeignKey("DriverId")]
         public Driver? ClaimedBy { get; set; }
+
 
         public Client()
         {
@@ -42,6 +79,5 @@ namespace GoTaxi.DAL.Models
             User = user;
             Destination = new Destination();
         }
-
     }
 }

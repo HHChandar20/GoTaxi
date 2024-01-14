@@ -13,8 +13,10 @@ namespace GoTaxi.BLL.Services
             _repository = repository;
         }
 
-        public void SetDriverVisibility(Driver currentDriver, bool visibility)
+        public void SetDriverVisibility(string plateNumber, bool visibility)
         {
+            Driver currentDriver = _repository.GetDriverByPlateNumber(plateNumber);
+
             currentDriver.User!.IsVisible = visibility;
             _repository.UpdateDriverVisibility(currentDriver);
         }
@@ -49,9 +51,16 @@ namespace GoTaxi.BLL.Services
             return false;
         }
 
-        public Driver? AuthenticateDriver(string plateNumber, string password)
+        public bool AuthenticateDriver(string plateNumber, string password)
         {
-            return _repository.GetAllDriversWithUsers().First(driver => driver.PlateNumber == plateNumber && driver.User!.Password == password);
+            Driver? driver = _repository.GetAllDriversWithUsers().FirstOrDefault(driver => driver.PlateNumber == plateNumber && driver.User?.Password == password);
+
+            if (driver == null)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public Driver ConvertToDriver(string plateNumber, string fullName, string email, string password)
@@ -82,13 +91,23 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateDriver(driver);
         }
 
+        public void UpdateDriverVisibility(string plateNumber)
+        {
+
+            Driver driver = _repository.GetDriverByPlateNumber(plateNumber);
+
+            _repository.UpdateDriverVisibility(driver);
+        }
+
         public void UpdateDriverVisibility(Driver driver)
         {
             _repository.UpdateDriverVisibility(driver);
         }
 
-        public void UpdateDriverLocation(Driver driver, double newLongitude, double newLatitude)
+        public void UpdateDriverLocation(string plateNumber, double newLongitude, double newLatitude)
         {
+            Driver driver = _repository.GetDriverByPlateNumber(plateNumber);
+
             if (driver != null && driver.User != null && driver.User.Location != null)
             {
                 driver.User.Location.Longitude = newLongitude;
@@ -102,8 +121,10 @@ namespace GoTaxi.BLL.Services
             }
         }
 
-        public List<Driver> GetNearestDrivers(Driver currentDriver, double currentDriverLongitude, double currentDriverLatitude)
+        public List<Driver> GetNearestDrivers(string plateNumber, double currentDriverLongitude, double currentDriverLatitude)
         {
+            Driver currentDriver = GetDriverByPlateNumber(plateNumber);
+
             Location currentLocation = new Location(currentDriverLongitude, currentDriverLatitude);
 
             if (currentDriver.User!.IsVisible == false)

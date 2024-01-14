@@ -18,7 +18,6 @@ public class HomeController : Controller
     {
         return View();
     }
-
     public IActionResult Login()
     {
         return View();
@@ -37,17 +36,14 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult LoginDriver(string plateNumber, string password)
     {
-        bool isExisting = _driverService.CheckDriver(plateNumber);
 
-        if (isExisting)
+        if (_driverService.CheckDriver(plateNumber))
         {
-            Driver? driver = _driverService.AuthenticateDriver(plateNumber, password);
-
-            if (driver != null)
+            if (_driverService.AuthenticateDriver(plateNumber, password))
             {
                 // Store current driver in cookies
                 HttpContext.Response.Cookies.Append("CurrentUserType", "Driver");
-                HttpContext.Response.Cookies.Append("CurrentPlateNumber", driver.PlateNumber);
+                HttpContext.Response.Cookies.Append("CurrentPlateNumber", plateNumber);
 
                 return RedirectToAction("Taxi", "Taxi");
             }
@@ -56,26 +52,24 @@ public class HomeController : Controller
         }
         else
         {
-            // Return a message indicating account not found
-            return Json(new { success = false, message = "Account not found" });
+            // Return a message indicating client not found
+            ViewBag.ErrorMessage = "Driver not found!";
+
+            return View("Login");
         }
     }
 
     [HttpPost]
     public IActionResult LoginClient(string phoneNumber, string password)
     {
-        bool isExisting = _clientService.CheckClient(phoneNumber);
-
-        if (isExisting)
+        if (_clientService.CheckClient(phoneNumber))
         {
 
-            Client? client = _clientService.AuthenticateClient(phoneNumber, password);
-
-            if (client != null)
+            if (_clientService.AuthenticateClient(phoneNumber, password))
             {
                 // Store current client in cookies
                 HttpContext.Response.Cookies.Append("CurrentUserType", "Client");
-                HttpContext.Response.Cookies.Append("CurrentPhoneNumber", client.PhoneNumber);
+                HttpContext.Response.Cookies.Append("CurrentPhoneNumber", phoneNumber);
 
                 return RedirectToAction("Client", "Client");
             }
@@ -84,30 +78,10 @@ public class HomeController : Controller
         }
         else
         {
-            // Return a message indicating account not found
-            return Json(new { success = false, message = "Account not found" });
-        }
-    }
+            // Return a message indicating client is not found
+            ViewBag.ErrorMessage = "Client not found!";
 
-    [HttpPost]
-    public IActionResult RegisterClient(string phoneNumber, string email, string fullName, string password)
-    {
-        ViewBag.ErrorMessage = "";
-
-        bool isExisting = _clientService.CheckClient(phoneNumber);
-
-        if (!isExisting)
-        {
-            _clientService.AddClient(phoneNumber, email, fullName, password);
-            return RedirectToAction("Login");
-        }
-        else
-        {
-            // Return a message indicating account is already registered
-            ViewBag.ErrorMessage = "Account is already registered";
-
-            // Render the Register view again with the error message
-            return View("Register");
+            return View("Login");
         }
     }
 
@@ -118,7 +92,7 @@ public class HomeController : Controller
 
         bool isExisting = _driverService.CheckDriver(plateNumber);
 
-        if (!isExisting)
+        if (!_driverService.CheckDriver(plateNumber))
         {
             _driverService.AddDriver(plateNumber, email, fullName, password);
             return RedirectToAction("Login");
@@ -126,11 +100,30 @@ public class HomeController : Controller
         else
         {
             // Return a message indicating account is already registered
-            ViewBag.ErrorMessage = "Account is already registered";
+            ViewBag.ErrorMessage = "Driver is already registered";
 
-            // Render the Register view again with the error message
             return View("Register");
         }
     }
+
+    [HttpPost]
+    public IActionResult RegisterClient(string phoneNumber, string email, string fullName, string password)
+    {
+        ViewBag.ErrorMessage = "";
+
+        if (!_clientService.CheckClient(phoneNumber))
+        {
+            _clientService.AddClient(phoneNumber, email, fullName, password);
+            return RedirectToAction("Login");
+        }
+        else
+        {
+            // Return a message indicating account is already registered
+            ViewBag.ErrorMessage = "Client is already registered";
+
+            return View("Register");
+        }
+    }
+
 
 }

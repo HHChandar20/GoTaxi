@@ -1,5 +1,4 @@
 ﻿using GoTaxi.BLL.Interfaces;
-using GoTaxi.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTaxi.PL.Controllers
@@ -36,8 +35,7 @@ namespace GoTaxi.PL.Controllers
                     // Get PlateNumber from cookie
                     string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
 
-                    Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
-                    _driverService.UpdateDriverLocation(currentDriver, locationData.Longitude, locationData.Latitude);
+                    _driverService.UpdateDriverLocation(plateNumber, locationData.Longitude, locationData.Latitude);
                     return Json(new { success = true, message = "Location updated successfully" });
                 }
                 else
@@ -58,9 +56,8 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
-                Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
-                List<Driver> nearestDrivers = _driverService.GetNearestDrivers(currentDriver, currentDriverLongitude, currentDriverLatitude);
-                return Json(nearestDrivers);
+
+                return Json(_driverService.GetNearestDrivers(plateNumber, currentDriverLongitude, currentDriverLatitude));
             }
             catch (Exception ex)
             {
@@ -75,10 +72,8 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
-                Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
-                List<Client> nearestClients = _clientService.GetNearestClients(currentDriver, currentClientLongitude, currentClientLatitude);
 
-                return Json(nearestClients);
+                return Json(_clientService.GetNearestClients(plateNumber, currentClientLongitude, currentClientLatitude));
             }
             catch (Exception ex)
             {
@@ -94,9 +89,9 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
-                Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
-                _driverService.SetDriverVisibility(currentDriver, false);
-                _clientService.ClaimClient(currentDriver, phoneNumber);
+
+                _driverService.SetDriverVisibility(plateNumber, false);
+                _clientService.ClaimClient(plateNumber, phoneNumber);
                 return Json(new { success = true, message = "Location updated successfully" });
 
             }
@@ -114,10 +109,8 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
-                Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
-                Client? claimedClient = _clientService.GetClaimedClient(currentDriver);
 
-                return Json(claimedClient);
+                return Json(_clientService.GetClaimedClient(plateNumber));
             }
             catch (Exception)
             {

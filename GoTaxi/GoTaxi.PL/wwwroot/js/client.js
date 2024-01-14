@@ -77,10 +77,8 @@ function toggleLocationSharing() {
         if (selectedPlace) {
             longitude = selectedPlace.lon;
             latitude = selectedPlace.lat;
-            if (selectedPlace) {
-                addDestinationMarker();
-                map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
-            }
+            addDestinationMarker();
+            map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
         }
 
         updateDestination(input.value, longitude, latitude, true);
@@ -108,10 +106,6 @@ function startSharingLocation() {
                 updateDriverMarker(driver);
             }
             shareLocation();
-            if (selectedPlace) {
-                addDestinationMarker();
-                map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
-            }
         });
     }, 6000); // Repeat every 6 seconds
 }
@@ -210,6 +204,36 @@ function getClientDestination() {
         });
 }
 
+function addDestinationMarker() {
+    let destinationPosition = [selectedPlace.lon, selectedPlace.lat];
+
+    let markerDiv = document.createElement('div');
+    markerDiv.innerHTML =
+        `
+        <p class="destinationName">${selectedPlace.display_name}</p>
+    `;
+
+    let markerPopup = new tt.Popup({
+        closeButton: false,
+        offset: 25,
+        anchor: 'bottom'
+    }).setDOMContent(markerDiv);
+
+    let markerBorder = document.createElement('div');
+    markerBorder.className = ' destination-marker marker-border';
+
+    let markerIcon = document.createElement('div');
+    markerIcon.className = 'marker-icon';
+    markerIcon.style.backgroundImage = 'url(/images/destination.png)';
+    markerBorder.appendChild(markerIcon);
+
+    destinationMarker = new tt.Marker({
+        element: markerBorder
+    }).setLngLat(destinationPosition).setPopup(markerPopup);
+
+    destinationMarker.addTo(map);
+}
+
 function initMap() {
     navigator.geolocation.getCurrentPosition(
         position => {
@@ -264,41 +288,12 @@ function initMap() {
     getClientDestination();
 }
 
-function addDestinationMarker() {
-    let destinationPosition = [selectedPlace.lon, selectedPlace.lat];
-
-    let markerDiv = document.createElement('div');
-    markerDiv.innerHTML =
-        `
-        <p class="destinationName">${selectedPlace.display_name}</p>
-    `;
-
-    let markerPopup = new tt.Popup({
-        closeButton: false,
-        offset: 25,
-        anchor: 'bottom'
-    }).setDOMContent(markerDiv);
-
-    let markerBorder = document.createElement('div');
-    markerBorder.className = 'marker-border destination-marker';
-
-    let markerIcon = document.createElement('div');
-    markerBorder.className = ' destination-marker marker-border';
-    markerIcon.style.backgroundImage = 'url(/images/destination.png)';
-
-    markerBorder.appendChild(markerIcon);
-
-    destinationMarker = new tt.Marker({
-        element: markerBorder
-    }).setLngLat(destinationPosition).setPopup(markerPopup);
-
-    destinationMarker.addTo(map);
-}
-
 function rotateCamera(timestamp) {
 
     if (sharingLocation) {
         if (selectedPlace) {
+            console.log("yes");
+
             addDestinationMarker();
             map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
         }
