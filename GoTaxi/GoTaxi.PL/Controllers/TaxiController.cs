@@ -96,6 +96,22 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+        
+        [HttpGet]
+        public IActionResult CheckClaimedClient()
+        {
+            try
+            {
+                Client claimedClient = _clientService.GetClaimedClient();
+                return Json(claimedClient);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching claimed client: {ex.Message}");
+                return Json(new { success = false, message = "Error fetching claimed client" });
+            }
+        }
+
     }
 
 }

@@ -4,6 +4,8 @@
 <head>
     <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css" type="text/css" />
     <script type="text/javascript" src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+    <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/services/services-web.min.js"></script>
+
     <style>
         #taxi-page {
             margin: 0;
@@ -55,15 +57,23 @@
 </head>
 
 <body>
+
     <div id="taxi-page">
         <div id="map"></div>
     </div>
+
     <script type="text/javascript">
+
+        let map;
 
         let driverMarkers = [];
         let clientMarkers = [];
 
-        function addDriverMarker(map, driver) {
+        let claimedClient;
+        let claimedClientMarker;
+        let currentMarker;
+
+        function addDriverMarker(driver) {
             console.log("Driver: ", driver);
             const driverPosition = [driver.longitude, driver.latitude];
 
@@ -100,7 +110,7 @@
             driverMarkers.push(newMarker);
         }
 
-        function addClientMarker(map, client) {
+        function addClientMarker(client) {
             const clientPosition = [client.longitude, client.latitude];
 
             let markerDiv = document.createElement('div');
@@ -190,7 +200,7 @@
             }
         }
 
-        function updateDriverMarkers(map, newDrivers) {
+        function updateDriverMarkers(newDrivers) {
             const existingDriverPlateNumbers = driverMarkers.map(marker => marker.driverPlateNumber);
             const newDriverPlateNumbers = newDrivers.map(driver => driver.plateNumber);
 
@@ -209,12 +219,12 @@
                     updateDriverMarker(driverMarkers[index], driver);
                 } else {
                     // Add new marker
-                    addDriverMarker(map, driver);
+                    addDriverMarker(driver);
                 }
             });
         }
 
-        function updateClientMarkers(map, newClients) {
+        function updateClientMarkers(newClients) {
             const existingClientPhoneNumbers = clientMarkers.map(marker => marker.clientPhoneNumber);
             const newClientPhoneNumbers = newClients.map(client => client.phoneNumber);
 
@@ -234,18 +244,18 @@
                     updateClientMarker(clientMarkers[index], client);
                 } else {
                     // Add new marker
-                    addClientMarker(map, client);
+                    addClientMarker(client);
                 }
             });
         }
 
-        function getNearestDrivers(map, currentPosition) {
+        function getNearestDrivers(currentPosition) {
             fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${currentPosition[0]}&currentDriverLatitude=${currentPosition[1]}`)
                 .then(response => response.json())
                 .then(nearestDrivers => {
                     console.log(nearestDrivers);
                     if (Array.isArray(nearestDrivers)) {
-                        updateDriverMarkers(map, nearestDrivers);
+                        updateDriverMarkers(nearestDrivers);
                     } else {
                         console.error('Invalid response format:', nearestDrivers);
                     }
@@ -255,13 +265,13 @@
                 });
         }
 
-        function getNearestClients(map, currentPosition) {
+        function getNearestClients(currentPosition) {
             fetch(`/Taxi/GetNearestClients?currentClientLongitude=${currentPosition[0]}&currentClientLatitude=${currentPosition[1]}`)
                 .then(response => response.json())
                 .then(nearestClients => {
                     console.log(nearestClients);
                     if (Array.isArray(nearestClients)) {
-                        updateClientMarkers(map, nearestClients);
+                        updateClientMarkers(nearestClients);
                     }
                     else {
                         console.error('Invalid response format:', nearestClients);
@@ -283,6 +293,36 @@
             });
         }
 
+        function displayRoute(geoJSON) {
+            // Check if the 'route' layer already exists and remove it
+            if (map.getLayer('route')) {
+                map.removeLayer('route');
+            }
+
+            // Check if the 'route' source already exists and remove it
+            if (map.getSource('route')) {
+                map.removeSource('route');
+            }
+
+            // Add the new 'route' source
+            map.addSource('route', {
+                'type': 'geojson',
+                'data': geoJSON
+            });
+
+            // Add the new 'route' layer
+            map.addLayer({
+                'id': 'route',
+                'type': 'line',
+                'source': 'route',  // Use the 'route' source
+                'paint': {
+                    'line-color': 'red',
+                    'line-width': 5
+                }
+            });
+        }
+
+        // Update the claimClient function to store the claimed client marker
         function claimClient(phoneNumber) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/Taxi/ClaimClient', true);
@@ -301,8 +341,58 @@
             const jsonData = JSON.stringify(phoneNumber);
             xhr.send(jsonData);
 
+            console.log(phoneNumber);
+
+            // Store the claimed client marker
+            claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === phoneNumber);
+
+            createRouteToClient();
             clearMarkers(phoneNumber);
             isActive = true;
+        }
+
+        // Update the createRouteToClient function to use the stored client marker and current driver marker
+        function createRouteToClient() {
+            if (claimedClientMarker && currentMarker) {
+                let routeOptions = {
+                    key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
+                    locations: [
+                        { lat: currentMarker.getLngLat().lat, lon: currentMarker.getLngLat().lng },
+                        { lat: claimedClientMarker.getLngLat().lat, lon: claimedClientMarker.getLngLat().lng }
+                    ]
+                };
+
+                tt.services
+                    .calculateRoute(routeOptions)
+                    .then(response => {
+                        // Add the new route layer
+                        displayRoute(response.toGeoJson());
+                    })
+                    .catch(error => {
+                        console.error('Error calculating route:', error);
+                    });
+            } else {
+                console.error('Claimed client marker or current driver marker not found.');
+            }
+        }
+
+        function checkClaimedClient() {
+            fetch(`/Taxi/CheckClaimedClient`)
+                .then(response => response.json())
+                .then(client => {
+                    console.log(client);
+                    if (client != null) {
+                        claimedClient = client;
+                        addClientMarker(claimedClient);
+                        claimClient(claimedClient.phoneNumber);
+                    }
+                    else {
+                        console.error("Client is Null!!");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching claimed client:', error);
+                });
         }
 
         function sendLocationToServer(longitude, latitude) {
@@ -332,10 +422,10 @@
         function initMap() {
             navigator.geolocation.getCurrentPosition(
                 position => {
-                    const userPosition = [position.coords.longitude, position.coords.latitude];
+                    userPosition = [27.4021016, 42.4574976]//[position.coords.longitude, position.coords.latitude];
                     sendLocationToServer(userPosition[0], userPosition[1]);
 
-                    const map = tt.map({
+                    map = tt.map({
                         key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
                         container: 'map',
                         center: userPosition,
@@ -358,14 +448,16 @@
                     icon.style.backgroundImage = 'url(/images/taxi-icon.png)';
                     border.appendChild(icon);
 
-                    let marker = new tt.Marker({
+                    currentMarker = new tt.Marker({
                         element: border
                     }).setLngLat(userPosition).setPopup(popup);
 
-                    marker.addTo(map);
+                    currentMarker.addTo(map);
 
-                    getNearestDrivers(map, userPosition);
-                    getNearestClients(map, userPosition);
+                    checkClaimedClient();
+
+                    getNearestDrivers(userPosition);
+                    getNearestClients(userPosition);
 
                     setInterval(function () {
                         const currentPosition = [userPosition[0] += 0.0001, userPosition[1]];
@@ -374,7 +466,8 @@
                             newPosition => {
                                 const newDriverPosition = [userPosition[0] += 0.0001, userPosition[1]];
 
-                                marker.setLngLat(currentPosition);
+                                currentMarker.setLngLat(currentPosition);
+                                createRouteToClient();
                                 sendLocationToServer(currentPosition[0], currentPosition[1]);
                             },
                             error => {
@@ -385,8 +478,8 @@
                             }
                         );
 
-                        getNearestDrivers(map, userPosition);
-                        getNearestClients(map, userPosition);
+                        getNearestDrivers(userPosition);
+                        getNearestClients(userPosition);
 
                     }, 6000); // Repeat every 6 seconds
                 },

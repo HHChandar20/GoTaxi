@@ -6,7 +6,7 @@ namespace GoTaxi.BLL.Services
 {
     public class DriverService : IDriverService
     {
-        private static Driver currentDriver = new Driver();
+        public static Driver currentDriver = new Driver();
         private readonly DriverRepository _repository;
 
         public DriverService(DriverRepository repository)

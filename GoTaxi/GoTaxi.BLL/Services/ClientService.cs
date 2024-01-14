@@ -122,6 +122,11 @@ namespace GoTaxi.BLL.Services
             return _driverService.GetDriverByPlateNumber(currentClient.ClaimedBy);
         }
 
+        public Client GetClaimedClient()
+        {
+            return _repository.GetAllClients().First(client => client.ClaimedBy == DriverService.currentDriver.PlateNumber);
+        }
+
         public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
             List<Client> clients = _repository.GetAllClients();
@@ -136,6 +141,7 @@ namespace GoTaxi.BLL.Services
             List<Client> filteredLocations = clients
             .Where(client =>
                 client.IsVisible == true &&
+                (client.ClaimedBy == null || client.ClaimedBy == DriverService.currentDriver.PlateNumber) &&
                 CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
             .OrderBy(client =>
                 CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude))
