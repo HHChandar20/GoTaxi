@@ -1,9 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Clients page";
 }
-<h1>@ViewData["Title"]</h1>
-
-<p>Clients page</p>
 
 <!DOCTYPE html>
 <html>
@@ -11,10 +8,11 @@
 <head>
 
     <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css" type="text/css" />
+
     <script type="text/javascript" src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+    <script type="text/javascript" src="~/js/autocomplete.js"></script>
 
     <style>
-
 
         #client-page {
             margin: 0;
@@ -73,6 +71,10 @@
             width: 15%;
         }
 
+        #destination-form {
+            visibility: hidden;
+        }
+
         #autocomplete-results {
             background-color: #fff;
             border: 1px solid #ccc;
@@ -80,8 +82,8 @@
             width: 12.2em;
             overflow-y: auto;
             display: none;
-            position: absolute; /* Set position to absolute */
-            z-index: 1000; /* Set a high z-index value */
+            position: absolute;
+            z-index: 1000;
         }
 
         .autocomplete-item {
@@ -116,11 +118,11 @@
     <div id="client-page">
 
         <div id="request-form">
-            <div class="form-group">
-                <label for="destination">Where are you going?</label>
+            <div class="form-group" id="destination-form">
+                <label for="destination" id="destination-label">Where are you going?</label>
 
                 <div id="destination-search">
-                    <input type="text" autocomplete="off" class="form-control" id="destination" name="destination" placeholder="Search..." />
+                    <input type="text" autocomplete="off" class="form-control" id="destination" name="destination" placeholder="Search..." onchange="clearSelectedPlace()" />
                     <button type="button" id="destination-button" class="btn btn-secondary" onclick="handleAutocomplete()">P</button>
                 </div>
                 <div id="autocomplete-results"></div>
@@ -137,46 +139,6 @@
     </div>
 
     <script type="text/javascript" src="~/js/client.js"></script>
-
-    <script>
-        let destination = document.getElementById("destination");
-        let autocompleteResults = document.getElementById("autocomplete-results");
-        function handleAutocomplete() {
-            console.log("Submitted");
-            fetch(`https://nominatim.openstreetmap.org/search?q=${destination.value}&format=json&limit=5&countrycodes=BG`)
-                .then(response => response.json())
-                .then(data => {
-                    displayAutocompleteResults(data);
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                })
-        }
-        function displayAutocompleteResults(results) {
-            autocompleteResults.innerHTML = "";
-            results.forEach(place => {
-                let autocompleteItem = document.createElement("div");
-                autocompleteItem.className = "autocomplete-item";
-                autocompleteItem.textContent = place.name;
-                autocompleteItem.addEventListener("click", () => {
-                    destination.value = place.name;
-                    autocompleteResults.style.display = "none";
-                });
-                autocompleteResults.appendChild(autocompleteItem);
-            });
-            if (results.length > 0) {
-                autocompleteResults.style.display = "block";
-            } else {
-                autocompleteResults.style.display = "none";
-            }
-        }
-        // Close autocomplete results if user clicks outside the input and results
-        window.addEventListener("click", (event) => {
-            if (!event.target.matches("#destination") && !event.target.matches(".autocomplete-item")) {
-                autocompleteResults.style.display = "none";
-            }
-        });
-    </script>
 
 </body>
 

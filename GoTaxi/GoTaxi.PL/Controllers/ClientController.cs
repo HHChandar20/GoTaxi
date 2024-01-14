@@ -1,11 +1,14 @@
 ﻿using GoTaxi.BLL.Interfaces;
+using GoTaxi.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTaxi.PL.Controllers
 {
     public class DestinationData
     {
-        public string NewDestination { get; set; }
+        public string? NewDestination { get; set; }
+        public double NewLongitude { get; set; }
+        public double NewLatitude { get; set; }
         public bool NewVisibility { get; set; }
     }
 
@@ -31,7 +34,11 @@ namespace GoTaxi.PL.Controllers
             {
                 if (locationData != null)
                 {
-                    _clientService.UpdateCurrentClientLocation(locationData.Longitude, locationData.Latitude);
+                    // Get PhoneNumber from cookie
+                    string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+
+                    Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
+                    _clientService.UpdateClientLocation(currentClient, locationData.Longitude, locationData.Latitude);
                     return Json(new { success = true, message = "Location updated successfully" });
                 }
                 else
@@ -52,8 +59,9 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                Console.WriteLine($"Dest {destinationData.NewDestination}");
-                _clientService.UpdateCurrentClientDestination(destinationData.NewDestination, destinationData.NewVisibility);
+                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
+                _clientService.UpdateClientDestination(currentClient, destinationData.NewDestination, destinationData.NewLongitude, destinationData.NewLatitude, destinationData.NewVisibility);
 
                 return Json(new { success = true, message = "Location updated successfully" });
             }
@@ -71,7 +79,9 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                return Json(_clientService.GetCurrentClient().Destination);
+                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
+                return Json(currentClient.Destination);
             }
             catch (Exception ex)
             {
@@ -85,12 +95,20 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                return Json(_clientService.ClientClaimedBy());
+                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
+
+                if (_clientService.ClientClaimedBy(currentClient) == null)
+                {
+                    return Json("0");
+                }
+
+                return Json(_clientService.ClientClaimedBy(currentClient));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error checking client: {ex.Message}");
-                return Json(new { success = false, message = "Internal server error" });
+                Console.WriteLine(ex.Message);
+                return Json("0");
             }
         }
 
@@ -99,7 +117,9 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                return Json(_clientService.GetCurrentClient().IsVisible);
+                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+                Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
+                return Json(currentClient.IsVisible);
             }
             catch (Exception ex)
             {

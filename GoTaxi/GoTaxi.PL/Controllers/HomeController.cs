@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GoTaxi.BLL.Interfaces;
+using GoTaxi.DAL.Models;
+using GoTaxi.BLL.Services;
 
 public class HomeController : Controller
 {
@@ -34,9 +36,14 @@ public class HomeController : Controller
 
         if (isExisting)
         {
-            bool isAuthenticated = _driverService.AuthenticateDriver(plateNumber, password);
-            if (isAuthenticated)
+            Driver? driver = _driverService.AuthenticateDriver(plateNumber, password);
+
+            if (driver != null)
             {
+                // Store current driver in cookies
+                HttpContext.Response.Cookies.Append("CurrentUserType", "Driver");
+                HttpContext.Response.Cookies.Append("CurrentPlateNumber", driver.PlateNumber);
+
                 return RedirectToAction("Taxi", "Taxi");
             }
             // Return a message indicating account not found
@@ -56,9 +63,15 @@ public class HomeController : Controller
 
         if (isExisting)
         {
-            bool isAuthenticated = _clientService.AuthenticateClient(phoneNumber, password);
-            if (isAuthenticated)
+
+            Client? client = _clientService.AuthenticateClient(phoneNumber, password);
+
+            if (client != null)
             {
+                // Store current client in cookies
+                HttpContext.Response.Cookies.Append("CurrentUserType", "Client");
+                HttpContext.Response.Cookies.Append("CurrentPhoneNumber", client.PhoneNumber);
+
                 return RedirectToAction("Client", "Client");
             }
             // Return a message indicating account not found

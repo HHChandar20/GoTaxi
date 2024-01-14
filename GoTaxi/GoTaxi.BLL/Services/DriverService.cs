@@ -6,7 +6,6 @@ namespace GoTaxi.BLL.Services
 {
     public class DriverService : IDriverService
     {
-        public static Driver currentDriver = new Driver();
         private readonly DriverRepository _repository;
 
         public DriverService(DriverRepository repository)
@@ -14,15 +13,10 @@ namespace GoTaxi.BLL.Services
             _repository = repository;
         }
 
-        public Driver GetCurrentDriver()
-        {
-            return currentDriver;
-        }
-
-        public void SetCurrentDriverVisibility(bool visibility)
+        public void SetDriverVisibility(Driver currentDriver, bool visibility)
         {
             currentDriver.IsVisible = visibility;
-            _repository.UpdateDriver(currentDriver);
+            _repository.UpdateDriverVisibility(currentDriver);
         }
 
         public List<Driver> GetDrivers()
@@ -55,25 +49,9 @@ namespace GoTaxi.BLL.Services
             return false;
         }
 
-        public bool AuthenticateDriver(string plateNumber, string password)
+        public Driver? AuthenticateDriver(string plateNumber, string password)
         {
-            List<Driver> drivers = _repository.GetAllDrivers();
-
-            if (drivers == null)
-            {
-                return false;
-            }
-
-            foreach (Driver driver in drivers)
-            {
-                if (driver.PlateNumber == plateNumber && driver.Password == password)
-                {
-                    currentDriver = driver;
-                    return true;
-                }
-            }
-
-            return false;
+            return _repository.GetAllDrivers().First(driver => driver.PlateNumber == plateNumber && driver.Password == password);
         }
 
         public Driver ConvertToDriver(string plateNumber, string fullName, string email, string password)
@@ -99,23 +77,28 @@ namespace GoTaxi.BLL.Services
         {
             _repository.UpdateDriver(ConvertToDriver(plateNumber, fullName, email, password));
         }
-
         public void UpdateDriver(Driver driver)
         {
             _repository.UpdateDriver(driver);
         }
 
-        public void UpdateCurrentDriverLocation(double longitude, double latitude)
+        public void UpdateDriverVisibility(Driver driver)
         {
-            currentDriver.Longitude = longitude;
-            currentDriver.Latitude = latitude;
-
-            _repository.UpdateDriver(currentDriver);
+            _repository.UpdateDriverVisibility(driver);
         }
 
-
-        public List<Driver> GetNearestDrivers(double currentDriverLongitude, double currentDriverLatitude)
+        public void UpdateDriverLocation(Driver driver, double longitude, double latitude)
         {
+            driver.Longitude = longitude;
+            driver.Latitude = latitude;
+
+            _repository.UpdateDriverLocation(driver);
+        }
+
+        public List<Driver> GetNearestDrivers(Driver currentDriver, double currentDriverLongitude, double currentDriverLatitude)
+        {
+            currentDriver = _repository.GetDriverByPlateNumber(currentDriver.PlateNumber);
+
             if (currentDriver.IsVisible == false)
             {
                 return new List<Driver>();
@@ -128,12 +111,12 @@ namespace GoTaxi.BLL.Services
                 return new List<Driver>(); // Return an empty list if there are no other drivers or only the current driver.
             }
 
-            drivers.Remove(currentDriver);
+            //drivers.Remove(currentDriver);
 
             List<Driver> filteredLocations = drivers
             .Where(driver =>
                 driver.IsVisible == true &&
-                CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude) <= 60)
+                CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude) <= 6000)
             .OrderBy(driver =>
                 CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude))
             .ToList();

@@ -1,11 +1,15 @@
 ﻿let map;
+let currentMarker;
 
 let driverMarkers = [];
 let clientMarkers = [];
 
-let claimedClient;
+let clientIsInTheCar = false;
+
+let claimedClient = 0;
 let claimedClientMarker;
-let currentMarker;
+let destinationMarker;
+
 
 function addDriverMarker(driver) {
     const driverPosition = [driver.longitude, driver.latitude];
@@ -190,7 +194,6 @@ function getNearestDrivers(currentPosition) {
         .then(response => response.json())
         .then(nearestDrivers => {
             if (Array.isArray(nearestDrivers)) {
-                console.log("drivers: ", nearestDrivers);
                 updateDriverMarkers(nearestDrivers);
             } else {
                 console.error('Invalid response format:', nearestDrivers);
@@ -217,6 +220,34 @@ function getNearestClients(currentPosition) {
         });
 }
 
+function addDestinationMarker() {
+    clearMarkers();
+
+    let destinationPosition = [claimedClient.destinationLongitude, claimedClient.destinationLatitude];
+
+    let markerDiv = document.createElement('div');
+    markerDiv.innerHTML =
+        `
+        <p class="destinationName">${claimedClient.destination}</p>
+    `;
+
+    let markerPopup = new tt.Popup({
+        closeButton: false,
+        offset: 25,
+        anchor: 'bottom'
+    }).setDOMContent(markerDiv);
+
+    let markerBorder = document.createElement('div');
+    markerBorder.className = 'marker-border';
+    markerBorder.style.background = 'orange';
+
+    destinationMarker = new tt.Marker({
+        element: markerBorder
+    }).setLngLat(destinationPosition).setPopup(markerPopup);
+
+    destinationMarker.addTo(map);
+}
+
 function clearMarkers(phoneNumber) {
     driverMarkers.forEach(marker => {
         marker.remove();
@@ -224,7 +255,7 @@ function clearMarkers(phoneNumber) {
     });
 
     clientMarkers = clientMarkers.filter(marker => {
-        if (marker.clientPhoneNumber !== phoneNumber) {
+        if (marker.clientPhoneNumber !== phoneNumber || clientIsInTheCar) {
             marker.remove();
             return false;  // Exclude this marker from the new array
         }
@@ -245,8 +276,6 @@ function deleteRoute() {
 }
 
 function displayRoute(geoJSON) {
-
-    deleteRoute();
 
     // Add the new 'route' source
     map.addSource('route', {
@@ -284,23 +313,40 @@ function claimClient(phoneNumber) {
     const jsonData = JSON.stringify(phoneNumber);
     xhr.send(jsonData);
 
-    // Store the claimed client marker
     claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === phoneNumber);
 
     createRouteToClient();
+
     clearMarkers(phoneNumber);
     isActive = true;
 }
 
 function createRouteToClient() {
-    console.log("claimed", claimedClient);
 
-    if (claimedClientMarker && currentMarker) {
+    deleteRoute();
+
+    if (clientIsInTheCar === true)
+        addDestinationMarker();
+
+    if ((claimedClientMarker || destinationMarker) && currentMarker) {
+
+        let longitude = 90;
+        let latitude = 90;
+
+        if (clientIsInTheCar === true) {
+            longitude = destinationMarker.getLngLat().lng;
+            latitude = destinationMarker.getLngLat().lat;
+        }
+        else {
+            longitude = claimedClientMarker.getLngLat().lng;
+            latitude = claimedClientMarker.getLngLat().lat;
+        }
+
         let routeOptions = {
             key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
             locations: [
-                { lat: currentMarker.getLngLat().lat, lon: currentMarker.getLngLat().lng },
-                { lat: claimedClientMarker.getLngLat().lat, lon: claimedClientMarker.getLngLat().lng }
+                { lat: currentMarker.getLngLat().lat.toFixed(6), lon: currentMarker.getLngLat().lng.toFixed(6) },
+                { lat: latitude.toFixed(6), lon: longitude.toFixed(6) }
             ]
         };
 
@@ -318,23 +364,46 @@ function createRouteToClient() {
     }
 }
 
-
 function checkClaimedClient() {
-    fetch(`/Taxi/CheckClaimedClient`)
-        .then(response => response.json())
-        .then(client => {
+    return new Promise((resolve) => {
+        fetch(`/Taxi/CheckClaimedClient`)
+            .then(response => response.json())
+            .then(client => {
+                claimedClient = client;
 
-            console.log("client:", client);
-            claimedClient = client;
+                if (claimedClient != "0" && !clientIsInTheCar && !claimedClientMarker) {
+                    addClientMarker(claimedClient);
+                    claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === claimedClient.phoneNumber);
+                }
 
-            if (claimedClient != "0") {
-                addClientMarker(claimedClient);
-                claimClient(claimedClient.phoneNumber);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching claimed client:', error);
-        });
+                resolve(); // Resolve the promise once the asynchronous operation is complete
+            })
+            .catch(error => {
+                console.error('Error fetching claimed client:', error);
+                resolve(); // Resolve the promise even in case of an error
+            });
+    });
+}
+
+function isInTheCar() {
+    return new Promise((resolve) => {
+        fetch(`/Taxi/IsInTheCar`)
+            .then(response => response.json())
+            .then(result => {
+                clientIsInTheCar = JSON.parse(result);
+
+                if (clientIsInTheCar) {
+                    if (claimedClientMarker)
+                        claimedClientMarker.remove();
+                }
+
+                resolve(); // Resolve the promise once the asynchronous operation is complete
+            })
+            .catch(error => {
+                console.error('Error checking if the client is in the car:', error);
+                resolve(); // Resolve the promise even in case of an error
+            });
+    });
 }
 
 function sendLocationToServer(longitude, latitude) {
@@ -359,24 +428,23 @@ function sendLocationToServer(longitude, latitude) {
 
     const jsonData = JSON.stringify(locationData);
     xhr.send(jsonData);
+
 }
 
-function isInTheCar() {
-    fetch(`/Taxi/IsInTheCar`)
-        .then(response => response.json())
-        .then(result => {
-            console.log("Result: ", result);
-            return result;
-        })
-        .catch(error => {
-            console.error('Error checking if the client is in the car:', error);
-        });
+
+async function checkMarkers() {
+    await checkClaimedClient();
+    await isInTheCar();
+
+    if (claimedClient != "0") {
+        createRouteToClient();
+    }
 }
 
 function initMap() {
     navigator.geolocation.getCurrentPosition(
         position => {
-            userPosition = [27.4021016, 42.4574976]//[position.coords.longitude, position.coords.latitude];
+            userPosition = [27.4051000, 42.456306]//[position.coords.longitude, position.coords.latitude];
             sendLocationToServer(userPosition[0], userPosition[1]);
 
             map = tt.map({
@@ -408,30 +476,19 @@ function initMap() {
 
             currentMarker.addTo(map);
 
-            checkClaimedClient();
+            checkMarkers();
 
-            getNearestDrivers(userPosition);
-            getNearestClients(userPosition);
+            if (claimedClient == "0") {
+                getNearestDrivers(userPosition);
+                getNearestClients(userPosition);
+            }
 
             setInterval(function () {
-                const currentPosition = [userPosition[0] += 0.0001, userPosition[1]];
+                const currentPosition = [userPosition[0] -= 0.0005, userPosition[1]];
 
                 navigator.geolocation.getCurrentPosition(
                     newPosition => {
-                        const newDriverPosition = [userPosition[0] += 0.0001, userPosition[1]];
-
-                        checkClaimedClient();
-
-                        console.log(driverMarkers);
-                        console.log("hey", claimedClient);
-
-                        if (claimedClient != "0") {
-                            createRouteToClient();
-                        }
-
-                        deleteRoute();
-
-                        isInTheCar();
+                        const newDriverPosition = [userPosition[0] -= 0.0005, userPosition[1]];
 
                         currentMarker.setLngLat(currentPosition);
                         sendLocationToServer(currentPosition[0], currentPosition[1]);
@@ -444,12 +501,16 @@ function initMap() {
                     }
                 );
 
+                deleteRoute();
+
+                checkMarkers();
+
                 if (claimedClient == "0") {
                     getNearestDrivers(userPosition);
                     getNearestClients(userPosition);
                 }
 
-            }, 6000); // Repeat every 6 seconds
+            }, 3000); // Repeat every 3 seconds
         },
         error => {
             console.error('Error getting user location:', error);
@@ -459,5 +520,6 @@ function initMap() {
         }
     );
 }
+
 
 window.onload = initMap;

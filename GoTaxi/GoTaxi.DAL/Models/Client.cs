@@ -8,8 +8,8 @@ namespace GoTaxi.DAL.Models
         public string PhoneNumber { get; set; }
         public int Reports { get; set; }
         public string? Destination { get; set; }
-        public float DestinationLongitude { get; set; }
-        public float DestinationLatitude { get; set; }
+        public double DestinationLongitude { get; set; }
+        public double DestinationLatitude { get; set; }
         public string? ClaimedBy { get; set; }
 
         public Client()

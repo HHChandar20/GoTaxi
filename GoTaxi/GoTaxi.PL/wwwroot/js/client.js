@@ -9,6 +9,7 @@ isClientVisible();
 
 const button = document.getElementById('locationButton');
 const input = document.getElementById('destination');
+const destinationForm = document.getElementById("destination-form");
 
 function sendLocationToServer(longitude, latitude) {
     const locationData = {
@@ -27,12 +28,12 @@ function sendLocationToServer(longitude, latitude) {
 function shareLocation() {
     navigator.geolocation.getCurrentPosition(
         newPosition => {
-            const newDriverPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
-            marker.setLngLat(newDriverPosition);
-            sendLocationToServer(newDriverPosition[0], newDriverPosition[1]);
+            const newClientPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
+            marker.setLngLat(newClientPosition);
+            sendLocationToServer(newClientPosition[0], newClientPosition[1]);
         },
         error => {
-            console.error('Error getting user location:', error);
+            console.error('Error getting client location:', error);
         },
         {
             enableHighAccuracy: true
@@ -40,9 +41,11 @@ function shareLocation() {
     );
 }
 
-function updateDestination(destination, visibility) {
+function updateDestination(destination, longitude, latitude, visibility) {
     const data = {
         newDestination: destination,
+        newLongitude: longitude,
+        newLatitude: latitude,
         newVisibility: visibility,
     };
 
@@ -52,26 +55,36 @@ function updateDestination(destination, visibility) {
 
     const jsonData = JSON.stringify(data);
     xhr.send(jsonData);
-
-    getResults(destination);
 }
 
 function toggleLocationSharing() {
 
+    let longitude = 90;
+    let latitude = 90;
+
     if (!sharingLocation) {
-        // Start sharing location
         sharingLocation = true;
         startSharingLocation();
-        updateDestination(input.value, true);
+        destinationForm.style.visibility = "hidden";
 
+        console.log("selectedPlace: ", selectedPlace);
+
+        if (selectedPlace) {
+            longitude = selectedPlace.lon;
+            latitude = selectedPlace.lat;
+        }
+
+        updateDestination(input.value, longitude, latitude, true);
     }
     else {
         // Stop sharing location
+        destinationForm.style.visibility = "visible";
+
         sharingLocation = false;
         button.innerHTML = 'Request Taxi';
         clearInterval(interval);
         sendLocationToServer(90, 90);
-        updateDestination("", false);
+        updateDestination("", 90, 90, false);
 
         if (driverMarker) driverMarker.remove();
     }
@@ -81,7 +94,9 @@ function startSharingLocation() {
     button.innerHTML = 'Cancel Request';
     interval = setInterval(function () {
         clientClaimedBy().then(driver => {
-            if (driver != null) updateDriverMarker(driver);
+            if (driver !== "0") {
+                updateDriverMarker(driver);
+            }
             shareLocation();
         });
     }, 6000); // Repeat every 6 seconds
@@ -157,6 +172,9 @@ function isClientVisible() {
                 if (sharingLocation) {
                     startSharingLocation();
                 }
+                else {
+                    destinationForm.style.visibility = "visible";
+                }
             }
         })
         .catch(error => {
@@ -170,6 +188,7 @@ function getClientDestination() {
         .then(destination => {
             if (destination != null) {
                 input.value = destination;
+                selectedPlace = destination;
             }
         })
         .catch(error => {
@@ -178,7 +197,6 @@ function getClientDestination() {
 }
 
 function initMap() {
-
     navigator.geolocation.getCurrentPosition(
         position => {
             const userPosition = [position.coords.longitude, position.coords.latitude];
@@ -189,7 +207,7 @@ function initMap() {
                 container: 'map',
                 center: userPosition,
                 style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=2/basic_street-dark&poi=2/poi_dark',
-                zoom: 13,
+                zoom: 13
             });
             let div = document.createElement('div');
             div.innerHTML = '<p>You</p>';
@@ -227,3 +245,10 @@ function initMap() {
 }
 
 window.onload = initMap;
+
+// Close autocomplete results if user clicks outside the input and results
+window.addEventListener("click", (event) => {
+    if (!event.target.matches("#destination") && !event.target.matches(".autocomplete-item")) {
+        document.getElementById("autocomplete-results").style.display = "none";
+    }
+});

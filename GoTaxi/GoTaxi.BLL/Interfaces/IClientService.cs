@@ -10,18 +10,18 @@ namespace GoTaxi.BLL.Interfaces
 {
     public interface IClientService
     {
-        public Client GetCurrentClient();
-        void AddClient(string phoneNumber, string fullName, string email, string password);
-        bool CheckClient(string phoneNumber);
-        bool AuthenticateClient(string phoneNumber, string password);
+        public Client GetClientByPhoneNumber(string phoneNumber);
+        public void AddClient(string phoneNumber, string fullName, string email, string password);
+        public bool CheckClient(string phoneNumber);
+        public Client? AuthenticateClient(string phoneNumber, string password);
         public void UpdateClient(string phoneNumber, string fullName, string email, string password);
-        public void UpdateCurrentClientLocation(double longitude, double latitude);
-        public void UpdateCurrentClientDestination(string newDestination, bool newVisibility);
-        public void ClaimClient(string phoneNumber);
-        public bool IsInTheCar();
-        public Client GetClaimedClient();
-        public Driver ClientClaimedBy();
-        public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude);
+        public void UpdateClientLocation(Client client, double longitude, double latitude);
+        public void UpdateClientDestination(Client client, string? newDestination, double newLongitude, double newLatitude, bool newVisibility);
+        public void ClaimClient(Driver driver, string phoneNumber);
+        public bool IsInTheCar(Driver driver, Client client);
+        public Client GetClaimedClient(Driver driver);
+        public Driver? ClientClaimedBy(Client client);
+        public List<Client> GetNearestClients(Driver driver, double currentClientLongitude, double currentClientLatitude);
         Client ConvertToClient(string phoneNumber, string fullName, string email, string password);
         List<Client> GetClients();
 

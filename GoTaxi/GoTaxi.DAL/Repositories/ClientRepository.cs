@@ -24,7 +24,7 @@ namespace GoTaxi.DAL.Repositories
 
         public Client GetClientByPhoneNumber(string phoneNumber)
         {
-            return _context.Clients.FirstOrDefault(client => client.PhoneNumber == phoneNumber);
+            return _context.Clients.First(client => client.PhoneNumber == phoneNumber);
         }
 
         public void AddClient(Client newClient)

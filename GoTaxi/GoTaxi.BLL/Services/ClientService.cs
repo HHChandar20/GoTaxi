@@ -6,7 +6,6 @@ namespace GoTaxi.BLL.Services
 {
     public class ClientService : IClientService
     {
-        public static Client currentClient = new Client();
         private readonly ClientRepository _repository;
         private readonly IDriverService _driverService;
 
@@ -16,14 +15,13 @@ namespace GoTaxi.BLL.Services
             _driverService = driverService;
         }
 
-        public Client GetCurrentClient()
-        {
-            return currentClient;
-        }
-
         public List<Client> GetClients()
         {
             return _repository.GetAllClients();
+        }
+        public Client GetClientByPhoneNumber(string phoneNumber)
+        {
+            return _repository.GetClientByPhoneNumber(phoneNumber);
         }
 
         public bool CheckClient(string phoneNumber)
@@ -46,25 +44,9 @@ namespace GoTaxi.BLL.Services
             return false;
         }
 
-        public bool AuthenticateClient(string phoneNumber, string password)
+        public Client? AuthenticateClient(string phoneNumber, string password)
         {
-            List<Client> clients = _repository.GetAllClients();
-
-            if (clients == null)
-            {
-                return false;
-            }
-
-            foreach (Client client in clients)
-            {
-                if (client.PhoneNumber == phoneNumber && client.Password == password)
-                {
-                    currentClient = client;
-                    return true;
-                }
-            }
-
-            return false;
+            return _repository.GetAllClients().First(client => client.PhoneNumber == phoneNumber && client.Password == password);
         }
 
         public Client ConvertToClient(string phoneNumber, string fullName, string email, string password)
@@ -89,73 +71,73 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(ConvertToClient(phoneNumber, fullName, email, password));
         }
 
-        public void UpdateCurrentClientLocation(double longitude, double latitude)
+        public void UpdateClientLocation(Client client, double longitude, double latitude)
         {
-            currentClient.Longitude = longitude;
-            currentClient.Latitude = latitude;
 
-            _repository.UpdateClient(currentClient);
-        }
+            client.Longitude = longitude;
+            client.Latitude = latitude;
 
-        public void UpdateCurrentClientDestination(string newDestination, bool newVisibility)
-        {
-            currentClient.Destination = newDestination;
-            currentClient.IsVisible = newVisibility;
-
-            Driver driver = new Driver();
-
-            if (currentClient.ClaimedBy != null)
-            {
-                driver = _driverService.GetDriverByPlateNumber(currentClient.ClaimedBy);
-            }
-
-            if (!newVisibility && driver != null)
-            {
-                driver.IsVisible = true;
-                _driverService.UpdateDriver(driver);
-
-                currentClient.ClaimedBy = null;
-            }
-
-            _repository.UpdateClient(currentClient);
-        }
-
-        public void ClaimClient(string phoneNumber)
-        {
-            Client client = _repository.GetClientByPhoneNumber(phoneNumber);
-            client.ClaimedBy = _driverService.GetCurrentDriver().PlateNumber;
             _repository.UpdateClient(client);
         }
 
-        public Driver ClientClaimedBy()
+        public void UpdateClientDestination(Client client, string? newDestination, double newLongitude, double newLatitude, bool newVisibility)
         {
-            currentClient = _repository.GetClientByPhoneNumber(currentClient.PhoneNumber);
+            // Additional logic to handle driver visibility
+            Driver driver;
 
-            if (currentClient.ClaimedBy == null) return null;
+            if (client.ClaimedBy != null)
+            {
+                driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy);
+                driver.IsVisible = !newVisibility;
 
-            return _driverService.GetDriverByPlateNumber(currentClient.ClaimedBy);
+                if (!newVisibility)
+                {
+                    // Client canceled the request
+                    _driverService.UpdateDriverVisibility(driver);
+                    client.ClaimedBy = null;
+                }
+            }
+
+            client.Destination = newDestination;
+            client.DestinationLongitude = newLongitude;
+            client.DestinationLatitude = newLatitude;
+            client.IsVisible = newVisibility;
+
+            _repository.UpdateClient(client);
         }
 
-        public Client GetClaimedClient()
+
+        public void ClaimClient(Driver driver, string phoneNumber)
         {
-            return _repository.GetAllClients().First(client => client.ClaimedBy == DriverService.currentDriver.PlateNumber);
+            Client client = _repository.GetClientByPhoneNumber(phoneNumber);
+            client.ClaimedBy = driver.PlateNumber;
+            _repository.UpdateClient(client);
         }
 
-        public bool IsInTheCar()
+        public Driver? ClientClaimedBy(Client client)
         {
-            Driver driver = DriverService.currentDriver;
-            Client client = GetClaimedClient();
+            if (client.ClaimedBy == null) return null;
 
-            return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.002;
+            return _driverService.GetDriverByPlateNumber(client.ClaimedBy);
         }
 
-        public List<Client> GetNearestClients(double currentClientLongitude, double currentClientLatitude)
+        public Client GetClaimedClient(Driver driver)
+        {
+            return _repository.GetAllClients().First(client => client.ClaimedBy == driver.PlateNumber);
+        }
+
+        public bool IsInTheCar(Driver driver, Client client)
+        {
+            return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.3; /// 300 m
+        }
+
+        public List<Client> GetNearestClients(Driver driver, double currentClientLongitude, double currentClientLatitude)
         {
             List<Client> clients = _repository.GetAllClients();
 
             if (clients == null)
             {
-                return new List<Client>(); // Return an empty list if there are no other clients or only the current client.
+                return new List<Client>();
             }
 
             //clients.Remove(currentClient);
@@ -163,7 +145,8 @@ namespace GoTaxi.BLL.Services
             List<Client> filteredLocations = clients
             .Where(client =>
                 client.IsVisible == true &&
-                (client.ClaimedBy == null || client.ClaimedBy == DriverService.currentDriver.PlateNumber) &&
+                driver.IsVisible == true &&
+                (client.ClaimedBy == null || client.ClaimedBy == driver.PlateNumber) &&
                 CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
             .OrderBy(client =>
                 CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude))
