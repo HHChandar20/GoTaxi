@@ -4,11 +4,13 @@ using GoTaxi.DAL.Repositories;
 
 namespace GoTaxi.BLL.Services
 {
+    // Service class for managing operations related to clients in the application
     public class ClientService : IClientService
     {
         private readonly ClientRepository _repository;
         private readonly IDriverService _driverService;
 
+        // Constructor that initializes the service with a repository and a driver service
         public ClientService(ClientRepository repository, IDriverService driverService)
         {
             _repository = repository;
@@ -84,7 +86,7 @@ namespace GoTaxi.BLL.Services
                     driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
                     driver.User!.IsVisible = !visibility;
 
-                    // Client canceled the request
+                    // Make driver visible if the client canceled the request
                     if (!visibility)
                     {
                         _driverService.UpdateDriverVisibility(driver);
@@ -111,6 +113,7 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(client);
         }
 
+        // Get the driver who claimed a specific client
         public Driver? ClientClaimedBy(string phoneNumber)
         {
             Client client = _repository.GetClientByPhoneNumber(phoneNumber);
@@ -123,6 +126,7 @@ namespace GoTaxi.BLL.Services
             return _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
         }
 
+        // Get the client claimed by a specific driver using their plate number
         public Client? GetClaimedClient(string plateNumber)
         {
             Driver driver = _driverService.GetDriverByPlateNumber(plateNumber);
@@ -142,6 +146,7 @@ namespace GoTaxi.BLL.Services
 
         }
 
+        // Check if a client is currently in the car of the driver
         public bool IsInTheCar(string phoneNumber)
         {
             Client client = GetClientByPhoneNumber(phoneNumber);
@@ -149,7 +154,7 @@ namespace GoTaxi.BLL.Services
 
             if (driver.User!.Location != null && client.User!.Location != null)
             {
-                return DistanceCalculator.CalculateDistance(driver.User.Location, client.User.Location) < DistanceCalculator.CarRange; // Distance 33 m
+                return DistanceCalculator.CalculateDistance(driver.User.Location, client.User.Location) < DistanceCalculator.MaxCarDistanceKilometers; // Distance 33 m
             }
 
             return false;
@@ -177,16 +182,16 @@ namespace GoTaxi.BLL.Services
             .Where(client =>
                 client.User!.IsVisible == true &&
                 client.ClaimedBy == null &&
-                DistanceCalculator.CalculateDistance(currentLocation, client.User.Location!) <= DistanceCalculator.Range) // Max Distance 60 km
+                DistanceCalculator.CalculateDistance(currentLocation, client.User.Location!) <= DistanceCalculator.MaxDistanceKilometers) // Max Distance 60 km
             .OrderBy(client =>
-                DistanceCalculator.CalculateDistance(currentLocation, client.User!.Location!))
+                DistanceCalculator.CalculateDistance(currentLocation, client.User!.Location!)) // Order the results - nearests first
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 clients, otherwise, get all available clients.
             int count = Math.Min(filteredClients.Count, 10);
-            List<Client> nearestLocations = filteredClients.GetRange(0, count);
+            List<Client> nearestClients = filteredClients.GetRange(0, count);
 
-            return nearestLocations;
+            return nearestClients;
         }
     }
 }

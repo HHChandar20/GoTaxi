@@ -3,28 +3,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoTaxi.PL.Controllers
 {
+    // Class representing data structure for location information
     public class LocationData
     {
         public double Longitude { get; set; }
         public double Latitude { get; set; }
     }
 
+    // Controller responsible for handling driver-related actions
     public class TaxiController : Controller
     {
         private readonly IDriverService _driverService;
         private readonly IClientService _clientService;
 
+        // Constructor to inject dependencies for driver and client services
         public TaxiController(IDriverService driverService, IClientService clientService)
         {
             _driverService = driverService;
             _clientService = clientService;
         }
 
+        // Action method to display the taxi-related view
         public IActionResult Taxi()
         {
             return View();
         }
 
+        // Action method to update the current driver's location
         [HttpPost]
         public IActionResult UpdateLocation([FromBody] LocationData locationData)
         {
@@ -35,6 +40,7 @@ namespace GoTaxi.PL.Controllers
                     // Get PlateNumber from cookie
                     string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
 
+                    // Update the location of the current driver
                     _driverService.UpdateDriverLocation(plateNumber, locationData.Longitude, locationData.Latitude);
                     return Json(new { success = true, message = "Location updated successfully" });
                 }
@@ -50,6 +56,8 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+
+        // Action method to get the nearest drivers based on the current driver's location
         [HttpGet]
         public IActionResult GetNearestDrivers(double currentDriverLongitude, double currentDriverLatitude)
         {
@@ -66,6 +74,8 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+
+        // Action method to get the nearest clients based on the current driver's location
         [HttpGet]
         public IActionResult GetNearestClients(double currentClientLongitude, double currentClientLatitude)
         {
@@ -83,6 +93,7 @@ namespace GoTaxi.PL.Controllers
         }
 
 
+        // Action method to claim a client by a driver
         [HttpPost]
         public IActionResult ClaimClient([FromBody] string phoneNumber)
         {
@@ -103,6 +114,7 @@ namespace GoTaxi.PL.Controllers
         }
 
 
+        // Action method to check if a client is claimed by the current driver
         [HttpGet]
         public IActionResult CheckClaimedClient()
         {
@@ -118,6 +130,8 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+
+        // Action method to check if a client is currently in the car
         [HttpGet]
         public IActionResult IsInTheCar(string phoneNumber)
         {

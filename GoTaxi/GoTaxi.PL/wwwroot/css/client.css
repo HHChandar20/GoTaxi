@@ -1,0 +1,79 @@
+﻿#client-page {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+#request-form {
+    margin-top: 5px;
+    margin-left: 5px;
+    z-index: 1000;
+    position: absolute;
+    background-color: rgba(112, 128, 144, 0.6);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 0px 15px 0px white;
+}
+
+#destination-label {
+    color: white;
+}
+
+#destination-search {
+    display: flex;
+}
+
+#destination-button {
+    background-color: #FFC100;
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#destination-form {
+    visibility: hidden;
+}
+
+#autocomplete-results {
+    background-color: #fff;
+    max-height: 200px;
+    margin-top: -2px;
+    width: 18.5em;
+    overflow-y: auto;
+    display: none;
+    position: absolute;
+    z-index: 1000;
+}
+
+.autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    transition: 0.3s ease-in-out;
+}
+
+    .autocomplete-item:hover {
+        background-color: #FFC100;
+    }
+
+#autocomplete-results::-webkit-scrollbar {
+    width: 10px;
+}
+
+#autocomplete-results::-webkit-scrollbar-track {
+    background-color: darkgrey;
+}
+
+#autocomplete-results::-webkit-scrollbar-thumb {
+    background: #FFC100;
+    border-radius: 5em;
+}
+
+#search-icon {
+    width: 1.1em;
+}

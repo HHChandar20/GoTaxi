@@ -5,6 +5,7 @@ namespace GoTaxi.DAL.Models
 {
     public class Client
     {
+        // Private encapsulated fields for storing client information
         private int clientId;
         private string phoneNumber;
         private int reports;
@@ -15,14 +16,14 @@ namespace GoTaxi.DAL.Models
         private Destination? destination;
         private Driver? claimedBy;
 
-
+        // Primary key for the Client entity
         [Key]
         public int ClientId
         {
             get { return clientId; }
             set { clientId = value; }
         }
-
+        // Required attribute ensures PhoneNumber is not null or an empty string
         [Required]
         [MaxLength(15)]
         public string PhoneNumber
@@ -37,6 +38,7 @@ namespace GoTaxi.DAL.Models
             set { reports = value; }
         }
 
+        // Foreign key to associate with a User entity
         public int? UserId
         {
             get { return userId; }

@@ -1,4 +1,6 @@
 ﻿const TaxiPage = {
+
+    // Manager for handling driver's location-related functionality
     LocationManager: class {
         static sendRequest(url, data) {
             const xhr = new XMLHttpRequest();
@@ -11,6 +13,7 @@
             TaxiPage.LocationManager.sendRequest('/Taxi/UpdateLocation', { longitude, latitude })
         }
 
+        // Retrieves the current location using Geolocation API
         static getCurrentLocation() {
             return new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(
@@ -32,6 +35,7 @@
         }
     },
 
+    // Manager for handling map markers and their updates
     MarkerManager: class {
         static addDriverMarker(driver) {
             const driverPosition = [driver.user.location.longitude, driver.user.location.latitude];
@@ -160,6 +164,7 @@
             }
         }
 
+        // Updates the markers for drivers based on the server response
         static updateDriverMarkers(newDrivers) {
             const existingDriverPlateNumbers = TaxiPage.TaxiApp.driverMarkers.map(marker => marker.driverPlateNumber);
             const newDriverPlateNumbers = newDrivers.map(driver => driver.plateNumber);
@@ -184,6 +189,7 @@
             });
         }
 
+        // Updates the markers for clients based on the server response
         static updateClientMarkers(newClients) {
             const existingClientPhoneNumbers = TaxiPage.TaxiApp.clientMarkers.map(marker => marker.clientPhoneNumber);
             const newClientPhoneNumbers = newClients.map(client => client.phoneNumber);
@@ -213,6 +219,7 @@
             });
         }
 
+        // Clears markers based on the phone number (used when claiming a client)
         static clearMarkers(phoneNumber = 0) {
             TaxiPage.TaxiApp.driverMarkers.forEach(marker => {
                 marker.remove();
@@ -265,7 +272,9 @@
         }
     },
 
+    // Manager for handling routing services
     RouteManager: class {
+        // Deletes the route from the map
         static deleteRoute() {
             // Check if the 'route' layer already exists and remove it
             if (TaxiPage.TaxiApp.map.getLayer('route')) {
@@ -278,6 +287,7 @@
             }
         }
 
+        // Displays the route on the map based on the GeoJSON data
         static displayRoute(geoJSON) {
 
             if (!TaxiPage.TaxiApp.map.getLayer('route')) {
@@ -303,6 +313,7 @@
             }
         }
 
+        // Creates a route to the client or destination
         static createRouteToClient() {
 
             if (TaxiPage.TaxiApp.clientIsInTheCar) {
@@ -359,7 +370,10 @@
 
     },
 
+    // Manager for handling client-specific actions and data fetching
     ClientManager: class {
+
+        // Fetches nearest clients from the server based on the current position
         static getNearestClients(currentPosition) {
             fetch(`/Taxi/GetNearestClients?currentClientLongitude=${currentPosition[0]}&currentClientLatitude=${currentPosition[1]}`)
                 .then(response => response.json())
@@ -442,7 +456,9 @@
         }
     },
 
+    // Manager for handling driver-related actions and data fetching
     DriverManager: class {
+        // Fetches nearest drivers from the server based on the current position
         static getNearestDrivers(currentPosition) {
             fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${currentPosition[0]}&currentDriverLatitude=${currentPosition[1]}`)
                 .then(response => response.json())
@@ -457,7 +473,9 @@
         }
     },
 
+    // Manager for handling map-related actions and initialization
     MapManager: class {
+        // Creates the initial map with the user's position
         static createMap(userPosition) {
             TaxiPage.TaxiApp.map = tt.map({
                 key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
@@ -490,6 +508,7 @@
             TaxiPage.TaxiApp.currentMarker.addTo(TaxiPage.TaxiApp.map);
         }
 
+        // Initializes the map and sets up periodic updates
         static async initMap() {
             await TaxiPage.LocationManager.getCurrentLocation();
 
@@ -540,6 +559,7 @@
         }
     },
 
+    // Main application class
     TaxiApp: class {
         constructor() {
             TaxiPage.TaxiApp.map = null;
@@ -562,12 +582,13 @@
     },
 }
 
+// Initialize the application when the window is loaded
 window.onload = function () {
     new TaxiPage.TaxiApp();
 };
 
+// Event listener for simulating movement with arrow keys
 window.addEventListener("keydown", function (event) {
-
     if (event.key == "ArrowRight") {
         TaxiPage.TaxiApp.userPosition[0] += 0.001;
     }
@@ -592,4 +613,4 @@ window.addEventListener("keydown", function (event) {
     else if (event.key == "s") {
         TaxiPage.TaxiApp.userPosition[1] -= 0.0001;
     }
-})
+});

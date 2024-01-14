@@ -1,5 +1,10 @@
-﻿const ClientPage = {
+﻿// ClientPage object encapsulates the client-side functionality of the application.
+const ClientPage = {
+
+    // Manager for handling client's location-related functionality
     LocationManager: class {
+
+        // Sends an HTTP POST request to update client's location on the server
         static sendRequest(url, data) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
@@ -15,6 +20,7 @@
             this.sendRequest('/Client/UpdateDestination', { destination, longitude, latitude, visibility });
         }
 
+        // Retrieves the client's current location and updates the marker
         static shareLocation() {
             navigator.geolocation.getCurrentPosition(
                 newPosition => {
@@ -33,6 +39,7 @@
 
     },
 
+    // Manager for handling map markers, destinations, and driver information
     MarkerManager: class {
 
         static removeDestinationMarker() {
@@ -121,6 +128,8 @@
 
     },
 
+
+    // Manager for handling client-specific actions and data fetching
     ClientManager: class {
         static clientClaimedBy() {
             return fetch(`/Client/ClientClaimedBy`)
@@ -222,8 +231,11 @@
         }
     },
 
+
+    // Manager for handling map-related actions and initialization
     MapManager: class {
 
+        // Rotates the camera for a dynamic map experience
         static rotateCamera(timestamp) {
             if (ClientPage.ClientApp.sharingLocation) {
                 if (ClientPage.ClientApp.selectedPlace) {
@@ -239,10 +251,12 @@
             requestAnimationFrame((timestamp) => this.rotateCamera(timestamp));
         }
 
+        // Moves the map view to the client's location
         static flyToUser() {
             ClientPage.ClientApp.map.flyTo({ center: ClientPage.ClientApp.marker.getLngLat(), zoom: 13 });
         }
 
+        // Initializes the map with user's location
         static initMap() {
             navigator.geolocation.getCurrentPosition(
                 position => {
@@ -298,6 +312,7 @@
         }
     },
 
+    // Main application class with static properties
     ClientApp: class {
         static button = document.getElementById("locationButton");
         static input = document.getElementById('destination');
@@ -320,6 +335,7 @@
     }
 };
 
+// Initialize the map when the window is loaded
 window.onload = ClientPage.MapManager.initMap;
 
 // Close autocomplete results if user clicks outside the input and results

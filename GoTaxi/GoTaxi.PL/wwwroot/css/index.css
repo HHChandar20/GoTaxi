@@ -1,0 +1,307 @@
+﻿
+html {
+    scroll-behavior: smooth;
+}
+
+.checked {
+    color: #FFC100;
+}
+
+.fa {
+    font-size: 1.5em;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Mozilla */
+
+* {
+    scrollbar-width: auto;
+    scrollbar-color: #FFC100;
+}
+
+    /* Chrome, Edge, and Safari */
+    *::-webkit-scrollbar {
+        width: 16px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: #ffffff;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: #FFC100;
+        border-radius: 10px;
+        border: 3px solid #ffffff;
+    }
+
+
+#taxi-section {
+    width: 100vw;
+    height: 96vh;
+}
+
+#ride-book {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#quote-text {
+    padding-left: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+.primary-text {
+    color: #4D4D4D;
+    font-size: 5em;
+}
+
+.secondary-text {
+    color: #FFC100;
+}
+
+#quote-info {
+    margin-top: 2em;
+}
+
+.info-text {
+    color: #717171;
+    font-weight: 500;
+    font-size: 1.1em;
+    font-style: italic;
+}
+
+#taxi-driver-illustration {
+    padding-right: 10%;
+    width: 45%;
+}
+
+#register-button {
+    margin-top: 3em;
+    width: 10em;
+    height: 3em;
+    background-color: #FFC100;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    transition: 0.3s ease-in-out;
+}
+
+    #register-button:hover {
+        background-color: #FFCF00;
+    }
+
+#clients-section {
+    background-color: #F5F7FA;
+}
+
+#driver-of-the-week {
+    background-color: #F5F7FA;
+    height: 50vh;
+    padding-top: 7em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 8em;
+}
+
+#driver-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 2em;
+}
+
+    #driver-title .primary-text {
+        font-size: 4em;
+        font-weight: bold;
+    }
+
+#driver {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    box-shadow: 0px 0px 10px 5px #fff;
+    width: 70%;
+    height: 100%;
+    border-radius: 1em;
+    border: 2px solid #FFC100;
+    padding: 2em 3em 2em 3em;
+}
+
+#driver-photo {
+    width: 8em;
+    height: auto;
+    border-radius: 10%;
+    border: 1px solid #FFC100;
+}
+
+#driver-details {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    row-gap: 2em;
+}
+
+    #driver-details .primary-text {
+        padding-bottom: 0.5em;
+        font-size: 3em;
+        font-weight: 400;
+        letter-spacing: -5px;
+    }
+
+    #driver-details img {
+        width: 6em;
+    }
+
+.driver-statistic {
+    color: #4D4D4D;
+    font-style: normal;
+}
+
+#driver-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+hr {
+    background: #FFC100;
+    box-shadow: 0 0 5px 0 #FFC100;
+}
+
+#our-clients {
+    background: #fff;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#our-clients-primary {
+    font-size: 4em;
+    font-weight: bold;
+}
+
+#our-clients-description {
+    margin-top: 1em;
+}
+
+#client-logos {
+    margin-top: 5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 10em;
+}
+
+.client-logo {
+    width: 7em;
+    height: fit-content;
+    filter: grayscale(0.3);
+}
+
+#statistics {
+    background-color: #F5F7FA;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1em;
+    padding: 5em 5em 5em 10em;
+}
+
+.statistics-primary-text {
+    font-size: 4em;
+}
+
+#statistics-info-text {
+    margin-top: 3em;
+}
+
+#statistics-right {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    row-gap: 3em;
+    column-gap: 10em;
+}
+
+.statistics-icons {
+    width: 4em;
+}
+
+.statistic {
+    display: flex;
+    gap: 2em;
+}
+
+.statistics-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.statistics-numbers {
+    font-size: 2.5em;
+    font-weight: 600;
+}
+
+#mockup-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2em 4em 0em 4em;
+}
+
+.mockups {
+    width: auto;
+    height: 25em;
+}
+
+#go-taxi-logo {
+    padding-right: 11vw;
+    height: 20em;
+}
+
+#up-button {
+    align-self: end;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #FFC100;
+    height: 3em;
+    width: 3em;
+    border-radius: 50%;
+    transition: 0.3s ease-in-out;
+}
+
+    #up-button:hover {
+        background: #FEA100
+    }
+
+a, a:hover, a:focus, a:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+#logo-and-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    row-gap: 8em;
+}

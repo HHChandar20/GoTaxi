@@ -1,111 +1,117 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GoTaxi.BLL.Interfaces;
-using GoTaxi.DAL.Models;
-using GoTaxi.BLL.Services;
 
-public class HomeController : Controller
+namespace GoTaxi.PL.Controllers
 {
-    private readonly IDriverService _driverService;
-    private readonly IClientService _clientService;
-
-    public HomeController(IDriverService driverService, IClientService clientService)
+    // Controller responsible for handling login and registration actions
+    public class HomeController : Controller
     {
-        _driverService = driverService;
-        _clientService = clientService;
-    }
+        private readonly IDriverService _driverService;
+        private readonly IClientService _clientService;
 
-    public IActionResult Index()
-    {
-        return View();
-    }
-
-    public IActionResult Login()
-    {
-
-        return View();
-    }
-
-    public IActionResult Register()
-    {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-
-    [HttpPost]
-    public IActionResult LoginDriver(string plateNumber, string password)
-    {
-        if (!_driverService.CheckDriver(plateNumber))
+        // Constructor to inject dependencies for driver and client services
+        public HomeController(IDriverService driverService, IClientService clientService)
         {
-            TempData["ErrorMessage"] = "Account not found.";
-            return RedirectToAction("Login");
+            _driverService = driverService;
+            _clientService = clientService;
         }
 
-        if (!_driverService.AuthenticateDriver(plateNumber, password))
+        // Action method to display the home page
+        public IActionResult Index()
         {
-            TempData["ErrorMessage"] = "Incorrect credentials.";
-            return RedirectToAction("Login");
+            return View();
         }
 
-        // Store current driver in cookies
-        HttpContext.Response.Cookies.Append("CurrentUserType", "Driver");
-        HttpContext.Response.Cookies.Append("CurrentPlateNumber", plateNumber);
-
-        return RedirectToAction("Taxi", "Taxi");
-    }
-
-    [HttpPost]
-    public IActionResult LoginClient(string phoneNumber, string password)
-    {
-        if (!_clientService.CheckClient(phoneNumber))
+        // Action method to display the login page
+        public IActionResult Login()
         {
-            TempData["ErrorMessage"] = "Account not found.";
-            return RedirectToAction("Login");
+
+            return View();
         }
 
-        if (!_clientService.AuthenticateClient(phoneNumber, password))
+        // Action method to display the registration page
+        public IActionResult Register()
         {
-            TempData["ErrorMessage"] = "Incorrect credentials.";
-            return RedirectToAction("Login");
+            return View();
         }
 
-        // Store current driver in cookies
-        HttpContext.Response.Cookies.Append("CurrentUserType", "Client");
-        HttpContext.Response.Cookies.Append("CurrentPhoneNumber", phoneNumber);
 
-        return RedirectToAction("Client", "Client");
-    }
-
-    [HttpPost]
-    public IActionResult RegisterDriver(string plateNumber, string email, string fullName, string password)
-    {
-        if (!_driverService.CheckDriver(plateNumber))
+        // Action method to handle driver login
+        [HttpPost]
+        public IActionResult LoginDriver(string plateNumber, string password)
         {
-            _driverService.AddDriver(plateNumber, email, fullName, password);
-            TempData["SuccessMessage"] = "Account registered successfully. You can now log in.";
+            if (!_driverService.CheckDriver(plateNumber))
+            {
+                TempData["ErrorMessage"] = "Account not found.";
+                return RedirectToAction("Login");
+            }
+
+            if (!_driverService.AuthenticateDriver(plateNumber, password))
+            {
+                TempData["ErrorMessage"] = "Incorrect credentials.";
+                return RedirectToAction("Login");
+            }
+
+            // Store current driver in cookies
+            HttpContext.Response.Cookies.Append("CurrentUserType", "Driver");
+            HttpContext.Response.Cookies.Append("CurrentPlateNumber", plateNumber);
+
+            return RedirectToAction("Taxi", "Taxi");
+        }
+
+        // Action method to handle client login
+        [HttpPost]
+        public IActionResult LoginClient(string phoneNumber, string password)
+        {
+            if (!_clientService.CheckClient(phoneNumber))
+            {
+                TempData["ErrorMessage"] = "Account not found.";
+                return RedirectToAction("Login");
+            }
+
+            if (!_clientService.AuthenticateClient(phoneNumber, password))
+            {
+                TempData["ErrorMessage"] = "Incorrect credentials.";
+                return RedirectToAction("Login");
+            }
+
+            // Store current driver in cookies
+            HttpContext.Response.Cookies.Append("CurrentUserType", "Client");
+            HttpContext.Response.Cookies.Append("CurrentPhoneNumber", phoneNumber);
+
+            return RedirectToAction("Client", "Client");
+        }
+
+        // Action method to handle driver registration
+        [HttpPost]
+        public IActionResult RegisterDriver(string plateNumber, string email, string fullName, string password)
+        {
+            if (!_driverService.CheckDriver(plateNumber))
+            {
+                _driverService.AddDriver(plateNumber, email, fullName, password);
+                TempData["SuccessMessage"] = "Account registered successfully. You can now log in.";
+                return RedirectToAction("Register");
+            }
+
+            TempData["ErrorMessage"] = "Account with this plate number already exists.";
             return RedirectToAction("Register");
         }
 
-        TempData["ErrorMessage"] = "Account with this plate number already exists.";
-        return RedirectToAction("Register");
-    }
-
-    [HttpPost]
-    public IActionResult RegisterClient(string phoneNumber, string email, string fullName, string password)
-    {
-        if (!_clientService.CheckClient(phoneNumber))
+        // Action method to handle client registration
+        [HttpPost]
+        public IActionResult RegisterClient(string phoneNumber, string email, string fullName, string password)
         {
-            _clientService.AddClient(phoneNumber, email, fullName, password);
-            TempData["SuccessMessage"] = "Account registered successfully. You can now log in.";
+            if (!_clientService.CheckClient(phoneNumber))
+            {
+                _clientService.AddClient(phoneNumber, email, fullName, password);
+                TempData["SuccessMessage"] = "Account registered successfully. You can now log in.";
+                return RedirectToAction("Register");
+            }
+
+            TempData["ErrorMessage"] = "Account with this phone number already exists.";
             return RedirectToAction("Register");
         }
 
-        TempData["ErrorMessage"] = "Account with this phone number already exists.";
-        return RedirectToAction("Register");
     }
 
 }

@@ -4,15 +4,18 @@ using GoTaxi.DAL.Repositories;
 
 namespace GoTaxi.BLL.Services
 {
+    // Service class for managing operations related to drivers in the application
     public class DriverService : IDriverService
     {
         private readonly DriverRepository _repository;
 
+        // Constructor that initializes the service with a repository
         public DriverService(DriverRepository repository)
         {
             _repository = repository;
         }
 
+        // Set the visibility status of a driver by plate number
         public void SetDriverVisibility(string plateNumber, bool visibility)
         {
             Driver currentDriver = _repository.GetDriverByPlateNumber(plateNumber);
@@ -94,12 +97,9 @@ namespace GoTaxi.BLL.Services
 
                 _repository.UpdateDriver(driver);
             }
-            else
-            {
-                Console.WriteLine("Error updating driver location");
-            }
         }
 
+        // Get a list of nearest drivers based on a driver's location
         public List<Driver> GetNearestDrivers(string plateNumber, double longitude, double latitude)
         {
             Driver currentDriver = GetDriverByPlateNumber(plateNumber);
@@ -116,17 +116,17 @@ namespace GoTaxi.BLL.Services
             List<Driver> filteredDrivers = drivers
             .Where(driver =>
                 driver.User!.IsVisible == true &&
-                DistanceCalculator.CalculateDistance(currentLocation, driver.User.Location!) <= DistanceCalculator.Range) // Max distance 60 km
+                DistanceCalculator.CalculateDistance(currentLocation, driver.User.Location!) <= DistanceCalculator.MaxDistanceKilometers) // Maximum distance 60 km
             .OrderBy(driver =>
-                DistanceCalculator.CalculateDistance(currentLocation, driver.User!.Location!))
+                DistanceCalculator.CalculateDistance(currentLocation, driver.User!.Location!)) // Order the results - nearests first
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 drivers, otherwise, get all available drivers.
             int count = Math.Min(filteredDrivers.Count, 10);
 
-            List<Driver> nearestLocations = filteredDrivers.GetRange(0, count);
+            List<Driver> nearestDrivers = filteredDrivers.GetRange(0, count);
 
-            return nearestLocations;
+            return nearestDrivers;
         }
 
     }

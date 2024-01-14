@@ -1,9 +1,9 @@
 ﻿using GoTaxi.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace GoTaxi.DAL.Data
 {
+    // DbContext class responsible for interacting with the database
     public class GoTaxiDbContext : DbContext
     {
         public DbSet<Location> Locations { get; set; }
@@ -14,6 +14,7 @@ namespace GoTaxi.DAL.Data
 
         public GoTaxiDbContext(DbContextOptions<GoTaxiDbContext> options) : base(options)
         {
+            // Empty constructor body as it just calls the base class constructor
         }
     }
 }

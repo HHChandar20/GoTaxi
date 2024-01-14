@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoTaxi.PL.Controllers
 {
+    // Class representing data structure for destination information
     public class DestinationData
     {
         public string? destination { get; set; }
@@ -11,21 +12,28 @@ namespace GoTaxi.PL.Controllers
         public bool visibility { get; set; }
     }
 
+    // Controller responsible for handling client-related actions
     public class ClientController : Controller
     {
 
         private readonly IClientService _clientService;
 
+
+        // Constructor that injects the IClientService dependency
         public ClientController(IClientService clientService)
         {
             _clientService = clientService;
         }
 
+
+        // Action method for rendering the main client view
         public IActionResult Client()
         {
             return View();
         }
 
+
+        // Action method to update the client's location
         [HttpPost]
         public IActionResult UpdateLocation([FromBody] LocationData locationData)
         {
@@ -46,12 +54,13 @@ namespace GoTaxi.PL.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging purposes
                 Console.WriteLine($"Error updating location: {ex.Message}");
                 return Json(new { success = false, message = "Internal server error" });
             }
         }
 
+
+        // Action method to update the client's destination
         [HttpPost]
         public IActionResult UpdateDestination([FromBody] DestinationData destinationData)
         {
@@ -71,6 +80,7 @@ namespace GoTaxi.PL.Controllers
         }
 
 
+        // Action method to get the client's destination
         [HttpGet]
         public IActionResult GetClientDestination()
         {
@@ -86,6 +96,8 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+
+        // Action method to get the driver who claimed the client
         [HttpGet]
         public IActionResult ClientClaimedBy()
         {
@@ -102,6 +114,8 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+
+        // Action method to check if the client is visible
         [HttpGet]
         public IActionResult IsClientVisible()
         {

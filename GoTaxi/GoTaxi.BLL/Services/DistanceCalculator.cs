@@ -1,33 +1,38 @@
 ﻿using GoTaxi.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GoTaxi.BLL.Services
 {
+    // Service class for calculating distances between locations
     public class DistanceCalculator
     {
-        public const int Range = 60;
-        public const double CarRange = 0.033;
+        // Earth's radius in kilometers (used for distance calculation)
+        public const int EarthRadiusKilometers = 6371;
 
+        // Maximum allowed distance for various purposes
+        public const double MaxDistanceKilometers = 60;
+        public const double MaxCarDistanceKilometers = 0.033;
+
+
+        // Calculate the haversine distance between two locations
         public static double CalculateDistance(Location location1, Location location2)
         {
-            const int earthRadius = 6371;
+            // Convert latitude and longitude differences to radians
+            double deltaLatitude = DegreesToRadians(location2.Latitude - location1.Latitude);
+            double deltaLongitude = DegreesToRadians(location2.Longitude - location1.Longitude);
 
-            double dLat = DegreesToRadians(location2.Latitude - location1.Latitude);
-            double dLon = DegreesToRadians(location2.Longitude - location1.Longitude);
-
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+            // Haversine formula
+            double haversineA = Math.Sin(deltaLatitude / 2) * Math.Sin(deltaLatitude / 2) +
                         Math.Cos(DegreesToRadians(location1.Latitude)) * Math.Cos(DegreesToRadians(location2.Latitude)) *
-                        Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+                        Math.Sin(deltaLongitude / 2) * Math.Sin(deltaLongitude / 2);
 
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            // Calculate the central angle using the haversine formula
+            double haversineC = 2 * Math.Atan2(Math.Sqrt(haversineA), Math.Sqrt(1 - haversineA));
 
-            return earthRadius * c; // Distance in kilometers
+            // Calculate the distance using the haversine formula and Earth's radius
+            return EarthRadiusKilometers * haversineC; // Distance in kilometers
         }
 
+        // Convert degrees to radians
         private static double DegreesToRadians(double degrees)
         {
             return degrees * Math.PI / 180;

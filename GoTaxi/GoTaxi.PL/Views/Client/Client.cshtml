@@ -1,99 +1,15 @@
 ﻿@{
-    ViewData["Title"] = "Clients page";
+    ViewData["Title"] = "Client";
 }
 
 <head>
 
     <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css" type="text/css" />
     <link rel="stylesheet" href="~/css/map.css" type="text/css" />
+    <link rel="stylesheet" href="~/css/client.css" type="text/css" />
 
     <script type="text/javascript" src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
-    <script type="text/javascript" src="~/js/autocomplete.js"></script>
-
-    <style>
-
-        #client-page {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            height: 95vh;
-            width: 100%;
-        }
-
-        #request-form {
-            margin-top: 5px;
-            margin-left: 5px;
-            z-index: 1000;
-            position: absolute;
-            background-color: rgba(112, 128, 144, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0px 0px 15px 0px white;
-        }
-
-        #destination-label {
-            color: white;
-        }
-
-        #destination-search {
-            display: flex;
-        }
-
-        #destination-button {
-            background-color: #FFC100;
-            width: 15%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #destination-form {
-            visibility: hidden;
-        }
-
-        #autocomplete-results {
-            background-color: #fff;
-            max-height: 200px;
-            margin-top: -2px;
-            width: 18.5em;
-            overflow-y: auto;
-            display: none;
-            position: absolute;
-            z-index: 1000;
-        }
-
-        .autocomplete-item {
-            padding: 10px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            transition: 0.3s ease-in-out;
-        }
-
-            .autocomplete-item:hover {
-                background-color: #FFC100;
-            }
-
-        #autocomplete-results::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        #autocomplete-results::-webkit-scrollbar-track {
-            background-color: darkgrey;
-        }
-
-        #autocomplete-results::-webkit-scrollbar-thumb {
-            background: #FFC100;
-            border-radius: 5em;
-        }
-
-        #search-icon {
-            width: 1.1em;
-        }
-
-    </style>
+    <script src="~/js/autocomplete.js"></script>
 
 </head>
 
@@ -107,20 +23,20 @@
                     <label for="destination" id="destination-label">Where are you going?</label>
 
                     <div id="destination-search">
-                        <input type="text" autocomplete="off" class="form-control" id="destination" name="destination" placeholder="Search..." required onchange="clearSelectedPlace()" />
-                        <button type="button" id="destination-button" class="btn btn-secondary" onclick="handleAutocomplete()"><img id="search-icon" src="~/images/Home/icons/search-icon.svg"></button>
+                        <input type="text" autocomplete="off" class="form-control" id="destination" name="destination" placeholder="Search..." required onchange="AutocompleteManager.clearSelectedPlace()" />
+                        <button type="button" id="destination-button" class="btn btn-secondary" onclick="AutocompleteManager.handleAutocomplete()"><img id="search-icon" src="~/images/Home/icons/search-icon.svg"></button>
                     </div>
                     <div id="autocomplete-results"></div>
                 </div>
 
                 <div class="form-group text-center pt-1 mt-4">
-                    <button type="button" id="locationButton" class="btn btn-primary" onclick="toggleLocationSharing()">Request Taxi</button>
+                    <button type="button" id="locationButton" class="btn btn-primary" onclick="ClientPage.ClientManager.toggleLocationSharing()">Request Taxi</button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <script type="text/javascript" src="~/js/client.js"></script>
+    <script src="~/js/client.js"></script>
 
 </body>
