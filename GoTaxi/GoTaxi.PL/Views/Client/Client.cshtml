@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Clients page";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Clients page</p>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+
+<body>
+
+    <button type="submit" onclick="shareLocation()">Click to share location!</button>
+
+    <script type="text/javascript">
+        function sendLocationToServer(longitude, latitude) {
+            const locationData = {
+                longitude: longitude,
+                latitude: latitude
+            };
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Client/UpdateLocation', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Location update successful:', xhr.responseText);
+                    } else {
+                        console.error('Error updating location. Status code:', xhr.status);
+                    }
+                }
+            };
+            const jsonData = JSON.stringify(locationData);
+            xhr.send(jsonData);
+        }
+        function shareLocation() {
+            setInterval(function () {
+                navigator.geolocation.getCurrentPosition(
+                    newPosition => {
+                        const newDriverPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
+                        sendLocationToServer(newDriverPosition[0], newDriverPosition[1]);
+                    },
+                    error => {
+                        console.error('Error getting user location:', error);
+                    },
+                    {
+                        enableHighAccuracy: true
+                    }
+                );
+            }, 6000); // Repeat every minute
+        }
+    </script>
+</body>
+</html>

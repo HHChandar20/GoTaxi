@@ -27,7 +27,7 @@ namespace GoTaxi.DAL.Repositories
 
         public Driver GetDriverByPlateNumber(string plateNumber)
         {
-            return _context.Drivers.FirstOrDefault(d => d.PlateNumber == plateNumber);
+            return _context.Drivers.FirstOrDefault(driver => driver.PlateNumber == plateNumber);
         }
 
         public void AddDriver(Driver newDriver)
@@ -38,7 +38,7 @@ namespace GoTaxi.DAL.Repositories
 
         public void UpdateDriver(Driver updatedDriver)
         {
-            var existingDriver = _context.Drivers.FirstOrDefault(d => d.PlateNumber == updatedDriver.PlateNumber);
+            var existingDriver = _context.Drivers.FirstOrDefault(driver => driver.PlateNumber == updatedDriver.PlateNumber);
 
             if (existingDriver != null)
             {

@@ -9,8 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+
 builder.Services.AddScoped<DriverRepository>();
+builder.Services.AddScoped<ClientRepository>();
 
 builder.Services.AddDbContext<GoTaxiDbContext>(options =>
 {

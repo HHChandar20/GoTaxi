@@ -4,10 +4,12 @@ using GoTaxi.BLL.Interfaces;
 public class HomeController : Controller
 {
     private readonly IDriverService _driverService;
+    private readonly IClientService _clientService;
 
-    public HomeController(IDriverService driverService)
+    public HomeController(IDriverService driverService, IClientService clientService)
     {
         _driverService = driverService;
+        _clientService = clientService;
     }
 
     public IActionResult Index()
@@ -48,15 +50,37 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public IActionResult RegisterDriver(string plateNumber, string email, string fullName, string password)
+    public IActionResult LoginClient(string phoneNumber, string password)
+    {
+        bool isExisting = _clientService.CheckClient(phoneNumber);
+
+        if (isExisting)
+        {
+            bool isAuthenticated = _clientService.AuthenticateClient(phoneNumber, password);
+            if (isAuthenticated)
+            {
+                return RedirectToAction("Client", "Client");
+            }
+            // Return a message indicating account not found
+            return Json(new { success = false, message = "Wrong password" });
+        }
+        else
+        {
+            // Return a message indicating account not found
+            return Json(new { success = false, message = "Account not found" });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult RegisterClient(string phoneNumber, string email, string fullName, string password)
     {
         ViewBag.ErrorMessage = "";
 
-        bool isExisting = _driverService.CheckDriver(plateNumber);
+        bool isExisting = _clientService.CheckClient(phoneNumber);
 
         if (!isExisting)
         {
-            _driverService.AddDriver(plateNumber, email, fullName, password);
+            _clientService.AddClient(phoneNumber, email, fullName, password);
             return RedirectToAction("Index");
         }
         else

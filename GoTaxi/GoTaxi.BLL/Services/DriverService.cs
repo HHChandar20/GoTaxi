@@ -104,11 +104,16 @@ namespace GoTaxi.BLL.Services
 
             drivers.Remove(currentDriver);
 
-            List<Driver> sortedLocations = drivers.OrderBy(driver => CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude)).ToList();
+            List<Driver> filteredLocations = drivers
+            .Where(driver =>
+                CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude) <= 60)
+            .OrderBy(client =>
+                CalculateDistance(currentDriverLongitude, currentDriverLatitude, client.Longitude, client.Latitude))
+            .ToList();
 
             // Get the nearest 10 locations if there are at least 10 drivers, otherwise, get all available drivers.
-            int count = Math.Min(sortedLocations.Count, 10);
-            List<Driver> nearestLocations = sortedLocations.GetRange(0, count);
+            int count = Math.Min(filteredLocations.Count, 10);
+            List<Driver> nearestLocations = filteredLocations.GetRange(0, count);
 
             return nearestLocations;
         }

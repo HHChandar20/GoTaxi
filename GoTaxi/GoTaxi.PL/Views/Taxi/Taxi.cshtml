@@ -26,13 +26,6 @@
             width: 40px;
         }
 
-        .marker-border2 {
-            background: green;
-            border-radius: 50%;
-            height: 40px;
-            width: 40px;
-        }
-
         .marker-icon {
             background-position: center;
             background-size: 25px 20px;
@@ -52,6 +45,135 @@
     <script type="text/javascript">
 
         let driverMarkers = [];
+        let clientMarkers = [];
+
+
+        function addDriverMarker(driver, counter) {
+
+            const driverPosition = [driver.longitude, driver.latitude];
+            console.log("Driver position: ", driverPosition);
+
+            let markerDiv = document.createElement('div');
+            markerDiv.innerHTML = `<p>${driver.fullName}</p>`;
+
+            let markerPopup = new tt.Popup({
+                closeButton: false,
+                offset: 25,
+                anchor: 'bottom'
+            }).setDOMContent(markerDiv);
+
+            let markerBorder = document.createElement('div');
+            markerBorder.className = 'marker-border';
+            markerBorder.style.background = 'green';
+
+            let markerIcon = document.createElement('div');
+            markerIcon.className = 'marker-icon';
+            markerIcon.style.backgroundImage = 'url(/images/taxi-icon.png)';
+            markerBorder.appendChild(markerIcon);
+
+            driverMarkers[counter] = new tt.Marker({
+                element: markerBorder
+            }).setLngLat(driverPosition).setPopup(markerPopup);
+
+        }
+
+        function addDriverMarkers(map, drivers) {
+
+            let counter = 0;
+
+            drivers.forEach(driver => {
+
+                addDriverMarker(driver, counter);
+                driverMarkers[counter].addTo(map);
+
+                counter++;
+            });
+        }
+
+        function getNearestDrivers(map, currentPosition) {
+            fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${currentPosition[0]}&currentDriverLatitude=${currentPosition[1]}`)
+                .then(response => response.json())
+                .then(nearestDrivers => {
+                    console.log(nearestDrivers);
+                    if (Array.isArray(nearestDrivers)) {
+                        addDriverMarkers(map, nearestDrivers);
+                    } else {
+                        console.error('Invalid response format:', nearestDrivers);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching nearest drivers:', error);
+                });
+        }
+
+        function addClientMarker(client, counter) {
+
+            const clientPosition = [client.longitude, client.latitude];
+
+            let markerDiv = document.createElement('div');
+            markerDiv.innerHTML = `<p>${client.fullName}</p>`;
+
+            let markerPopup = new tt.Popup({
+                closeButton: false,
+                offset: 25,
+                anchor: 'bottom'
+            }).setDOMContent(markerDiv);
+
+            let markerBorder = document.createElement('div');
+            markerBorder.className = 'marker-border';
+            markerBorder.style.background = 'red';
+
+            let markerIcon = document.createElement('div');
+            markerIcon.className = 'marker-icon';
+            markerIcon.style.backgroundImage = 'url(/images/client-icon.png)';
+            markerBorder.appendChild(markerIcon);
+
+            clientMarkers[counter] = new tt.Marker({
+                element: markerBorder
+            }).setLngLat(clientPosition).setPopup(markerPopup);
+
+        }
+
+
+        function addClientMarkers(map, clients) {
+
+            let counter = 0;
+
+            clients.forEach(client => {
+
+                addClientMarker(client, counter);
+                clientMarkers[counter].addTo(map);
+
+                counter++;
+            })
+        }
+
+        function getNearestClients(map, currentPosition) {
+            fetch(`/Taxi/GetNearestClients?currentClientLongitude=${currentPosition[0]}&currentClientLatitude=${currentPosition[1]}`)
+                .then(response => response.json())
+                .then(nearestClients => {
+                    console.log(nearestClients);
+                    if (Array.isArray(nearestClients)) {
+                        addClientMarkers(map, nearestClients);
+                    } else {
+                        console.error('Invalid response format:', nearestClients);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching nearest drivers:', error);
+                });
+        }
+
+        function clearMarkers() {
+            driverMarkers.forEach(marker => {
+                marker.remove();
+            })
+
+            clientMarkers.forEach(marker => {
+                marker.remove();
+            })
+        }
+
 
         function sendLocationToServer(longitude, latitude) {
             const locationData = {
@@ -75,63 +197,6 @@
 
             const jsonData = JSON.stringify(locationData);
             xhr.send(jsonData);
-        }
-
-        function addDriverMarkers(map, drivers) {
-            let counter = 0;
-
-            drivers.forEach(driver => {
-                const driverPosition = [driver.longitude, driver.latitude];
-
-                let div2 = document.createElement('div');
-                div2.innerHTML = `<p>${driver.fullName}</p>`;
-
-                let popup2 = new tt.Popup({
-                    closeButton: false,
-                    offset: 25,
-                    anchor: 'bottom'
-                }).setDOMContent(div2);
-
-                let border2 = document.createElement('div');
-                border2.className = 'marker-border2';
-
-                let icon2 = document.createElement('div');
-                icon2.className = 'marker-icon';
-                icon2.style.backgroundImage = 'url(/images/taxi-icon.png)';
-                border2.appendChild(icon2);
-
-                driverMarkers[counter] = new tt.Marker({
-                    element: border2
-                }).setLngLat(driverPosition).setPopup(popup2);
-
-                driverMarkers[counter].addTo(map);
-
-                counter++;
-            });
-        }
-
-        function updateDriverMarkers(map, drivers) {
-            let counter = 0;
-
-            drivers.forEach(driver => {
-                const driverPosition = [driver.longitude, driver.latitude];
-
-                let div2 = document.createElement('div');
-                div2.innerHTML = `<p>${driver.fullName}</p>`;
-
-                let popup2 = new tt.Popup({
-                    closeButton: false,
-                    offset: 25,
-                    anchor: 'bottom'
-                }).setDOMContent(div2);
-
-                let border2 = document.createElement('div');
-                border2.className = 'marker-border2';
-
-                driverMarkers[counter].setLngLat(driverPosition).setPopup(popup2)
-
-                counter++;
-            });
         }
 
         function initMap() {
@@ -167,23 +232,11 @@
                     let marker = new tt.Marker({
                         element: border
                     }).setLngLat(userPosition).setPopup(popup);
+
                     marker.addTo(map);
 
-
-                    fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${userPosition[0]}&currentDriverLatitude=${userPosition[1]}`)
-                        .then(response => response.json())
-                        .then(nearestDrivers => {
-                            console.log(nearestDrivers);
-                            if (Array.isArray(nearestDrivers)) {
-                                addDriverMarkers(map, nearestDrivers);
-                            } else {
-                                console.error('Invalid response format:', nearestDrivers);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching nearest drivers:', error);
-                        });
-
+                    getNearestDrivers(map, userPosition);
+                    getNearestClients(map, userPosition);
 
                     setInterval(function () {
                         const currentPosition = [userPosition[0] += 0.0001, userPosition[1]];
@@ -203,19 +256,9 @@
                             }
                         );
 
-                        fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${currentPosition[0]}&currentDriverLatitude=${currentPosition[1]}`)
-                            .then(response => response.json())
-                            .then(nearestDrivers => {
-                                console.log(nearestDrivers);
-                                if (Array.isArray(nearestDrivers)) {
-                                    updateDriverMarkers(map, nearestDrivers);
-                                } else {
-                                    console.error('Invalid response format:', nearestDrivers);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error fetching nearest drivers:', error);
-                            });
+                        clearMarkers();
+                        getNearestDrivers(map, userPosition);
+                        getNearestClients(map, userPosition);
 
                     }, 6000); // Repeat every minute
                 },

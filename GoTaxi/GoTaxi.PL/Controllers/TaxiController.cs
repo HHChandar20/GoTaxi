@@ -13,10 +13,12 @@ public class LocationData
 public class TaxiController : Controller
 {
     private readonly IDriverService _driverService;
+    private readonly IClientService _clientService;
 
-    public TaxiController(IDriverService driverService)
+    public TaxiController(IDriverService driverService, IClientService clientService)
     {
-        _driverService = driverService ?? throw new ArgumentNullException(nameof(driverService));
+        _driverService = driverService;
+        _clientService = clientService;
     }
 
     public IActionResult Taxi()
@@ -59,6 +61,22 @@ public class TaxiController : Controller
         {
             // Log the exception for debugging purposes
             Console.WriteLine($"Error fetching nearest drivers: {ex.Message}");
+            return Json(new { success = false, message = "Error fetching nearest drivers" });
+        }
+    }
+
+    [HttpGet]
+    public IActionResult GetNearestClients(double currentClientLongitude, double currentClientLatitude)
+    {
+        try
+        {
+            List<Client> nearestClients = _clientService.GetNearestClients(currentClientLongitude, currentClientLatitude);
+            return Json(nearestClients);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception for debugging purposes
+            Console.WriteLine($"Error fetching nearest clients: {ex.Message}");
             return Json(new { success = false, message = "Error fetching nearest drivers" });
         }
     }
