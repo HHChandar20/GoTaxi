@@ -29,6 +29,7 @@ namespace GoTaxi.PL.Controllers
         }
 
         // Action method to display the taxi-related view
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Taxi()
         {
             if (CurrentUserType == "Client" || CurrentUserType == null)

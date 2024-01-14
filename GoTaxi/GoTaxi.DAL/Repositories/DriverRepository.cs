@@ -44,7 +44,7 @@ namespace GoTaxi.DAL.Repositories
         // Retrieve a driver by their plate number with associated user and location information
         public Driver GetDriverByPlateNumber(string plateNumber)
         {
-            return _context.Drivers.Include(d => d.User).ThenInclude(u => u!.Location).First(driver => driver.PlateNumber == plateNumber);
+            return _context.Drivers.Include(d => d.User).ThenInclude(u => u!.Location).FirstOrDefault(driver => driver.PlateNumber == plateNumber)!;
         }
 
         // Add a new driver to the database

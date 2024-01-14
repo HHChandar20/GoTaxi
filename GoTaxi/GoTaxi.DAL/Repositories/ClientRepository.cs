@@ -61,7 +61,7 @@ namespace GoTaxi.DAL.Repositories
                 .Include(c => c.Destination)
                     .ThenInclude(d => d!.Location)
                 .Include(c => c.ClaimedBy)
-                .First(client => client.PhoneNumber == phoneNumber);
+                .FirstOrDefault(client => client.PhoneNumber == phoneNumber)!;
         }
 
         // Add a new client to the database
