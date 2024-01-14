@@ -8,6 +8,34 @@
 
 
     <style>
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Mozilla */
+
+        * {
+            scrollbar-width: auto;
+            scrollbar-color: #FFC100;
+        }
+
+            /* Chrome, Edge, and Safari */
+            *::-webkit-scrollbar {
+                width: 16px;
+            }
+
+            *::-webkit-scrollbar-track {
+                background: #ffffff;
+            }
+
+            *::-webkit-scrollbar-thumb {
+                background-color: #FFC100;
+                border-radius: 10px;
+                border: 3px solid #ffffff;
+            }
+
+
         #taxi-section {
             width: 100vw;
             height: 80vh;
@@ -28,24 +56,21 @@
             flex-direction: column;
         }
 
-        #quote-primary-text {
-            font-size: 5em;
-        }
-
         .primary-text {
             color: #4D4D4D;
+            font-size: 5em;
         }
 
         .secondary-text {
             color: #FFC100;
         }
 
-        .info-text {
-            color: #717171;
+        #quote-info {
+            margin-top: 2em;
         }
 
-        #mini-quote {
-            margin-top: 2em;
+        .info-text {
+            color: #717171;
             font-weight: 500;
             font-size: 1.1em;
             font-style: italic;
@@ -102,6 +127,52 @@
             height: fit-content;
             filter: grayscale(0.3);
         }
+
+        #statistics {
+            width: 100vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5em;
+            padding: 5em 5em 5em 10em;
+            background-color: #F5F7FA;
+        }
+
+        .statistics-primary-text {
+            font-size: 4em;
+        }
+
+        #statistics-info-text {
+            margin-top: 3em;
+        }
+
+        #statistics-right {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            row-gap: 3em;
+            column-gap: 10em;
+        }
+
+        .statistics-icons {
+            width: 4em;
+        }
+
+        .statistic {
+            display: flex;
+            gap: 2em;
+        }
+
+        .statistics-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .statistics-numbers {
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+
     </style>
 
 </head>
@@ -110,14 +181,14 @@
     <div id="taxi-section">
         <div id="ride-book">
             <div id="quote-text">
-                <h1 class="primary-text" id="quote-primary-text">
+                <h1 class="primary-text">
                     Fast, Friendly, Reliable
                 </h1>
                 <h1 class="secondary-text">
                     Your Ride, Your Smile!
                 </h1>
 
-                <h6 class="info-text" id="mini-quote">Getting you where you want to go. Your satisfaction, our commitment.</h6>
+                <h6 class="info-text" id="quote-info">Getting you where you want to go. Your satisfaction, our commitment.</h6>
 
                 <form asp-controller="Home" asp-action="Register">
                     <button id="register-button">Register Now</button>
@@ -145,5 +216,53 @@
         </div>
 
     </div>
+
+    <div id="statistics">
+        <div id="statistics-left">
+            <h1 class="primary-text statistics-primary-text">Helping people find<br></h1>
+            <h1 class="secondary-text statistics-primary-text">each other</h1>
+            <p class="info-text" id="statistics-info-text">We reached here with our hard work and dedication</p>
+        </div>
+
+        <div id="statistics-right">
+            <div class="statistic">
+                <img class="statistics-icons" src="~/images/Home/icons/passengers-icon.svg" />
+
+                <div class="statistics-text">
+                    <h2 class="primary-text statistics-numbers">123,444</h2>
+                    <p class="info-text">Passengers</p>
+                </div>
+            </div>
+
+            <div class="statistic">
+                <img class="statistics-icons" src="~/images/Home/icons/car-icon.svg" />
+
+                <div class="statistics-text">
+                    <h2 class="primary-text statistics-numbers">432</h2>
+                    <p class="info-text">Taxis</p>
+                </div>
+            </div>
+
+            <div class="statistic">
+                <img class="statistics-icons" src="~/images/Home/icons/road-icon.svg" />
+
+                <div class="statistics-text">
+                    <h2 class="primary-text statistics-numbers">675,392</h2>
+                    <p class="info-text">km travelled</p>
+                </div>
+            </div>
+
+            <div class="statistic">
+                <img class="statistics-icons" src="~/images/Home/icons/city-icon.svg" />
+
+                <div class="statistics-text">
+                    <h2 class="primary-text statistics-numbers">7</h2>
+                    <p class="info-text">cities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
 </body>
