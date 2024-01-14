@@ -1,11 +1,26 @@
 using GoTaxi.BLL.Interfaces;
 using GoTaxi.BLL.Services;
+using GoTaxi.DAL.Data;
+using GoTaxi.DAL.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<DriverRepository>();
+
+builder.Services.AddDbContext<GoTaxiDbContext>(options =>
+{
+    options.UseSqlServer(@"
+                Server = .\SQLEXPRESS;
+                Database = GoTaxiDB;
+                Trusted_Connection=true;
+                Integrated Security=true;
+                TrustServerCertificate=true");
+});
 
 var app = builder.Build();
 

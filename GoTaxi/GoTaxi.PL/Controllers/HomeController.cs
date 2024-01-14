@@ -26,13 +26,19 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public IActionResult LoginDriver(string plateNumber)
+    public IActionResult LoginDriver(string plateNumber, string password)
     {
-        bool isAuthenticated = _driverService.CheckDriver(plateNumber);
+        bool isExisting = _driverService.CheckDriver(plateNumber);
 
-        if (isAuthenticated)
+        if (isExisting)
         {
-            return RedirectToAction("Taxi", "Taxi");
+            bool isAuthenticated = _driverService.AuthenticateDriver(plateNumber, password);
+            if (isAuthenticated)
+            {
+                return RedirectToAction("Taxi", "Taxi");
+            }
+            // Return a message indicating account not found
+            return Json(new { success = false, message = "Wrong password" });
         }
         else
         {
@@ -42,7 +48,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public IActionResult RegisterDriver(string plateNumber, string username, string email, string password)
+    public IActionResult RegisterDriver(string plateNumber, string email, string fullName, string password)
     {
         ViewBag.ErrorMessage = "";
 
@@ -50,7 +56,7 @@ public class HomeController : Controller
 
         if (!isExisting)
         {
-            _driverService.AddDriver(plateNumber, username, email, password);
+            _driverService.AddDriver(plateNumber, email, fullName, password);
             return RedirectToAction("Index");
         }
         else

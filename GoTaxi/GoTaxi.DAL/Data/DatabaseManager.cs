@@ -1,37 +1,15 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using GoTaxi.DAL.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace GoTaxi.DAL.Data
 {
-    public class DatabaseManager
+    public class GoTaxiDbContext : DbContext
     {
-        private static SqlConnection connectionInstance = null;
+        public DbSet<Driver> Drivers { get; set; }
 
-        private DatabaseManager() { }
-
-        public static SqlConnection GetInstance()
+        public GoTaxiDbContext(DbContextOptions<GoTaxiDbContext> options) : base(options)
         {
-            string connectionString = @"
-                Server = .\SQLEXPRESS;
-                Database = GoTaxiDB;
-                Trusted_Connection=true;
-                Integrated Security=true;
-                TrustServerCertificate=true";
-
-            try
-            {
-                if (connectionInstance == null)
-                {
-                    connectionInstance = new SqlConnection(connectionString);
-                }
-
-                return connectionInstance;
-            }
-            catch (SqlException exception)
-            {
-                Console.WriteLine(exception);
-                return null;
-            }
-
         }
     }
 }

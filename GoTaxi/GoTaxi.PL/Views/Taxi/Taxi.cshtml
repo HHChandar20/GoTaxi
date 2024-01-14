@@ -1,8 +1,4 @@
-﻿@{
-    ViewData["Title"] = "Taxi";
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -30,6 +26,13 @@
             width: 40px;
         }
 
+        .marker-border2 {
+            background: green;
+            border-radius: 50%;
+            height: 40px;
+            width: 40px;
+        }
+
         .marker-icon {
             background-position: center;
             background-size: 25px 20px;
@@ -39,7 +42,6 @@
             height: 20px;
             width: 25px;
         }
-
     </style>
 </head>
 
@@ -48,60 +50,184 @@
         <div id="map"></div>
     </div>
     <script type="text/javascript">
-        function initMap() {
 
-            // Get the user's location
+        let driverMarkers = [];
+
+        function sendLocationToServer(longitude, latitude) {
+            const locationData = {
+                longitude: longitude,
+                latitude: latitude
+            };
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/Taxi/UpdateLocation', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log('Location update successful:', xhr.responseText);
+                    } else {
+                        console.error('Error updating location. Status code:', xhr.status);
+                    }
+                }
+            };
+
+            const jsonData = JSON.stringify(locationData);
+            xhr.send(jsonData);
+        }
+
+        function addDriverMarkers(map, drivers) {
+            let counter = 0;
+
+            drivers.forEach(driver => {
+                const driverPosition = [driver.longitude, driver.latitude];
+
+                let div2 = document.createElement('div');
+                div2.innerHTML = `<p>${driver.fullName}</p>`;
+
+                let popup2 = new tt.Popup({
+                    closeButton: false,
+                    offset: 25,
+                    anchor: 'bottom'
+                }).setDOMContent(div2);
+
+                let border2 = document.createElement('div');
+                border2.className = 'marker-border2';
+
+                let icon2 = document.createElement('div');
+                icon2.className = 'marker-icon';
+                icon2.style.backgroundImage = 'url(/images/taxi-icon.png)';
+                border2.appendChild(icon2);
+
+                driverMarkers[counter] = new tt.Marker({
+                    element: border2
+                }).setLngLat(driverPosition).setPopup(popup2);
+
+                driverMarkers[counter].addTo(map);
+
+                counter++;
+            });
+        }
+
+        function updateDriverMarkers(map, drivers) {
+            let counter = 0;
+
+            drivers.forEach(driver => {
+                const driverPosition = [driver.longitude, driver.latitude];
+
+                let div2 = document.createElement('div');
+                div2.innerHTML = `<p>${driver.fullName}</p>`;
+
+                let popup2 = new tt.Popup({
+                    closeButton: false,
+                    offset: 25,
+                    anchor: 'bottom'
+                }).setDOMContent(div2);
+
+                let border2 = document.createElement('div');
+                border2.className = 'marker-border2';
+
+                driverMarkers[counter].setLngLat(driverPosition).setPopup(popup2)
+
+                counter++;
+            });
+        }
+
+        function initMap() {
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const userPosition = [position.coords.longitude, position.coords.latitude];
+                    sendLocationToServer(userPosition[0], userPosition[1]);
 
-                    // Initialize the map with the user's location
                     const map = tt.map({
                         key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
                         container: 'map',
                         center: userPosition,
                         zoom: 13
-                    })
-                    map.on('load', () => {
-                        let div = document.createElement('div')
-                        div.innerHTML = '<p> You </p>'
-
-                        let popup = new tt.Popup({
-                            closeButton: false,
-                            offset: 25,
-                            anchor: 'bottom'
-                        }).setDOMContent(div)
-
-                        let border = document.createElement('div')
-                        border.className = 'marker-border'
-
-                        let icon = document.createElement('div')
-                        icon.className = 'marker-icon'
-                        icon.style.backgroundImage = 'url(/images/taxi-icon.png)'
-                        border.appendChild(icon)
-
-                        let marker = new tt.Marker({
-                            element: border
-                        }).setLngLat(userPosition).setPopup(popup)
-                        marker.addTo(map)
-
                     });
 
-                    // Add a marker at the user's location
-                    //new tt.Marker().setLngLat(userPosition).addTo(map);
+                    let div = document.createElement('div');
+                    div.innerHTML = '<p>You</p>';
+
+                    let popup = new tt.Popup({
+                        closeButton: false,
+                        offset: 25,
+                        anchor: 'bottom'
+                    }).setDOMContent(div);
+
+                    let border = document.createElement('div');
+                    border.className = 'marker-border';
+
+                    let icon = document.createElement('div');
+                    icon.className = 'marker-icon';
+                    icon.style.backgroundImage = 'url(/images/taxi-icon.png)';
+                    border.appendChild(icon);
+
+                    let marker = new tt.Marker({
+                        element: border
+                    }).setLngLat(userPosition).setPopup(popup);
+                    marker.addTo(map);
+
+
+                    fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${userPosition[0]}&currentDriverLatitude=${userPosition[1]}`)
+                        .then(response => response.json())
+                        .then(nearestDrivers => {
+                            console.log(nearestDrivers);
+                            if (Array.isArray(nearestDrivers)) {
+                                addDriverMarkers(map, nearestDrivers);
+                            } else {
+                                console.error('Invalid response format:', nearestDrivers);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching nearest drivers:', error);
+                        });
+
+
+                    setInterval(function () {
+                        const currentPosition = [userPosition[0] += 0.0001, userPosition[1]];
+
+                        navigator.geolocation.getCurrentPosition(
+                            newPosition => {
+                                const newDriverPosition = [userPosition[0] += 0.0001, userPosition[1]];
+
+                                marker.setLngLat(currentPosition);
+                                sendLocationToServer(currentPosition[0], currentPosition[1]);
+                            },
+                            error => {
+                                console.error('Error getting user location:', error);
+                            },
+                            {
+                                enableHighAccuracy: true
+                            }
+                        );
+
+                        fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${currentPosition[0]}&currentDriverLatitude=${currentPosition[1]}`)
+                            .then(response => response.json())
+                            .then(nearestDrivers => {
+                                console.log(nearestDrivers);
+                                if (Array.isArray(nearestDrivers)) {
+                                    updateDriverMarkers(map, nearestDrivers);
+                                } else {
+                                    console.error('Invalid response format:', nearestDrivers);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching nearest drivers:', error);
+                            });
+
+                    }, 6000); // Repeat every minute
                 },
                 error => {
-                    console.error("Error getting user location:", error);
+                    console.error('Error getting user location:', error);
                 },
                 {
-                    enableHighAccuracy: true, // Request high accuracy
-                    timeout: 5000,           // Set a timeout (in milliseconds)
-                    maximumAge: 0            // Disable caching of the location
+                    enableHighAccuracy: true
                 }
             );
         }
 
-        // Load the map after the page has fully loaded
         window.onload = initMap;
     </script>
 </body>
