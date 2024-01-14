@@ -15,7 +15,7 @@ namespace GoTaxi.BLL.Services
 
         public void SetDriverVisibility(Driver currentDriver, bool visibility)
         {
-            currentDriver.IsVisible = visibility;
+            currentDriver.User!.IsVisible = visibility;
             _repository.UpdateDriverVisibility(currentDriver);
         }
 
@@ -51,20 +51,15 @@ namespace GoTaxi.BLL.Services
 
         public Driver? AuthenticateDriver(string plateNumber, string password)
         {
-            return _repository.GetAllDrivers().FirstOrDefault(driver => driver.PlateNumber == plateNumber && driver.Password == password);
+            return _repository.GetAllDriversWithUsers().First(driver => driver.PlateNumber == plateNumber && driver.User!.Password == password);
         }
 
         public Driver ConvertToDriver(string plateNumber, string fullName, string email, string password)
         {
-            Driver driver = new Driver();
+            User user = new User(email, fullName, password);
+            Driver driver = new Driver(plateNumber, user);
 
-            driver.PlateNumber = plateNumber;
-            driver.Email = email;
-            driver.FullName = fullName;
-            driver.Password = password;
-            driver.Longitude = 1.1000;
-            driver.Latitude = 1.1000;
-            driver.IsVisible = true;
+            driver.User!.IsVisible = true;
 
             return driver;
         }
@@ -88,60 +83,66 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateDriverVisibility(driver);
         }
 
-        public void UpdateDriverLocation(Driver driver, double longitude, double latitude)
+        public void UpdateDriverLocation(Driver driver, double newLongitude, double newLatitude)
         {
-            driver.Longitude = longitude;
-            driver.Latitude = latitude;
+            if (driver != null && driver.User != null && driver.User.Location != null)
+            {
+                driver.User.Location.Longitude = newLongitude;
+                driver.User.Location.Latitude = newLatitude;
 
-            _repository.UpdateDriverLocation(driver);
+                _repository.UpdateDriver(driver);
+            }
+            else
+            {
+                Console.WriteLine("Error updating driver location");
+            }
         }
 
         public List<Driver> GetNearestDrivers(Driver currentDriver, double currentDriverLongitude, double currentDriverLatitude)
         {
-            currentDriver = _repository.GetDriverByPlateNumber(currentDriver.PlateNumber);
+            Location currentLocation = new Location(currentDriverLongitude, currentDriverLatitude);
 
-            if (currentDriver.IsVisible == false)
+            if (currentDriver.User!.IsVisible == false)
             {
                 return new List<Driver>();
             }
 
-            List<Driver> drivers = _repository.GetAllDriversExceptCurrent(currentDriver.PlateNumber);
+            List<Driver> drivers = _repository.GetAllDriversExceptCurrentWithUsers(currentDriver.PlateNumber);
 
             if (drivers == null)
             {
                 return new List<Driver>(); // Return an empty list if there are no other drivers or only the current driver.
             }
 
-            //drivers.Remove(currentDriver);
-
             List<Driver> filteredLocations = drivers
             .Where(driver =>
-                driver.IsVisible == true &&
-                CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude) <= 6000)
+                driver.User!.IsVisible == true &&
+                CalculateDistance(currentLocation, driver.User.Location!) <= 6000)
             .OrderBy(driver =>
-                CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude))
+                CalculateDistance(currentLocation, driver.User!.Location!))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 drivers, otherwise, get all available drivers.
             int count = Math.Min(filteredLocations.Count, 10);
+
             List<Driver> nearestLocations = filteredLocations.GetRange(0, count);
 
             return nearestLocations;
         }
 
 
-        public static double CalculateDistance(double longitude1, double latitude1, double longitude2, double latitude2)
+        public static double CalculateDistance(Location location1, Location location2)
         {
-            double dLat = DegreesToRadians(latitude2 - latitude1);
-            double dLon = DegreesToRadians(longitude2 - longitude1);
+            double dLat = DegreesToRadians(location2.Latitude - location1.Latitude);
+            double dLon = DegreesToRadians(location2.Longitude - location1.Longitude);
 
             double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                        Math.Cos(DegreesToRadians(latitude1)) * Math.Cos(DegreesToRadians(latitude2)) *
+                        Math.Cos(DegreesToRadians(location1.Latitude)) * Math.Cos(DegreesToRadians(location2.Latitude)) *
                         Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
 
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-            return 6371 * c; // Distance in kilometers // 6371 - Earth radius in kilometers
+            return 6371 * c; // Distance in kilometers (6371 - Earth radius in kilometers)
         }
 
         private static double DegreesToRadians(double degrees)

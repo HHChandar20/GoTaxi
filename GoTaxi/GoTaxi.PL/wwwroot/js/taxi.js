@@ -13,12 +13,12 @@ let destinationMarker = null;
 
 
 function addDriverMarker(driver) {
-    const driverPosition = [driver.longitude, driver.latitude];
+    const driverPosition = [driver.user.location.longitude, driver.user.location.latitude];
 
     let markerDiv = document.createElement('div');
     markerDiv.innerHTML =
         `
-        <p class="driverName">${driver.fullName}</p>
+        <p class="driverName">${driver.user.fullName}</p>
         <p class="plateNumber">${driver.plateNumber}</p>
     `;
 
@@ -49,13 +49,13 @@ function addDriverMarker(driver) {
 }
 
 function addClientMarker(client) {
-    const clientPosition = [client.longitude, client.latitude];
+    const clientPosition = [client.user.location.longitude, client.user.location.latitude];
 
     let markerDiv = document.createElement('div');
     markerDiv.innerHTML =
-        `   <h6 class="destination">${client.destination}</h3>
-        <p class="name>${client.fullName}</p>
-        <p class="email>${client.email}</p>
+        `   <h6 class="destination">${client.destination.name}</h3>
+        <p class="name>${client.user.fullName}</p>
+        <p class="email>${client.user.email}</p>
         <p class="phone">${client.phoneNumber}</h6>
         <p class="reports">Reports: ${client.reports}</p>
         <button id="claim-button" onclick="claimClient('${client.phoneNumber}')">Claim</button>
@@ -85,13 +85,13 @@ function addClientMarker(client) {
 
     newMarker.addTo(map);
     newMarker.clientPhoneNumber = client.phoneNumber; // Store client phone number in the marker
-    newMarker.destination = client.destination;
+    newMarker.destination = client.destination.name;
 
     clientMarkers.push(newMarker);
 }
 
 function updateDriverMarker(marker, driver) {
-    const driverPosition = [driver.longitude, driver.latitude];
+    const driverPosition = [driver.user.location.longitude, driver.user.location.latitude];
 
     if (marker && marker.getElement() && marker.getPopup()) {
         marker.setLngLat(driverPosition);
@@ -102,7 +102,7 @@ function updateDriverMarker(marker, driver) {
             const name = markerDiv.querySelector('p.driverName');
             const plateNumber = markerDiv.querySelector('p.plateNumber');
 
-            if (name) name.innerText = driver.fullName;
+            if (name) name.innerText = driver.user.fullName;
             if (plateNumber) plateNumber.innerText = driver.plateNumber;
         }
     } else {
@@ -111,7 +111,7 @@ function updateDriverMarker(marker, driver) {
 }
 
 function updateClientMarker(marker, client) {
-    const clientPosition = [client.longitude, client.latitude];
+    const clientPosition = [client.user.location.longitude, client.user.location.latitude];
 
     // Check if the marker is defined and has an element and popup
     if (marker && marker.getElement() && marker.getPopup()) {
@@ -128,9 +128,9 @@ function updateClientMarker(marker, client) {
             const button = markerDiv.querySelector('button');
 
             // Update the elements if they exist
-            if (destination) destination.innerText = client.destination;
-            if (name) name.innerText = client.fullName;
-            if (email) email.innerText = client.email;
+            if (destination) destination.innerText = client.destination.name;
+            if (name) name.innerText = client.user.fullName;
+            if (email) email.innerText = client.user.email;
             if (phoneNumber) phoneNumber.innerText = client.phoneNumber;
             if (reports) reports.innerText = `Reports: ${client.reports}`;
             if (button) button.onclick = function () { claimClient(client.phoneNumber); };
@@ -169,6 +169,8 @@ function updateClientMarkers(newClients) {
     const existingClientPhoneNumbers = clientMarkers.map(marker => marker.clientPhoneNumber);
     const newClientPhoneNumbers = newClients.map(client => client.phoneNumber);
 
+    console.log(newClients);
+
     // Remove markers for clients that are not in the new list
     const clientsToRemove = clientMarkers.filter(marker => !newClientPhoneNumbers.includes(marker.clientPhoneNumber));
     clientsToRemove.forEach(marker => {
@@ -180,6 +182,7 @@ function updateClientMarkers(newClients) {
     // Update or add markers for the new clients
     newClients.forEach(client => {
         const index = existingClientPhoneNumbers.indexOf(client.phoneNumber);
+
         if (index !== -1) {
             // Update existing marker
             updateClientMarker(clientMarkers[index], client);
@@ -194,10 +197,8 @@ function getNearestDrivers(currentPosition) {
     fetch(`/Taxi/GetNearestDrivers?currentDriverLongitude=${currentPosition[0]}&currentDriverLatitude=${currentPosition[1]}`)
         .then(response => response.json())
         .then(nearestDrivers => {
-            if (Array.isArray(nearestDrivers)) {
+            if (nearestDrivers.length > 0) {
                 updateDriverMarkers(nearestDrivers);
-            } else {
-                console.error('Invalid response format:', nearestDrivers);
             }
         })
         .catch(error => {
@@ -209,12 +210,9 @@ function getNearestClients(currentPosition) {
     fetch(`/Taxi/GetNearestClients?currentClientLongitude=${currentPosition[0]}&currentClientLatitude=${currentPosition[1]}`)
         .then(response => response.json())
         .then(nearestClients => {
-            if (Array.isArray(nearestClients)) {
+            if (nearestClients.length > 0) {
 
                 updateClientMarkers(nearestClients);
-            }
-            else {
-                console.error('Invalid response format:', nearestClients);
             }
         })
         .catch(error => {
@@ -225,12 +223,14 @@ function getNearestClients(currentPosition) {
 function addDestinationMarker() {
     clearMarkers();
 
-    let destinationPosition = [claimedClient.destinationLongitude, claimedClient.destinationLatitude];
+    console.log(claimedClient)
+
+    let destinationPosition = [claimedClient.destination.location.longitude, claimedClient.destination.location.latitude];
 
     let markerDiv = document.createElement('div');
     markerDiv.innerHTML =
         `
-        <p class="destinationName">${claimedClient.destination}</p>
+        <p class="destinationName">${claimedClient.destination.name}</p>
     `;
 
     let markerPopup = new tt.Popup({
@@ -264,7 +264,8 @@ function clearMarkers(phoneNumber = 0) {
     });
 
     clientMarkers = clientMarkers.filter(marker => {
-        if ((marker.clientPhoneNumber != phoneNumber) || clientIsInTheCar) {
+        if ((marker.clientPhoneNumber !== phoneNumber) || clientIsInTheCar === true) {
+            console.log("no")
             marker.remove();
             return false;  // Exclude this marker from the new array
         }
@@ -317,7 +318,6 @@ function claimClient(phoneNumber) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-
             } else {
                 console.error('Error updating location. Status code:', xhr.status);
             }
@@ -329,8 +329,9 @@ function claimClient(phoneNumber) {
 
     claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === phoneNumber);
 
-    createRouteToClient();
+    checkMarkers();
 
+    console.log(phoneNumber)
     clearMarkers(phoneNumber);
     isActive = true;
 }
@@ -356,7 +357,7 @@ function createRouteToClient() {
         let longitude = 90;
         let latitude = 90;
 
-        if (clientIsInTheCar) {
+        if (clientIsInTheCar === true) {
             longitude = destinationMarker.getLngLat().lng;
             latitude = destinationMarker.getLngLat().lat;
         }
@@ -395,6 +396,15 @@ function checkClaimedClient() {
         fetch(`/Taxi/CheckClaimedClient`)
             .then(response => response.json())
             .then(client => {
+
+                if (client === null && claimedClientMarker) {
+                    claimedClientMarker.remove();
+                    claimedClientMarker = null;
+                    clearMarkers();
+                    deleteRoute();
+                    clientIsInTheCar = false;
+                }
+
                 claimedClient = client;
                 resolve(); // Resolve the promise once the asynchronous operation is complete
             })
@@ -516,8 +526,6 @@ async function initMap() {
 
     checkMarkers();
     setInterval(function () {
-        /* -= 0.0005 */
-        /* -= 0.0005 */
 
         navigator.geolocation.getCurrentPosition(
             newPosition => {
@@ -549,7 +557,13 @@ async function initMap() {
         checkMarkers();
 
         if (claimedClient === null) {
+
             deleteRoute();
+            if (claimedClient) {
+                claimedClientMarker.remove();
+                claimedClientMarker = null;
+            }
+
             clientIsInTheCar = false;
         }
 

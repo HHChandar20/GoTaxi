@@ -18,12 +18,7 @@ builder.Services.AddScoped<ClientRepository>();
 
 builder.Services.AddDbContext<GoTaxiDbContext>(options =>
 {
-    options.UseSqlServer(@"
-                Server = .\SQLEXPRESS;
-                Database = GoTaxiDB;
-                Trusted_Connection=true;
-                Integrated Security=true;
-                TrustServerCertificate=true");
+    options.UseSqlServer(@"Server = .\SQLEXPRESS;Database = GoTaxiDB;Trusted_Connection=true;Integrated Security=true;TrustServerCertificate=true");
 });
 
 var app = builder.Build();

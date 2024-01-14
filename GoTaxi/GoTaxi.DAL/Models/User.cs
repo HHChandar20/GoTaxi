@@ -1,28 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GoTaxi.DAL.Models
 {
     public class User
     {
+        [Key]
+        public int UserId { get; set; }
+        [EmailAddress]
         public string Email { get; set; }
         public string FullName { get; set; }
         public string Password { get; set; }
-        public bool? IsVisible { get; set; }
-        public double Longitude { get; set; }
-        public double Latitude { get; set; }
+        public bool IsVisible { get; set; }
+        public int? LocationId { get; set; }
 
-        protected User()
+        [ForeignKey("LocationId")]
+        public Location? Location { get; set; }
+
+        public User()
         {
-            Email = "NotDefined";
-            FullName = "NotDefined";
-            Password = "NotDefined";
+            Email = string.Empty;
+            FullName = string.Empty;
+            Password = string.Empty;
             IsVisible = false;
-            Longitude = 0.0;
-            Latitude = 0.0;
+            Location = null;
+        }
+
+        public User(string email, string fullName, string password)
+        {
+            Email = email;
+            FullName = fullName;
+            Password = password;
+            IsVisible = false;
+            Location = new Location(90, 90);
         }
     }
 }

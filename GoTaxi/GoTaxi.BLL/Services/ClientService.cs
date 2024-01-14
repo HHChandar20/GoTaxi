@@ -46,17 +46,13 @@ namespace GoTaxi.BLL.Services
 
         public Client? AuthenticateClient(string phoneNumber, string password)
         {
-            return _repository.GetAllClients().First(client => client.PhoneNumber == phoneNumber && client.Password == password);
+            return _repository.GetAllClientsWithUsers().First(client => client.PhoneNumber == phoneNumber && client.User!.Password == password);
         }
 
         public Client ConvertToClient(string phoneNumber, string fullName, string email, string password)
         {
-            Client client = new Client();
-
-            client.PhoneNumber = phoneNumber;
-            client.Email = email;
-            client.FullName = fullName;
-            client.Password = password;
+            User user = new User(email, fullName, password);
+            Client client = new Client(phoneNumber, user);
 
             return client;
         }
@@ -71,46 +67,58 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(ConvertToClient(phoneNumber, fullName, email, password));
         }
 
-        public void UpdateClientLocation(Client client, double longitude, double latitude)
+        public void UpdateClientLocation(Client client, double newLongitude, double newLatitude)
         {
+            if (client != null && client.User != null && client.User.Location != null)
+            {
+                client.User.Location.Longitude = newLongitude;
+                client.User.Location.Latitude = newLatitude;
 
-            client.Longitude = longitude;
-            client.Latitude = latitude;
-
-            _repository.UpdateClient(client);
+                _repository.UpdateClient(client);
+            }
+            else
+            {
+                Console.WriteLine("Error updating client location");
+            }
         }
 
         public void UpdateClientDestination(Client client, string? newDestination, double newLongitude, double newLatitude, bool newVisibility)
         {
-            // Additional logic to handle driver visibility
-            Driver driver;
-
-            if (client.ClaimedBy != null)
+            if (client != null && client.Destination != null)
             {
-                driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy);
-                driver.IsVisible = !newVisibility;
+                Driver driver;
 
-                if (!newVisibility)
+                if (client.ClaimedBy != null)
                 {
-                    // Client canceled the request
-                    _driverService.UpdateDriverVisibility(driver);
-                    client.ClaimedBy = null;
+                    driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
+                    driver.User!.IsVisible = !newVisibility;
+
+                    if (!newVisibility)
+                    {
+                        // Client canceled the request
+                        _driverService.UpdateDriverVisibility(driver);
+                        client.ClaimedBy = null;
+                    }
                 }
+
+                client.Destination.Name = newDestination;
+                client.Destination.Location!.Longitude = newLongitude;
+                client.Destination.Location.Latitude = newLatitude;
+                client.User!.IsVisible = newVisibility;
+
+                _repository.UpdateClient(client);
             }
-
-            client.Destination = newDestination;
-            client.DestinationLongitude = newLongitude;
-            client.DestinationLatitude = newLatitude;
-            client.IsVisible = newVisibility;
-
-            _repository.UpdateClient(client);
+            else
+            {
+                Console.WriteLine("Error updating client destination");
+            }
         }
 
 
         public void ClaimClient(Driver driver, string phoneNumber)
         {
             Client client = _repository.GetClientByPhoneNumber(phoneNumber);
-            client.ClaimedBy = driver.PlateNumber;
+            client.DriverId = driver.DriverId;
             _repository.UpdateClient(client);
         }
 
@@ -118,63 +126,89 @@ namespace GoTaxi.BLL.Services
         {
             if (client.ClaimedBy == null) return null;
 
-            return _driverService.GetDriverByPlateNumber(client.ClaimedBy);
+            return _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
         }
 
-        public Client GetClaimedClient(Driver driver)
+        public Client? GetClaimedClient(Driver driver)
         {
-            return _repository.GetAllClients().First(client => client.ClaimedBy == driver.PlateNumber);
+            Client claimedClient = _repository.GetAllClientsWithUsers().First(client => client.ClaimedBy?.PlateNumber == driver.PlateNumber);
+
+            if (claimedClient.User!.IsVisible == true)
+            {
+                return claimedClient;
+            }
+
+            driver.User!.IsVisible = true;
+            claimedClient.ClaimedBy = null;
+            _driverService.UpdateDriverVisibility(driver);
+            _repository.UpdateClient(claimedClient);
+
+            return null;
+
         }
 
         public bool IsInTheCar(string phoneNumber)
         {
             Client client = GetClientByPhoneNumber(phoneNumber);
-            Driver driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy!);
+            Driver driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy!.PlateNumber);
 
-            return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.003; /// 300 m
+            if (driver.User!.Location != null && client.User!.Location != null)
+            {
+                return CalculateDistance(driver.User.Location, client.User.Location) < 0.003; /// 300 m
+            }
+
+            return false;
+
         }
 
-        public List<Client> GetNearestClients(Driver driver, double currentLongitude, double currentLatitude)
+        public List<Client> GetNearestClients(Driver currentDriver, double currentLongitude, double currentLatitude)
         {
+            Location currentLocation = new Location(currentLongitude, currentLatitude);
+
             List<Client> clients = new List<Client>();
 
-            if (driver.IsVisible == false)
+
+            if (currentDriver.User!.IsVisible == false)
             {
-                clients.Add(GetClaimedClient(driver));
+                if (GetClaimedClient(currentDriver) == null)
+                {
+                    return clients;
+                }
+                clients.Add(GetClaimedClient(currentDriver)!);
 
                 return clients;
             }
 
-            clients = _repository.GetAllClients();
+            clients = _repository.GetAllClientsWithUsers();
 
             List<Client> filteredLocations = clients
             .Where(client =>
-                client.IsVisible == true &&
+                client.User!.IsVisible == true &&
                 client.ClaimedBy == null &&
-                CalculateDistance(currentLongitude, currentLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
+                CalculateDistance(currentLocation, client.User.Location!) <= 60) // Max Distance 60 km
             .OrderBy(client =>
-                CalculateDistance(currentLongitude, currentLatitude, client.Longitude, client.Latitude))
+                CalculateDistance(currentLocation, client.User!.Location!))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 clients, otherwise, get all available clients.
             int count = Math.Min(filteredLocations.Count, 10);
             List<Client> nearestLocations = filteredLocations.GetRange(0, count);
+
             return nearestLocations;
         }
 
-
-        public static double CalculateDistance(double longitude1, double latitude1, double longitude2, double latitude2)
+        public static double CalculateDistance(Location location1, Location location2)
         {
-            double dLat = DegreesToRadians(latitude2 - latitude1);
-            double dLon = DegreesToRadians(longitude2 - longitude1);
+            double dLat = DegreesToRadians(location2.Latitude - location1.Latitude);
+            double dLon = DegreesToRadians(location2.Longitude - location1.Longitude);
 
             double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                        Math.Cos(DegreesToRadians(latitude1)) * Math.Cos(DegreesToRadians(latitude2)) *
+                        Math.Cos(DegreesToRadians(location1.Latitude)) * Math.Cos(DegreesToRadians(location2.Latitude)) *
                         Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
 
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-            return 6371 * c; // Distance in kilometers // 6371 - Earth radius in kilometers
+            return 6371 * c; // Distance in kilometers (6371 - Earth radius in kilometers)
         }
 
         private static double DegreesToRadians(double degrees)

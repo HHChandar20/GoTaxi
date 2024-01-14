@@ -1,5 +1,6 @@
 ﻿using GoTaxi.DAL.Data;
 using GoTaxi.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GoTaxi.DAL.Repositories
 {
@@ -17,14 +18,26 @@ namespace GoTaxi.DAL.Repositories
             return _context.Drivers.ToList();
         }
 
-        public List<Driver> GetAllDriversExceptCurrent(string plateNumber)
+        public List<Driver> GetAllDriversWithUsers()
         {
-            return _context.Drivers.Where(driver => driver.PlateNumber != plateNumber).ToList();
+            return _context.Drivers
+                .Include(d => d.User)
+                    .ThenInclude(u => u!.Location)
+                .ToList();
+        }
+
+        public List<Driver> GetAllDriversExceptCurrentWithUsers(string plateNumber)
+        {
+            return _context.Drivers
+                .Include(d => d.User)
+                    .ThenInclude(u => u!.Location)
+                .Where(driver => driver.PlateNumber != plateNumber)
+                .ToList();
         }
 
         public Driver GetDriverByPlateNumber(string plateNumber)
         {
-            return _context.Drivers.First(driver => driver.PlateNumber == plateNumber);
+            return _context.Drivers.Include(d => d.User).ThenInclude(u => u!.Location).First(driver => driver.PlateNumber == plateNumber);
         }
 
         public void AddDriver(Driver newDriver)
@@ -35,13 +48,13 @@ namespace GoTaxi.DAL.Repositories
 
         public void UpdateDriver(Driver updatedDriver)
         {
-            Driver existingDriver = _context.Drivers.First(driver => driver.PlateNumber == updatedDriver.PlateNumber);
+            Driver existingDriver = GetDriverByPlateNumber(updatedDriver.PlateNumber);
 
             if (existingDriver != null)
             {
-                existingDriver.Email = updatedDriver.Email;
-                existingDriver.FullName = updatedDriver.FullName;
-                existingDriver.Password = updatedDriver.Password;
+                existingDriver.User!.Email = updatedDriver.User!.Email;
+                existingDriver.User.FullName = updatedDriver.User.FullName;
+                existingDriver.User.Password = updatedDriver.User.Password;
 
                 _context.SaveChanges();
             }
@@ -49,12 +62,11 @@ namespace GoTaxi.DAL.Repositories
 
         public void UpdateDriverLocation(Driver updatedDriver)
         {
-            Driver existingDriver = _context.Drivers.First(driver => driver.PlateNumber == updatedDriver.PlateNumber);
+            Driver existingDriver = GetDriverByPlateNumber(updatedDriver.PlateNumber);
 
             if (existingDriver != null)
             {
-                existingDriver.Longitude = updatedDriver.Longitude;
-                existingDriver.Latitude = updatedDriver.Latitude;
+                existingDriver.User!.Location = updatedDriver.User!.Location;
 
                 _context.SaveChanges();
             }
@@ -62,11 +74,11 @@ namespace GoTaxi.DAL.Repositories
 
         public void UpdateDriverVisibility(Driver updatedDriver)
         {
-            Driver existingDriver = _context.Drivers.First(driver => driver.PlateNumber == updatedDriver.PlateNumber);
+            Driver existingDriver = GetDriverByPlateNumber(updatedDriver.PlateNumber);
 
             if (existingDriver != null)
             {
-                existingDriver.IsVisible = updatedDriver.IsVisible;
+                existingDriver.User!.IsVisible = updatedDriver.User!.IsVisible;
 
                 _context.SaveChanges();
             }

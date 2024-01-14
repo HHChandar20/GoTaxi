@@ -4,9 +4,6 @@ let marker;
 let driverMarker;
 let sharingLocation;
 
-isClientVisible();
-
-
 const button = document.getElementById('locationButton');
 const input = document.getElementById('destination');
 const destinationForm = document.getElementById("destination-form");
@@ -83,7 +80,6 @@ function toggleLocationSharing() {
         sharingLocation = false;
         button.innerHTML = 'Request Taxi';
         clearInterval(interval);
-        sendLocationToServer(90, 90);
         updateDestination("", 90, 90, false);
 
         if (driverMarker) driverMarker.remove();
@@ -187,8 +183,8 @@ function getClientDestination() {
         .then(response => response.json())
         .then(destination => {
             if (destination != null) {
-                input.value = destination;
-                selectedPlace = destination;
+                input.value = destination.name;
+                selectedPlace = destination.name;
             }
         })
         .catch(error => {

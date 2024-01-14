@@ -77,6 +77,7 @@ namespace GoTaxi.PL.Controllers
                 string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
                 Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
                 List<Client> nearestClients = _clientService.GetNearestClients(currentDriver, currentClientLongitude, currentClientLatitude);
+
                 return Json(nearestClients);
             }
             catch (Exception ex)
@@ -114,7 +115,8 @@ namespace GoTaxi.PL.Controllers
             {
                 string plateNumber = HttpContext.Request.Cookies["CurrentPlateNumber"]!;
                 Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
-                Client claimedClient = _clientService.GetClaimedClient(currentDriver);
+                Client? claimedClient = _clientService.GetClaimedClient(currentDriver);
+
                 return Json(claimedClient);
             }
             catch (Exception ex)

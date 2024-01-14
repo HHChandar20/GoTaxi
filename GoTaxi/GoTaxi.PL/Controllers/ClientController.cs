@@ -119,7 +119,7 @@ namespace GoTaxi.PL.Controllers
             {
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
                 Client currentClient = _clientService.GetClientByPhoneNumber(phoneNumber);
-                return Json(currentClient.IsVisible);
+                return Json(currentClient.User!.IsVisible);
             }
             catch (Exception ex)
             {
