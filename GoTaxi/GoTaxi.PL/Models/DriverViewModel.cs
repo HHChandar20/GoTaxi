@@ -3,7 +3,7 @@
     public class DriverViewModel
     {
         private string _plateNumber;
-        private string _username;
+        private string _fullName;
         private string _email;
         private string _password;
 
@@ -13,10 +13,10 @@
             set { _plateNumber = value; }
         }
 
-        public string Username
+        public string FullName
         {
-            get { return _username; }
-            set { _username = value; }
+            get { return _fullName; }
+            set { _fullName = value; }
         }
 
         public string Email
@@ -35,7 +35,7 @@
         DriverViewModel()
         {
             _plateNumber = "NotDefined";
-            _username = "NotDefined";
+            _fullName = "NotDefined";
             _email = "NotDefined";
             _password = "NotDefined";
         }

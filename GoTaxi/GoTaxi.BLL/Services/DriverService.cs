@@ -1,12 +1,6 @@
 ﻿using GoTaxi.BLL.Interfaces;
 using GoTaxi.DAL.Models;
 using GoTaxi.DAL.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GoTaxi.BLL.Services
 {
@@ -21,7 +15,12 @@ namespace GoTaxi.BLL.Services
 
         public bool CheckDriver(string plateNumber)
         {
-            List<Driver> drivers = repositoryInstance.GetDrivers();
+            List<Driver> drivers = repositoryInstance.GetAllDrivers();
+
+            if (drivers == null)
+            {
+                return false;
+            }
 
             foreach (Driver driver in drivers)
             {
@@ -34,21 +33,26 @@ namespace GoTaxi.BLL.Services
             return false;
         }
 
-        public Driver ConvertToDriver(string plateNumber, string username, string email, string password)
+        public Driver ConvertToDriver(string plateNumber, string fullName, string email, string password)
         {
             Driver driver = new Driver();
 
             driver.PlateNumber = plateNumber;
-            driver.Username = username;
             driver.Email = email;
+            driver.FullName = fullName;
             driver.Password = password;
 
             return driver;
         }
 
-        public void AddDriver(string plateNumber, string username, string email, string password)
+        public void AddDriver(string plateNumber, string fullName, string email, string password)
         {
-            repositoryInstance.AddDriver(ConvertToDriver(plateNumber, username, email, password));
+            repositoryInstance.AddDriver(ConvertToDriver(plateNumber, fullName, email, password));
+        }
+
+        public void UpdateDriver(string plateNumber, string fullName, string email, string password)
+        {
+            repositoryInstance.UpdateDriver(ConvertToDriver(plateNumber, fullName, email, password));
         }
     }
 }
