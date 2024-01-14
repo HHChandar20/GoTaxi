@@ -20,7 +20,7 @@ namespace GoTaxi.BLL.Interfaces
         void UpdateDriverVisibility(string plateNumber);
         void UpdateDriverVisibility(Driver driver);
         void UpdateDriverLocation(string plateNumber, double longitude, double latitude);
-        List<Driver> GetNearestDrivers(string plateNumber, double currentDriverLongitude, double currentDriverLatitude);
+        List<Driver> GetNearestDrivers(string plateNumber, double longitude, double latitude);
         Driver ConvertToDriver(string plateNumber, string fullName, string email, string password);
         List<Driver> GetDrivers();
     }

@@ -9,12 +9,35 @@ namespace GoTaxi.DAL.Models
 {
     public class Destination
     {
-        public int DestinationId { get; set; }
-        public string? Name { get; set; }
-        public int? LocationId { get; set; }
+        private int destinationId;
+        private string? name;
+        private int? locationId;
+        private Location? location;
+
+        public int DestinationId
+        {
+            get { return destinationId; }
+            set { destinationId = value; }
+        }
+
+        public string? Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public int? LocationId
+        {
+            get { return locationId; }
+            set { locationId = value; }
+        }
 
         [ForeignKey("LocationId")]
-        public Location? Location { get; set; }
+        public Location? Location
+        {
+            get { return location; }
+            set { location = value; }
+        }
 
         public Destination()
         {

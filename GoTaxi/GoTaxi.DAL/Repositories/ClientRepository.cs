@@ -67,14 +67,7 @@ namespace GoTaxi.DAL.Repositories
 
             if (existingClient != null)
             {
-                existingClient.User!.Email = updatedClient.User!.Email;
-                existingClient.User.FullName = updatedClient.User.FullName;
-                existingClient.User.Password = updatedClient.User.Password;
-                existingClient.Destination!.Location = updatedClient.Destination!.Location;
-                existingClient.ClaimedBy = updatedClient.ClaimedBy;
-                existingClient.User.IsVisible = updatedClient.User.IsVisible;
-                existingClient.User.Location = updatedClient.User.Location;
-
+                _context.Entry(existingClient).CurrentValues.SetValues(updatedClient);
                 _context.SaveChanges();
             }
         }

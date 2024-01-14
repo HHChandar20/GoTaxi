@@ -5,10 +5,10 @@ namespace GoTaxi.PL.Controllers
 {
     public class DestinationData
     {
-        public string? NewDestination { get; set; }
-        public double NewLongitude { get; set; }
-        public double NewLatitude { get; set; }
-        public bool NewVisibility { get; set; }
+        public string? destination { get; set; }
+        public double longitude { get; set; }
+        public double latitude { get; set; }
+        public bool visibility { get; set; }
     }
 
     public class ClientController : Controller
@@ -58,7 +58,7 @@ namespace GoTaxi.PL.Controllers
             try
             {
                 string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                _clientService.UpdateClientDestination(phoneNumber, destinationData.NewDestination, destinationData.NewLongitude, destinationData.NewLatitude, destinationData.NewVisibility);
+                _clientService.UpdateClientDestination(phoneNumber, destinationData.destination, destinationData.longitude, destinationData.latitude, destinationData.visibility);
 
                 return Json(new { success = true, message = "Location updated successfully" });
             }
@@ -80,10 +80,9 @@ namespace GoTaxi.PL.Controllers
 
                 return Json(_clientService.GetClientByPhoneNumber(phoneNumber).Destination);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error checking client: {ex.Message}");
-                return Json(new { success = false, message = "Internal server error" });
+                return Json(null);
             }
         }
 

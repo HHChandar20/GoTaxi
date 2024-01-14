@@ -18,7 +18,7 @@ namespace GoTaxi.BLL.Services
             Driver currentDriver = _repository.GetDriverByPlateNumber(plateNumber);
 
             currentDriver.User!.IsVisible = visibility;
-            _repository.UpdateDriverVisibility(currentDriver);
+            _repository.UpdateDriver(currentDriver);
         }
 
         public List<Driver> GetDrivers()
@@ -33,34 +33,13 @@ namespace GoTaxi.BLL.Services
 
         public bool CheckDriver(string plateNumber)
         {
-            List<Driver> drivers = _repository.GetAllDrivers();
-
-            if (drivers == null)
-            {
-                return false;
-            }
-
-            foreach (Driver driver in drivers)
-            {
-                if (driver.PlateNumber == plateNumber)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _repository.GetAllDrivers()?.Any(driver => driver.PlateNumber == plateNumber) ?? false;
         }
 
         public bool AuthenticateDriver(string plateNumber, string password)
         {
-            Driver? driver = _repository.GetAllDriversWithUsers().FirstOrDefault(driver => driver.PlateNumber == plateNumber && driver.User?.Password == password);
-
-            if (driver == null)
-            {
-                return false;
-            }
-
-            return true;
+            return _repository.GetAllDriversWithUsers()
+                .Any(driver => driver.PlateNumber == plateNumber && driver.User?.Password == password);
         }
 
         public Driver ConvertToDriver(string plateNumber, string fullName, string email, string password)
@@ -96,22 +75,22 @@ namespace GoTaxi.BLL.Services
 
             Driver driver = _repository.GetDriverByPlateNumber(plateNumber);
 
-            _repository.UpdateDriverVisibility(driver);
+            _repository.UpdateDriver(driver);
         }
 
         public void UpdateDriverVisibility(Driver driver)
         {
-            _repository.UpdateDriverVisibility(driver);
+            _repository.UpdateDriver(driver);
         }
 
-        public void UpdateDriverLocation(string plateNumber, double newLongitude, double newLatitude)
+        public void UpdateDriverLocation(string plateNumber, double longitude, double latitude)
         {
             Driver driver = _repository.GetDriverByPlateNumber(plateNumber);
 
             if (driver != null && driver.User != null && driver.User.Location != null)
             {
-                driver.User.Location.Longitude = newLongitude;
-                driver.User.Location.Latitude = newLatitude;
+                driver.User.Location.Longitude = longitude;
+                driver.User.Location.Latitude = latitude;
 
                 _repository.UpdateDriver(driver);
             }
@@ -121,36 +100,31 @@ namespace GoTaxi.BLL.Services
             }
         }
 
-        public List<Driver> GetNearestDrivers(string plateNumber, double currentDriverLongitude, double currentDriverLatitude)
+        public List<Driver> GetNearestDrivers(string plateNumber, double longitude, double latitude)
         {
             Driver currentDriver = GetDriverByPlateNumber(plateNumber);
+            Location currentLocation = new Location(longitude, latitude);
 
-            Location currentLocation = new Location(currentDriverLongitude, currentDriverLatitude);
+            List<Driver> drivers = _repository.GetAllDriversExceptCurrentWithUsers(currentDriver.PlateNumber);
 
-            if (currentDriver.User!.IsVisible == false)
+            if (currentDriver.User!.IsVisible == false || drivers == null)
             {
                 return new List<Driver>();
             }
 
-            List<Driver> drivers = _repository.GetAllDriversExceptCurrentWithUsers(currentDriver.PlateNumber);
 
-            if (drivers == null)
-            {
-                return new List<Driver>(); // Return an empty list if there are no other drivers or only the current driver.
-            }
-
-            List<Driver> filteredLocations = drivers
+            List<Driver> filteredDrivers = drivers
             .Where(driver =>
                 driver.User!.IsVisible == true &&
-                DistanceCalculator.CalculateDistance(currentLocation, driver.User.Location!) <= 6000)
+                DistanceCalculator.CalculateDistance(currentLocation, driver.User.Location!) <= DistanceCalculator.Range) // Max distance 60 km
             .OrderBy(driver =>
                 DistanceCalculator.CalculateDistance(currentLocation, driver.User!.Location!))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 drivers, otherwise, get all available drivers.
-            int count = Math.Min(filteredLocations.Count, 10);
+            int count = Math.Min(filteredDrivers.Count, 10);
 
-            List<Driver> nearestLocations = filteredLocations.GetRange(0, count);
+            List<Driver> nearestLocations = filteredDrivers.GetRange(0, count);
 
             return nearestLocations;
         }

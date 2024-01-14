@@ -9,8 +9,13 @@ namespace GoTaxi.BLL.Services
 {
     public class DistanceCalculator
     {
+        public const int Range = 60;
+        public const double CarRange = 0.033;
+
         public static double CalculateDistance(Location location1, Location location2)
         {
+            const int earthRadius = 6371;
+
             double dLat = DegreesToRadians(location2.Latitude - location1.Latitude);
             double dLon = DegreesToRadians(location2.Longitude - location1.Longitude);
 
@@ -20,7 +25,7 @@ namespace GoTaxi.BLL.Services
 
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-            return 6371 * c; // Distance in kilometers (6371 - Earth radius in kilometers)
+            return earthRadius * c; // Distance in kilometers
         }
 
         private static double DegreesToRadians(double degrees)

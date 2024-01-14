@@ -5,34 +5,76 @@ namespace GoTaxi.DAL.Models
 {
     public class User
     {
+        private int userId;
+        private string email;
+        private string fullName;
+        private string password;
+        private bool isVisible;
+        private int? locationId;
+        private Location? location;
+
         [Key]
-        public int UserId { get; set; }
+        public int UserId
+        {
+            get { return userId; }
+            set { userId = value; }
+        }
+
         [EmailAddress]
-        public string Email { get; set; }
-        public string FullName { get; set; }
-        public string Password { get; set; }
-        public bool IsVisible { get; set; }
-        public int? LocationId { get; set; }
+        public string Email
+        {
+            get { return email; }
+            set { email = value; }
+        }
+
+        public string FullName
+        {
+            get { return fullName; }
+            set { fullName = value; }
+        }
+
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
+
+        public bool IsVisible
+        {
+            get { return isVisible; }
+            set { isVisible = value; }
+        }
+
+        public int? LocationId
+        {
+            get { return locationId; }
+            set { locationId = value; }
+        }
 
         [ForeignKey("LocationId")]
-        public Location? Location { get; set; }
+        public Location? Location
+        {
+            get { return location; }
+            set { location = value; }
+        }
+
 
         public User()
         {
-            Email = string.Empty;
-            FullName = string.Empty;
-            Password = string.Empty;
-            IsVisible = false;
-            Location = null;
+            email = "";
+            fullName = "";
+            password = "";
+            isVisible = false;
+            location = null;
         }
 
         public User(string email, string fullName, string password)
         {
-            Email = email;
-            FullName = fullName;
-            Password = password;
-            IsVisible = false;
-            Location = new Location(90, 90);
+            this.email = email;
+            this.fullName = fullName;
+            this.password = password;
+            isVisible = false;
+            location = new Location(90, 90);
         }
     }
 }

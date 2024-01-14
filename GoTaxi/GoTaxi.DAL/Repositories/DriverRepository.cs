@@ -52,34 +52,7 @@ namespace GoTaxi.DAL.Repositories
 
             if (existingDriver != null)
             {
-                existingDriver.User!.Email = updatedDriver.User!.Email;
-                existingDriver.User.FullName = updatedDriver.User.FullName;
-                existingDriver.User.Password = updatedDriver.User.Password;
-
-                _context.SaveChanges();
-            }
-        }
-
-        public void UpdateDriverLocation(Driver updatedDriver)
-        {
-            Driver existingDriver = GetDriverByPlateNumber(updatedDriver.PlateNumber);
-
-            if (existingDriver != null)
-            {
-                existingDriver.User!.Location = updatedDriver.User!.Location;
-
-                _context.SaveChanges();
-            }
-        }
-
-        public void UpdateDriverVisibility(Driver updatedDriver)
-        {
-            Driver existingDriver = GetDriverByPlateNumber(updatedDriver.PlateNumber);
-
-            if (existingDriver != null)
-            {
-                existingDriver.User!.IsVisible = updatedDriver.User!.IsVisible;
-
+                _context.Entry(existingDriver).CurrentValues.SetValues(updatedDriver);
                 _context.SaveChanges();
             }
         }

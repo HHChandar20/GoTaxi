@@ -1,317 +1,326 @@
-﻿let interval;
-let map;
-let marker;
-let driverMarker;
-let destinationMarker = null;
-let sharingLocation;
-
-const button = document.getElementById('locationButton');
-const input = document.getElementById('destination');
-const destinationForm = document.getElementById("destination-form");
-
-function sendLocationToServer(longitude, latitude) {
-    const locationData = {
-        longitude: longitude,
-        latitude: latitude
-    };
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/Client/UpdateLocation', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    const jsonData = JSON.stringify(locationData);
-    xhr.send(jsonData);
-}
-
-function shareLocation() {
-    navigator.geolocation.getCurrentPosition(
-        newPosition => {
-            const newClientPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
-            marker.setLngLat(newClientPosition);
-            sendLocationToServer(newClientPosition[0], newClientPosition[1]);
-        },
-        error => {
-            console.error('Error getting client location:', error);
-        },
-        {
-            enableHighAccuracy: true
-        }
-    );
-}
-
-function updateDestination(destination, longitude, latitude, visibility) {
-    const data = {
-        newDestination: destination,
-        newLongitude: longitude,
-        newLatitude: latitude,
-        newVisibility: visibility,
-    };
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/Client/UpdateDestination', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    const jsonData = JSON.stringify(data);
-    xhr.send(jsonData);
-}
-
-function removeDestinationMarker() {
-    if (destinationMarker) {
-        destinationMarker.remove();
-        destinationMarker = null;
-    }
-}
-
-function toggleLocationSharing() {
-
-    let longitude = 90;
-    let latitude = 90;
-
-    if (!sharingLocation) {
-        sharingLocation = true;
-        startSharingLocation();
-        destinationForm.style.visibility = "hidden";
-
-        console.log("selectedPlace: ", selectedPlace);
-
-        if (selectedPlace) {
-            longitude = selectedPlace.lon;
-            latitude = selectedPlace.lat;
-            addDestinationMarker();
-            map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
+﻿const ClientPage = {
+    LocationManager: class {
+        static sendRequest(url, data) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
         }
 
-        updateDestination(input.value, longitude, latitude, true);
-    }
-    else {
-        // Stop sharing location
-        destinationForm.style.visibility = "visible";
+        static sendLocationToServer(longitude, latitude) {
+            this.sendRequest('/Client/UpdateLocation', { longitude, latitude });
+        }
 
-        flyToUser();
-        removeDestinationMarker();
-        sharingLocation = false;
-        button.innerHTML = 'Request Taxi';
-        clearInterval(interval);
-        updateDestination("", 90, 90, false);
+        static updateDestination(destination, longitude, latitude, visibility) {
+            this.sendRequest('/Client/UpdateDestination', { destination, longitude, latitude, visibility });
+        }
 
-        if (driverMarker) driverMarker.remove();
-    }
-}
+        static shareLocation() {
+            navigator.geolocation.getCurrentPosition(
+                newPosition => {
+                    const newClientPosition = [newPosition.coords.longitude, newPosition.coords.latitude];
+                    ClientPage.ClientApp.marker.setLngLat(newClientPosition);
+                    this.sendLocationToServer(newClientPosition[0], newClientPosition[1]); // ...newClientPosition
+                },
+                error => {
+                    console.error('Error getting client location:', error);
+                },
+                {
+                    enableHighAccuracy: true
+                }
+            );
+        }
 
-function startSharingLocation() {
-    button.innerHTML = 'Cancel Request';
-    interval = setInterval(function () {
-        clientClaimedBy().then(driver => {
-            if (driver) {
-                updateDriverMarker(driver);
+    },
+
+    MarkerManager: class {
+
+        static removeDestinationMarker() {
+            let marker = ClientPage.ClientApp.destinationMarker;
+            if (marker) {
+                marker.remove();
             }
-            shareLocation();
-        });
-    }, 6000); // Repeat every 6 seconds
-}
-
-function clientClaimedBy() {
-    return fetch(`/Client/ClientClaimedBy`)
-        .then(response => response.json())
-        .catch(error => {
-            console.error('Error fetching client:', error);
-        });
-}
-
-function updateDriverMarker(driver) {
-
-    const driverPosition = [driver.user.location.longitude, driver.user.location.latitude];
-
-    if (driverMarker && driverMarker.getElement() && driverMarker.getPopup()) {
-        driverMarker.setLngLat(driverPosition);
-
-        const driverMarkerDiv = driverMarker.getPopup().getElement();
-
-        // Check if the required elements inside the popup exist
-        if (driverMarkerDiv) {
-            const plateNumber = driverMarkerDiv.querySelector('p.plate');
-            const name = driverMarkerDiv.querySelector('p.name');
-
-            // Update the elements if they exist
-            if (plateNumber) plateNumber.innerText = driver.plateNumber;
-            if (name) name.innerText = driver.user.fullName;
-
+            return null;
         }
-    }
-    else {
-        let driverMarkerDiv = document.createElement('div');
-        driverMarkerDiv.innerHTML =
-            `
-                    <p class="plate">${driver.plateNumber}</>
+
+        static addDestinationMarker() {
+            const selectedPlace = ClientPage.ClientApp.selectedPlace;
+
+            const destinationPosition = [selectedPlace.lon, selectedPlace.lat];
+
+            const markerDiv = document.createElement('div');
+            markerDiv.innerHTML = `<p class="destinationName">${selectedPlace.display_name}</p>`;
+
+            const markerPopup = new tt.Popup({
+                closeButton: false,
+                offset: 25,
+                anchor: 'bottom',
+            }).setDOMContent(markerDiv);
+
+            const markerBorder = document.createElement('div');
+            markerBorder.className = ' destination-marker marker-border';
+
+            const markerIcon = document.createElement('div');
+            markerIcon.className = 'marker-icon';
+            markerIcon.style.backgroundImage = 'url(/images/destination.png)';
+            markerBorder.appendChild(markerIcon);
+
+            ClientPage.ClientApp.destinationMarker = new tt.Marker({
+                element: markerBorder,
+            }).setLngLat(destinationPosition).setPopup(markerPopup);
+
+            ClientPage.ClientApp.destinationMarker.addTo(ClientPage.ClientApp.map);
+        }
+
+        static updateDriverMarker(driver) {
+            const driverPosition = [driver.user.location.longitude, driver.user.location.latitude];
+
+            if (ClientPage.ClientApp.driverMarker && ClientPage.ClientApp.driverMarker.getElement() && ClientPage.ClientApp.driverMarker.getPopup()) {
+
+                ClientPage.ClientApp.driverMarker.setLngLat(driverPosition);
+
+                const driverMarkerDiv = ClientPage.ClientApp.driverMarker.getPopup().getElement();
+
+                if (driverMarkerDiv) {
+                    const plateNumber = driverMarkerDiv.querySelector('p.plate');
+                    const name = driverMarkerDiv.querySelector('p.name');
+
+                    if (plateNumber) plateNumber.innerText = driver.plateNumber;
+                    if (name) name.innerText = driver.user.fullName;
+                }
+            }
+            else {
+                const driverMarkerDiv = document.createElement('div');
+                driverMarkerDiv.innerHTML = `
+                    <p class="plate">${driver.plateNumber}</p>
                     <p class="name">${driver.user.fullName}</p>
                 `;
 
-        let driverMarkerPopup = new tt.Popup({
-            closeButton: false,
-            offset: 25,
-            anchor: 'bottom'
-        }).setDOMContent(driverMarkerDiv);
+                const driverMarkerPopup = new tt.Popup({
+                    closeButton: false,
+                    offset: 25,
+                    anchor: 'bottom',
+                }).setDOMContent(driverMarkerDiv);
 
-        let driverMarkerBorder = document.createElement('div');
-        driverMarkerBorder.className = 'marker-border driver-marker';
+                const driverMarkerBorder = document.createElement('div');
+                driverMarkerBorder.className = 'marker-border driver-marker';
 
-        let driverMarkerIcon = document.createElement('div');
-        driverMarkerIcon.className = 'marker-icon';
-        driverMarkerIcon.style.backgroundImage = 'url(/images/taxi-icon.png)';
-        driverMarkerBorder.appendChild(driverMarkerIcon);
+                const driverMarkerIcon = document.createElement('div');
+                driverMarkerIcon.className = 'marker-icon';
+                driverMarkerIcon.style.backgroundImage = 'url(/images/taxi-icon.png)';
+                driverMarkerBorder.appendChild(driverMarkerIcon);
 
-        driverMarker = new tt.Marker({
-            element: driverMarkerBorder
-        }).setLngLat(driverPosition).setPopup(driverMarkerPopup);
+                ClientPage.ClientApp.driverMarker = new tt.Marker({
+                    element: driverMarkerBorder,
+                }).setLngLat(driverPosition).setPopup(driverMarkerPopup);
 
+                ClientPage.ClientApp.driverMarker.addTo(ClientPage.ClientApp.map);
 
-        driverMarker.addTo(map);
-    }
-}
-
-function isClientVisible() {
-    fetch(`/Client/IsClientVisible`)
-        .then(response => response.json())
-        .then(visibility => {
-            if (visibility != null) {
-                sharingLocation = visibility;
-
-                if (sharingLocation) {
-                    startSharingLocation();
-                }
-                else {
-                    destinationForm.style.visibility = "visible";
-                }
             }
-        })
-        .catch(error => {
-            console.error('Error fetching client:', error);
-        });
-}
-
-function getClientDestination() {
-    fetch(`/Client/GetClientDestination`)
-        .then(response => response.json())
-        .then(destination => {
-            if (destination.location.longitude !== 90) {
-                input.value = destination.name;
-                selectedPlace = { display_name: destination.name, lon: destination.location.longitude, lat: destination.location.latitude };
-                console.log(destination)
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching client:', error);
-        });
-}
-
-function addDestinationMarker() {
-    let destinationPosition = [selectedPlace.lon, selectedPlace.lat];
-
-    let markerDiv = document.createElement('div');
-    markerDiv.innerHTML =
-        `
-        <p class="destinationName">${selectedPlace.display_name}</p>
-    `;
-
-    let markerPopup = new tt.Popup({
-        closeButton: false,
-        offset: 25,
-        anchor: 'bottom'
-    }).setDOMContent(markerDiv);
-
-    let markerBorder = document.createElement('div');
-    markerBorder.className = ' destination-marker marker-border';
-
-    let markerIcon = document.createElement('div');
-    markerIcon.className = 'marker-icon';
-    markerIcon.style.backgroundImage = 'url(/images/destination.png)';
-    markerBorder.appendChild(markerIcon);
-
-    destinationMarker = new tt.Marker({
-        element: markerBorder
-    }).setLngLat(destinationPosition).setPopup(markerPopup);
-
-    destinationMarker.addTo(map);
-}
-
-function initMap() {
-    navigator.geolocation.getCurrentPosition(
-        position => {
-            const userPosition = [position.coords.longitude, position.coords.latitude];
-            sendLocationToServer(userPosition[0], userPosition[1]);
-
-            map = tt.map({
-                key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
-                container: 'map',
-                center: userPosition,
-                style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=2/basic_street-dark&poi=2/poi_dark',
-                zoom: 13,
-                pitch: 60
-            });
-            let div = document.createElement('div');
-            div.innerHTML = '<p>You</p>';
-
-            let popup = new tt.Popup({
-                closeButton: false,
-                offset: 25,
-                anchor: 'bottom'
-            }).setDOMContent(div);
-
-            let border = document.createElement('div');
-            border.className = 'marker-border client-marker';
-
-            let icon = document.createElement('div');
-            icon.className = 'marker-icon';
-            icon.style.backgroundImage = 'url(/images/client-icon.png)';
-            border.appendChild(icon);
-
-            marker = new tt.Marker({
-                element: border
-            }).setLngLat(userPosition).setPopup(popup);
-
-            marker.addTo(map);
-            map.on('load', function () {
-                requestAnimationFrame(rotateCamera);
-            });
-
-        },
-        error => {
-            console.error('Error getting user location:', error);
-        },
-        {
-            enableHighAccuracy: true
         }
 
-    );
+    },
 
-    isClientVisible();
-    getClientDestination();
-}
-
-function rotateCamera(timestamp) {
-
-    if (sharingLocation) {
-        if (selectedPlace) {
-            console.log("yes");
-
-            addDestinationMarker();
-            map.flyTo({ center: destinationMarker.getLngLat(), zoom: 13 });
+    ClientManager: class {
+        static clientClaimedBy() {
+            return fetch(`/Client/ClientClaimedBy`)
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Error fetching client:', error);
+                });
         }
 
-        return;
+        static startSharingLocation() {
+            ClientPage.ClientApp.button.innerHTML = 'Cancel Request';
+            ClientPage.ClientApp.interval = setInterval(function () {
+                ClientPage.ClientManager.clientClaimedBy().then(driver => {
+                    if (driver) {
+                        ClientPage.MarkerManager.updateDriverMarker(driver, ClientPage.ClientApp.driverMarker);
+                    }
+                    ClientPage.LocationManager.shareLocation(ClientPage.ClientApp.marker);
+                });
+            }, 6000); // Repeat every 6 seconds
+        }
+
+        static stopSharingLocation() {
+            ClientPage.ClientApp.destinationForm.style.visibility = "visible";
+
+            ClientPage.MapManager.flyToUser();
+
+            ClientPage.ClientApp.sharingLocation = false;
+            ClientPage.ClientApp.button.innerHTML = 'Request Taxi';
+            clearInterval(ClientPage.ClientApp.interval);
+            ClientPage.LocationManager.updateDestination("", 90, 90, false);
+
+            if (ClientPage.ClientApp.driverMarker) ClientPage.ClientApp.driverMarker.remove();
+        }
+
+        static toggleLocationSharing() {
+
+            let longitude = 90;
+            let latitude = 90;
+
+            const selectedPlace = ClientPage.ClientApp.selectedPlace;
+
+            ClientPage.ClientApp.destinationMarker = ClientPage.MarkerManager.removeDestinationMarker(ClientPage.ClientApp.destinationMarker);
+
+            if (!ClientPage.ClientApp.sharingLocation) {
+                ClientPage.ClientApp.sharingLocation = true;
+                this.startSharingLocation();
+                ClientPage.ClientApp.destinationForm.style.visibility = "hidden";
+
+                if (selectedPlace) {
+                    longitude = selectedPlace.lon;
+                    latitude = selectedPlace.lat;
+                    ClientPage.MarkerManager.addDestinationMarker();
+                    ClientPage.ClientApp.map.flyTo({ center: ClientPage.ClientApp.destinationMarker.getLngLat(), zoom: 13 });
+                }
+
+                ClientPage.LocationManager.updateDestination(ClientPage.ClientApp.input.value, longitude, latitude, true);
+            }
+            else {
+                this.stopSharingLocation();
+            }
+
+        }
+
+        static isClientVisible() {
+            fetch(`/Client/IsClientVisible`)
+                .then(response => response.json())
+                .then(visibility => {
+
+                    ClientPage.ClientApp.sharingLocation = visibility;
+
+                    if (ClientPage.ClientApp.sharingLocation) {
+                        this.startSharingLocation();
+                    } else {
+                        ClientPage.ClientApp.destinationForm.style.visibility = 'visible';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching client:', error);
+                });
+        }
+
+        static getClientDestination() {
+            fetch(`/Client/GetClientDestination`)
+                .then(response => response.json())
+                .then(destination => {
+
+                    if (destination && destination.location.longitude !== 90) {
+                        ClientPage.ClientApp.input.value = destination.name;
+                        ClientPage.ClientApp.selectedPlace = {
+                            display_name: destination.name,
+                            lon: destination.location.longitude,
+                            lat: destination.location.latitude,
+                        };
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching client:', error);
+                });
+        }
+    },
+
+    MapManager: class {
+
+        static rotateCamera(timestamp) {
+            if (ClientPage.ClientApp.sharingLocation) {
+                if (ClientPage.ClientApp.selectedPlace) {
+                    ClientPage.MarkerManager.addDestinationMarker();
+                    ClientPage.ClientApp.map.flyTo({ center: ClientPage.ClientApp.destinationMarker.getLngLat(), zoom: 13 });
+                }
+
+                return;
+            }
+
+            let rotationDegree = timestamp / 100 % 360;
+            ClientPage.ClientApp.map.rotateTo(rotationDegree, { duration: 0 });
+            requestAnimationFrame((timestamp) => this.rotateCamera(timestamp));
+        }
+
+        static flyToUser() {
+            ClientPage.ClientApp.map.flyTo({ center: ClientPage.ClientApp.marker.getLngLat(), zoom: 13 });
+        }
+
+        static initMap() {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const userPosition = [position.coords.longitude, position.coords.latitude];
+                    ClientPage.LocationManager.sendLocationToServer(userPosition[0], userPosition[1]);
+
+                    ClientPage.ClientApp.map = tt.map({
+                        key: 'MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G',
+                        container: 'map',
+                        center: userPosition,
+                        style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=2/basic_street-dark&poi=2/poi_dark',
+                        zoom: 13,
+                        pitch: 60,
+                    });
+
+                    let div = document.createElement('div');
+                    div.innerHTML = '<p>You</p>';
+
+                    let popup = new tt.Popup({
+                        closeButton: false,
+                        offset: 25,
+                        anchor: 'bottom',
+                    }).setDOMContent(div);
+
+                    let border = document.createElement('div');
+                    border.className = 'marker-border client-marker';
+
+                    let icon = document.createElement('div');
+                    icon.className = 'marker-icon';
+                    icon.style.backgroundImage = 'url(/images/client-icon.png)';
+                    border.appendChild(icon);
+
+                    ClientPage.ClientApp.marker = new tt.Marker({
+                        element: border,
+                    }).setLngLat(userPosition).setPopup(popup);
+
+                    ClientPage.ClientApp.marker.addTo(ClientPage.ClientApp.map);
+
+                    ClientPage.ClientApp.map.on('load', () => {
+                        requestAnimationFrame((timestamp) => ClientPage.MapManager.rotateCamera(timestamp));
+                    });
+                },
+                error => {
+                    console.error('Error getting user location:', error);
+                },
+                {
+                    enableHighAccuracy: true,
+                }
+            );
+
+            ClientPage.ClientManager.isClientVisible();
+            ClientPage.ClientManager.getClientDestination();
+        }
+    },
+
+    ClientApp: class {
+        static button = document.getElementById("locationButton");
+        static input = document.getElementById('destination');
+        static destinationForm = document.getElementById('destination-form');
+
+        static interval;
+        static sharingLocation;
+
+        static map;
+        static marker;
+        static driverMarker;
+        static destinationMarker = null;
+
+        static selectedPlace;
+
+        static updateSelectedPlace(newPlace) {
+            this.selectedPlace = newPlace;
+        }
+
     }
+};
 
-    var rotationDegree = timestamp / 100 % 360;
-    map.rotateTo(rotationDegree, { duration: 0 });
-    requestAnimationFrame(rotateCamera);
-}
-
-function flyToUser() {
-    map.flyTo({ center: marker.getLngLat(), zoom: 13 });
-}
-
-
-window.onload = initMap;
+window.onload = ClientPage.MapManager.initMap;
 
 // Close autocomplete results if user clicks outside the input and results
 window.addEventListener("click", (event) => {

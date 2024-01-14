@@ -11,6 +11,10 @@ namespace GoTaxi.DAL.Models
         private int? userId;
         private int? destinationId;
         private int? driverId;
+        private User? user;
+        private Destination? destination;
+        private Driver? claimedBy;
+
 
         [Key]
         public int ClientId
@@ -53,31 +57,43 @@ namespace GoTaxi.DAL.Models
         }
 
         [ForeignKey("UserId")]
-        public User? User { get; set; }
+        public User? User
+        {
+            get { return user; }
+            set { user = value; }
+        }
 
         [ForeignKey("DestinationId")]
-        public Destination? Destination { get; set; }
+        public Destination? Destination
+        {
+            get { return destination; }
+            set { destination = value; }
+        }
 
         [ForeignKey("DriverId")]
-        public Driver? ClaimedBy { get; set; }
+        public Driver? ClaimedBy
+        {
+            get { return claimedBy; }
+            set { claimedBy = value; }
+        }
 
 
         public Client()
         {
-            PhoneNumber = "";
-            Reports = 0;
-            ClaimedBy = null;
-            User = null;
-            Destination = null;
+            phoneNumber = "";
+            reports = 0;
+            claimedBy = null;
+            user = null;
+            destination = null;
         }
 
         public Client(string phoneNumber, User user)
         {
-            PhoneNumber = phoneNumber;
-            Reports = 0;
-            ClaimedBy = null;
-            User = user;
-            Destination = new Destination();
+            this.phoneNumber = phoneNumber;
+            reports = 0;
+            claimedBy = null;
+            this.user = user;
+            destination = new Destination();
         }
     }
 }

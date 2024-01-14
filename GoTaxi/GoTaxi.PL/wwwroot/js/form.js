@@ -1,24 +1,29 @@
-﻿function selectOption(option) {
-    const taxiForm = document.getElementById('taxi-form');
-    const clientForm = document.getElementById('client-form');
-    const clientButton = document.querySelector('.registration-option:nth-child(1)');
-    const taxiButton = document.querySelector('.registration-option:nth-child(2)');
+﻿class FormManager {
 
-    if (option === 'client') {
-        clientForm.classList.remove('hidden');
-        taxiForm.classList.add('hidden');
-        clientButton.classList.add('selected');
-        taxiButton.classList.remove('selected');
-    }
-    else if (option === 'taxi') {
-        taxiForm.classList.remove('hidden');
-        clientForm.classList.add('hidden');
-        clientButton.classList.remove('selected');
-        taxiButton.classList.add('selected');
-    }
-}
+    static clientForm = document.getElementById('client-form');
+    static taxiForm = document.getElementById('taxi-form');
+    static clientButton = document.querySelector('.registration-option:nth-child(1)');
+    static taxiButton = document.querySelector('.registration-option:nth-child(2)');
 
-function clearFormInputs() {
-    taxiForm.reset();
-    clientForm.reset();
+    static selectOption(option) {
+
+        if (option === 'client') {
+            this.clientForm.classList.remove('hidden');
+            this.taxiForm.classList.add('hidden');
+            this.clientButton.classList.add('selected');
+            this.taxiButton.classList.remove('selected');
+        }
+        else if (option === 'taxi') {
+            this.taxiForm.classList.remove('hidden');
+            this.clientForm.classList.add('hidden');
+            this.clientButton.classList.remove('selected');
+            this.taxiButton.classList.add('selected');
+        }
+    }
+
+    static clearFormInputs() {
+
+        this.taxiForm.reset();
+        this.clientForm.reset();
+    }
 }

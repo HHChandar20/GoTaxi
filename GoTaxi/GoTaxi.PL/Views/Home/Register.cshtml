@@ -5,9 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyJCAWOaPcJL9SAfmF7R1jAZ5l5PeAhoGz" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
 
 
     <style>
@@ -49,13 +47,27 @@
 
                 <h3 class="text-center pt-5 mb-5">Register</h3>
 
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
                 <div class="mb-3 text-center">
                     <button type="button" class="btn registration-option selected"
-                            onclick="selectOption('client')">
+                            onclick="FormManager.selectOption('client')">
                         Client
                     </button>
                     <button type="button" class="btn registration-option"
-                            onclick="selectOption('taxi')">
+                            onclick="FormManager.selectOption('taxi')">
                         Driver
                     </button>
                 </div>
@@ -64,27 +76,27 @@
                 <form asp-action="RegisterDriver" method="post" id="taxi-form" class="hidden">
 
                     <div class="taxi-field">
-                        <label for="plateNumber">Plate Number:</label>
-                        <input type="text" class="form-control" id="taxi-plate" name="plateNumber" required />
+                        <label for="taxi-plate">Plate Number:</label>
+                        <input type="text" class="form-control" id="taxi-plate" name="plateNumber" autocomplete="on" required />
                     </div>
 
                     <div class="taxi-field">
-                        <label for="fullName">Full Name:</label>
-                        <input type="text" class="form-control" id="taxi-full-name" name="fullName" required />
+                        <label for="taxi-full-name">Full Name:</label>
+                        <input type="text" class="form-control" id="taxi-full-name" name="fullName" autocomplete="on" required />
                     </div>
 
                     <div class="taxi-field">
-                        <label for="email">Email:</label>
-                        <input type="text" class="form-control" id="taxi-email" name="email" required />
+                        <label for="taxi-email">Email:</label>
+                        <input type="text" class="form-control" id="taxi-email" name="email" autocomplete="on" required />
                     </div>
 
                     <div class="taxi-field">
-                        <label for="password">Password:</label>
+                        <label for="taxi-password">Password:</label>
                         <input type="password" class="form-control" id="taxi-password" name="password" required />
                     </div>
 
                     <div class="text-center pt-1 mt-4">
-                        <button type="submit" class="btn btn-primary" onsubmit="clearFormInputs()">Register</button>
+                        <button type="submit" class="btn btn-primary" onsubmit="FormManager.clearFormInputs()">Register</button>
                     </div>
                     <p class="text-center mt-5">Already have an account? <a asp-controller="Home" asp-action="Login">Log In</a></p>
 
@@ -94,27 +106,27 @@
                 <form asp-action="RegisterClient" method="post" id="client-form">
 
                     <div class="client-field">
-                        <label for="plate">Phone Number:</label>
-                        <input type="text" class="form-control" id="client-phone" name="phoneNumber" required />
+                        <label for="client-phone">Phone Number:</label>
+                        <input type="text" class="form-control" id="client-phone" name="phoneNumber" autocomplete="on" required />
                     </div>
 
                     <div class="client-field">
-                        <label for="fullName">Full Name:</label>
-                        <input type="text" class="form-control" id="client-full-name" name="fullName" required />
+                        <label for="client-full-name">Full Name:</label>
+                        <input type="text" class="form-control" id="client-full-name" name="fullName" autocomplete="on" required />
                     </div>
 
                     <div class="client-field">
-                        <label for="email">Email:</label>
-                        <input type="text" class="form-control" id="client-email" name="email" required />
+                        <label for="client-email">Email:</label>
+                        <input type="text" class="form-control" id="client-email" name="email" autocomplete="on" required />
                     </div>
 
                     <div class="client-field">
-                        <label for="password">Password:</label>
+                        <label for="client-password">Password:</label>
                         <input type="password" class="form-control" id="client-password" name="password" required />
                     </div>
 
                     <div class="text-center pt-1 mt-4">
-                        <button type="submit" class="btn btn-primary" onsubmit="clearFormInputs()">Register</button>
+                        <button type="submit" class="btn btn-primary" onsubmit="FormManager.clearFormInputs()">Register</button>
                     </div>
                     <p class="text-center mt-5">Already have an account? <a asp-controller="Home" asp-action="Login">Log In</a></p>
 
@@ -124,13 +136,5 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="~/js/login.js"></script>
-
-    <script>
-        let errorMessage = "@ViewBag.ErrorMessage"
-        if (errorMessage != "") {
-            alert(errorMessage);
-        }
-    </script>
-
+    <script type="text/javascript" src="~/js/form.js"></script>
 </body>

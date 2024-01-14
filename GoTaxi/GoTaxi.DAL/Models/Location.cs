@@ -1,17 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GoTaxi.DAL.Models
+﻿namespace GoTaxi.DAL.Models
 {
     public class Location
     {
-        public int LocationId { get; set; }
-        public double Longitude { get; set; }
-        public double Latitude { get; set; }
+        private int locationId;
+        private double longitude;
+        private double latitude;
+
+        public int LocationId
+        {
+            get { return locationId; }
+            set { locationId = value; }
+        }
+
+        public double Longitude
+        {
+            get { return longitude; }
+            set { longitude = value; }
+        }
+
+        public double Latitude
+        {
+            get { return latitude; }
+            set { latitude = value; }
+        }
 
         public Location(double longitude, double latitude)
         {

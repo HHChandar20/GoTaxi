@@ -17,12 +17,12 @@ namespace GoTaxi.BLL.Interfaces
         bool AuthenticateClient(string phoneNumber, string password);
         void UpdateClient(string phoneNumber, string fullName, string email, string password);
         void UpdateClientLocation(string phoneNumber, double longitude, double latitude);
-        void UpdateClientDestination(string phoneNumber, string? newDestination, double newLongitude, double newLatitude, bool newVisibility);
+        void UpdateClientDestination(string phoneNumber, string? destination, double longitude, double latitude, bool visibility);
         void ClaimClient(string plateNumber, string phoneNumber);
         bool IsInTheCar(string phoneNumber);
         Client? GetClaimedClient(string plateNumber);
         Driver? ClientClaimedBy(string phoneNumber);
-        List<Client> GetNearestClients(string plateNumber, double currentClientLongitude, double currentClientLatitude);
+        List<Client> GetNearestClients(string plateNumber, double longitude, double latitude);
         Client ConvertToClient(string phoneNumber, string fullName, string email, string password);
         List<Client> GetClients();
 
