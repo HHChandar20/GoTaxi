@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using GoTaxi.BLL.Interfaces;
 
 public class HomeController : Controller
@@ -20,15 +19,16 @@ public class HomeController : Controller
     {
         return View();
     }
+
     public IActionResult Privacy()
     {
         return View();
     }
 
     [HttpPost]
-    public IActionResult Login(string username)
+    public IActionResult LoginDriver(string plateNumber)
     {
-        bool isAuthenticated = _driverService.CheckDriver(username);
+        bool isAuthenticated = _driverService.CheckDriver(plateNumber);
 
         if (isAuthenticated)
         {
@@ -39,7 +39,7 @@ public class HomeController : Controller
             // Return a message indicating account not found
             return Json(new { success = false, message = "Account not found" });
         }
-}
+    }
 
     [HttpPost]
     public IActionResult RegisterDriver(string plateNumber, string username, string email, string password)

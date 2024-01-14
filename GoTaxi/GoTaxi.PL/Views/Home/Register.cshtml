@@ -2,111 +2,121 @@
     ViewData["Title"] = "Home Page";
 }
 
-< !DOCTYPE html >
-< html lang = "en" >
+<!DOCTYPE html>
+<html lang="en">
 
-< head >
-    < meta charset = "utf-8" >
-    < meta name = "viewport" content = "width=device-width, initial-scale=1, shrink-to-fit=no" >
-    < link rel = "stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity = "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyJCAWOaPcJL9SAfmF7R1jAZ5l5PeAhoGz" crossorigin = "anonymous" >
-    < style >
-        .registration - option {
-cursor: pointer;
-}
-        .registration - option:hover {
-            background-color: #efefef;
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyJCAWOaPcJL9SAfmF7R1jAZ5l5PeAhoGz" crossorigin="anonymous">
+    <style>
+        .registration-option {
+            cursor: pointer;
         }
+
+            .registration-option:hover {
+                background-color: #efefef;
+            }
+
         .selected {
             background-color: #007bff;
             color: #fff;
         }
-        .selected: hover {
-    background - color: #007bff;
-            color: #fff;
-        }
+
+            .selected:hover {
+                background-color: #007bff;
+                color: #fff;
+            }
+
         .btn {
-            width: 20 %;
+            width: 20%;
         }
+
         .hidden {
             display: none;
         }
-    </ style >
-</ head >
 
-< body >
+    </style>
+</head>
 
-    < div class= "container mt-4" >
-        < div class= "row justify-content-center" >
-            < div class= "col-md-6" >
-                < h2 class= "text-center" > Welcome to GoTaxi!</h2>
+<body>
 
-                <h3 class= "text-center pt-5 mb-5" > Register </ h3 >
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center">Welcome to GoTaxi!</h2>
 
-                < div class= "mb-3 text-center" >
-                    < button type = "button" class= "btn registration-option selected"
-                        onclick = "selectOption('client')" > Client </ button >
-                    < button type = "button" class= "btn registration-option"
-                        onclick = "selectOption('taxi')" > Driver </ button >
-                </ div >
+                <h3 class="text-center pt-5 mb-5">Register</h3>
 
-                < !--Taxi Driver Form -->
-                <form asp-action="RegisterDriver" method="post" id="taxi-form" class= "hidden" >
+                <div class="mb-3 text-center">
+                    <button type="button" class="btn registration-option selected"
+                            onclick="selectOption('client')">
+                        Client
+                    </button>
+                    <button type="button" class="btn registration-option"
+                            onclick="selectOption('taxi')">
+                        Driver
+                    </button>
+                </div>
 
-                    < div class= "taxi-field" >
-                        < label for= "plate" > Plate Number:</ label >
-                        < input type = "string" class= "form-control" id = "taxi-plate" name = "plateNumber" required />
-                    </ div >
+                <!-- Taxi Driver Form -->
+                <form asp-action="RegisterDriver" method="post" id="taxi-form" class="hidden">
 
-                    < div class= "taxi-field" >
-                        < label for= "username" > Username:</ label >
-                        < input type = "text" class= "form-control" id = "taxi-username" name = "username" required />
-                    </ div >
+                    <div class="taxi-field">
+                        <label for="plateNumber">Plate Number:</label>
+                        <input type="text" class="form-control" id="taxi-plate" name="plateNumber" required />
+                    </div>
 
-                    < div class= "taxi-field" >
-                        < label for= "email" > Email:</ label >
-                        < input type = "text" class= "form-control" id = "taxi-email" name = "email" required />
-                    </ div >
+                    <div class="taxi-field">
+                        <label for="username">Username:</label>
+                        <input type="text" class="form-control" id="taxi-username" name="username" required />
+                    </div>
 
-                    < div class= "taxi-field" >
-                        < label for= "password" > Password:</ label >
-                        < input type = "password" class= "form-control" id = "taxi-password" name = "password" required />
-                    </ div >
+                    <div class="taxi-field">
+                        <label for="email">Email:</label>
+                        <input type="text" class="form-control" id="taxi-email" name="email" required />
+                    </div>
 
-                    < div class= "text-center pt-1 mt-4" >
-                        < button type = "submit" class= "btn btn-primary" onsubmit = "clearFormInputs()" > Register </ button >
-                    </ div >
-                    < p class= "text-center mt-5" > Already have an account? <a href="../">Log In</a></p>
+                    <div class="taxi-field">
+                        <label for="password">Password:</label>
+                        <input type="password" class="form-control" id="taxi-password" name="password" required />
+                    </div>
+
+                    <div class="text-center pt-1 mt-4">
+                        <button type="submit" class="btn btn-primary" onsubmit="clearFormInputs()">Register</button>
+                    </div>
+                    <p class="text-center mt-5">Already have an account? <a href="../">Log In</a></p>
 
                 </form>
 
                 <!-- Client Form -->
                 <form asp-action="Register" method="post" id="client-form">
 
-                    <div class= "client-field" >
-                        < label for= "plate" > Phone Number:</ label >
-                        < input type = "number" class= "form-control" id = "client-phone" name = "client-phone" required />
-                    </ div >
+                    <div class="client-field">
+                        <label for="plate">Phone Number:</label>
+                        <input type="number" class="form-control" id="client-phone" name="client-phone" required />
+                    </div>
 
-                    < div class= "client-field" >
-                        < label for= "username" > Username:</ label >
-                        < input type = "text" class= "form-control" id = "client-username" name = "client-username" required />
-                    </ div >
+                    <div class="client-field">
+                        <label for="username">Username:</label>
+                        <input type="text" class="form-control" id="client-username" name="client-username" required />
+                    </div>
 
-                    < div class= "client-field" >
-                        < label for= "email" > Email:</ label >
-                        < input type = "text" class= "form-control" id = "client-email" name = "client-email" required />
-                    </ div >
+                    <div class="client-field">
+                        <label for="email">Email:</label>
+                        <input type="text" class="form-control" id="client-email" name="client-email" required />
+                    </div>
 
-                    < div class= "client-field" >
-                        < label for= "password" > Password:</ label >
-                        < input type = "password" class= "form-control" id = "client-password" name = "client-password" required />
-                    </ div >
+                    <div class="client-field">
+                        <label for="password">Password:</label>
+                        <input type="password" class="form-control" id="client-password" name="client-password" required />
+                    </div>
 
-                    < div class= "text-center pt-1 mt-4" >
-                        < button type = "submit" class= "btn btn-primary" onsubmit = "clearFormInputs()" > Register </ button >
-                    </ div >
-                    < p class= "text-center mt-5" > Already have an account? <a href="../">Log In</a></p>
+                    <div class="text-center pt-1 mt-4">
+                        <button type="submit" class="btn btn-primary" onsubmit="clearFormInputs()">Register</button>
+                    </div>
+                    <p class="text-center mt-5">Already have an account? <a href="../">Log In</a></p>
 
                 </form>
 
@@ -115,35 +125,39 @@ cursor: pointer;
     </div>
 
     <script type="text/javascript">
+
         function selectOption(option) {
-    const taxiForm = document.getElementById('taxi-form');
-    const clientForm = document.getElementById('client-form');
-    const clientButton = document.querySelector('.registration-option:nth-child(1)');
-    const taxiButton = document.querySelector('.registration-option:nth-child(2)');
-    if (option === 'client')
-    {
-        clientForm.classList.remove('hidden');
-        taxiForm.classList.add('hidden');
-        clientButton.classList.add('selected');
-        taxiButton.classList.remove('selected');
-    }
-    else if (option === 'taxi')
-    {
-        taxiForm.classList.remove('hidden');
-        clientForm.classList.add('hidden');
-        clientButton.classList.remove('selected');
-        taxiButton.classList.add('selected');
-    }
-}
-function clearFormInputs(formId)
-{
-    taxiForm.reset();
-    clientForm.reset();
-}
-let errorMessage = "@ViewBag.ErrorMessage"
+            const taxiForm = document.getElementById('taxi-form');
+            const clientForm = document.getElementById('client-form');
+            const clientButton = document.querySelector('.registration-option:nth-child(1)');
+            const taxiButton = document.querySelector('.registration-option:nth-child(2)');
+
+            if (option === 'client') {
+                clientForm.classList.remove('hidden');
+                taxiForm.classList.add('hidden');
+                clientButton.classList.add('selected');
+                taxiButton.classList.remove('selected');
+            }
+            else if (option === 'taxi') {
+                taxiForm.classList.remove('hidden');
+                clientForm.classList.add('hidden');
+                clientButton.classList.remove('selected');
+                taxiButton.classList.add('selected');
+            }
+        }
+
+        function clearFormInputs() {
+            taxiForm.reset();
+            clientForm.reset();
+        }
+
+        let errorMessage = "@ViewBag.ErrorMessage"
         if (errorMessage != "") {
-    alert(errorMessage);
-}
-    </ script >
-</ body >
-</ html >
+            alert(errorMessage);
+        }
+
+    </script>
+
+</body>
+
+</html>

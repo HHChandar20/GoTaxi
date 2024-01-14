@@ -39,6 +39,7 @@
             height: 20px;
             width: 25px;
         }
+
     </style>
 </head>
 
@@ -48,10 +49,12 @@
     </div>
     <script type="text/javascript">
         function initMap() {
+
             // Get the user's location
             navigator.geolocation.getCurrentPosition(
                 position => {
-                    const userPosition = [4, 44.4] //[position.coords.longitude, position.coords.latitude];
+                    const userPosition = [position.coords.longitude, position.coords.latitude];
+
                     // Initialize the map with the user's location
                     const map = tt.map({
                         key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
@@ -62,11 +65,13 @@
                     map.on('load', () => {
                         let div = document.createElement('div')
                         div.innerHTML = '<p> You </p>'
+
                         let popup = new tt.Popup({
                             closeButton: false,
                             offset: 25,
                             anchor: 'bottom'
                         }).setDOMContent(div)
+
                         let border = document.createElement('div')
                         border.className = 'marker-border'
 
@@ -74,11 +79,14 @@
                         icon.className = 'marker-icon'
                         icon.style.backgroundImage = 'url(/images/taxi-icon.png)'
                         border.appendChild(icon)
+
                         let marker = new tt.Marker({
                             element: border
                         }).setLngLat(userPosition).setPopup(popup)
                         marker.addTo(map)
+
                     });
+
                     // Add a marker at the user's location
                     //new tt.Marker().setLngLat(userPosition).addTo(map);
                 },
@@ -92,8 +100,10 @@
                 }
             );
         }
+
         // Load the map after the page has fully loaded
         window.onload = initMap;
     </script>
 </body>
+
 </html>

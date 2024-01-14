@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,12 +10,79 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyJCAWOaPcJL9SAfmF7R1jAZ5l5PeAhoGz"
           crossorigin="anonymous">
-	@@ -30,9 +29,12 @@
+
+    <style>
+        .registration-option {
+            cursor: pointer;
+        }
+
+        .registration-option:hover {
+            background-color: #efefef;
+        }
+
+        .selected {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .selected:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn {
+            width: 20%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center">Welcome to GoTaxi!</h2>
+                
+                <h3 class="text-center pt-5 mb-5">Login</h3>
+ 
+                <div class="mb-3 text-center">
+                    <button type="button" class="btn registration-option selected" onclick="selectOption('client')">Client</button>
+                    <button type="button" class="btn registration-option" onclick="selectOption('taxi')">Driver</button>
+                </div>
+
+                <form asp-action="LoginDriver" method="post" id="taxi-form" class="hidden">
+                    <div class="form-group">
+                        <label for="plateNumber">Plate Number:</label>
+                        <input type="text" class="form-control" id="taxi-plateNumber" name="plateNumber" required />
+                    </div>
+                    <div class="form-group">
                         <label for="password">Password:</label>
-                        <input type="password" class="form-control" id="password" name="password" required />
+                        <input type="password" class="form-control" id="taxi-password" name="password" required />
                     </div>
                     <div class="form-group text-center pt-1 mt-4">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary" onclick="clearFormInputs()">Login</button>
+                    </div>
+                    
+                    <p class="text-center mt-5">Don't have an account? <a href="/Home/Register">Register now</a></p>
+
+                </form>
+
+                <form asp-action="Login" method="post" id="client-form">
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number:</label>
+                        <input type="text" class="form-control" id="client-phoneNumber" name="phoneNumber" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" class="form-control" id="client-password" name="password" required />
+                    </div>
+                    <div class="form-group text-center pt-1 mt-4">
+                        <button type="submit" class="btn btn-primary" onclick="clearFormInputs()">Login</button>
                     </div>
 
                     <p class="text-center mt-5">Don't have an account? <a href="/Home/Register">Register now</a></p>
@@ -22,7 +90,42 @@
                 </form>
 
             </div>
+
         </div>
     </div>
+
+    <script type="text/javascript">
+        function selectOption(option) {
+            const taxiForm = document.getElementById('taxi-form');
+            const clientForm = document.getElementById('client-form');
+            const clientButton = document.querySelector('.registration-option:nth-child(1)');
+            const taxiButton = document.querySelector('.registration-option:nth-child(2)');
+
+            if (option === 'client') {
+                clientForm.classList.remove('hidden');
+                taxiForm.classList.add('hidden');
+                clientButton.classList.add('selected');
+                taxiButton.classList.remove('selected');
+            }
+            else if (option === 'taxi') {
+                taxiForm.classList.remove('hidden');
+                clientForm.classList.add('hidden');
+                clientButton.classList.remove('selected');
+                taxiButton.classList.add('selected');
+            }
+        }
+
+        function clearFormInputs() {
+            taxiForm.reset();
+            clientForm.reset();
+        }
+
+        let errorMessage = "@ViewBag.ErrorMessage"
+        if (errorMessage != "") {
+            alert(errorMessage);
+        }
+
+    </script>
+
 </body>
 </html>
