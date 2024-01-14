@@ -8,7 +8,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyJCAWOaPcJL9SAfmF7R1jAZ5l5PeAhoGz" crossorigin="anonymous">
+
+
 
     <style>
         .registration-option {
@@ -70,7 +73,7 @@
 
                     <div class="taxi-field">
                         <label for="fullName">Full Name:</label>
-                        <input type="text" class="form-control" id="taxi-fullName" name="fullName" required />
+                        <input type="text" class="form-control" id="taxi-full-name" name="fullName" required />
                     </div>
 
                     <div class="taxi-field">
@@ -86,7 +89,7 @@
                     <div class="text-center pt-1 mt-4">
                         <button type="submit" class="btn btn-primary" onsubmit="clearFormInputs()">Register</button>
                     </div>
-                    <p class="text-center mt-5">Already have an account? <a href="../">Log In</a></p>
+                    <p class="text-center mt-5">Already have an account? <a asp-controller="Home" asp-action="Login">Log In</a></p>
 
                 </form>
 
@@ -95,28 +98,28 @@
 
                     <div class="client-field">
                         <label for="plate">Phone Number:</label>
-                        <input type="number" class="form-control" id="client-phone" name="client-phone" required />
+                        <input type="text" class="form-control" id="client-phone" name="phoneNumber" required />
                     </div>
 
                     <div class="client-field">
                         <label for="fullName">Full Name:</label>
-                        <input type="text" class="form-control" id="client-fullName" name="client-fullName" required />
+                        <input type="text" class="form-control" id="client-full-name" name="fullName" required />
                     </div>
 
                     <div class="client-field">
                         <label for="email">Email:</label>
-                        <input type="text" class="form-control" id="client-email" name="client-email" required />
+                        <input type="text" class="form-control" id="client-email" name="email" required />
                     </div>
 
                     <div class="client-field">
                         <label for="password">Password:</label>
-                        <input type="password" class="form-control" id="client-password" name="client-password" required />
+                        <input type="password" class="form-control" id="client-password" name="password" required />
                     </div>
 
                     <div class="text-center pt-1 mt-4">
                         <button type="submit" class="btn btn-primary" onsubmit="clearFormInputs()">Register</button>
                     </div>
-                    <p class="text-center mt-5">Already have an account? <a href="../">Log In</a></p>
+                    <p class="text-center mt-5">Already have an account? <a asp-controller="Home" asp-action="Login">Log In</a></p>
 
                 </form>
 

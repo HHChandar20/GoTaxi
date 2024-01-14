@@ -2,104 +2,148 @@
     ViewData["Title"] = "Home Page";
 }
 
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous">
+
 
     <style>
-        .registration-option {
-            cursor: pointer;
+        #taxi-section {
+            width: 100vw;
+            height: 80vh;
+            background-color: #F5F7FA;
         }
 
-        .registration-option:hover {
-            background-color: #efefef;
+        #ride-book {
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .selected {
-            background-color: #007bff;
-            color: #fff;
+        #quote-text {
+            padding-left: 10%;
+            display: flex;
+            flex-direction: column;
         }
 
-        .selected:hover {
-            background-color: #007bff;
-            color: #fff;
+        #quote-primary-text {
+            font-size: 5em;
         }
 
-        .btn {
-            width: 20%;
+        .primary-text {
+            color: #4D4D4D;
         }
 
-        .hidden {
-            display: none;
+        .secondary-text {
+            color: #FFC100;
         }
 
+        .info-text {
+            color: #717171;
+        }
+
+        #mini-quote {
+            margin-top: 2em;
+            font-weight: 500;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        #taxi-driver-illustration {
+            padding-right: 10%;
+            width: 45%;
+        }
+
+        #register-button {
+            margin-top: 3em;
+            width: 10em;
+            height: 3em;
+            background-color: #FFC100;
+            color: #ffffff;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            transition: 0.3s ease-in-out;
+        }
+
+            #register-button:hover {
+                background-color: #FFCF00;
+            }
+
+        #our-clients {
+            padding-top: 5em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #our-clients-primary {
+            font-weight: bold;
+        }
+
+        #our-clients-description {
+            margin-top: 1em;
+        }
+
+        #client-logos {
+            margin-top: 5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            column-gap: 10em;
+        }
+
+        .client-logo {
+            width: 7em;
+            height: fit-content;
+            filter: grayscale(0.3);
+        }
     </style>
 
 </head>
 <body>
 
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <h2 class="text-center">Welcome to GoTaxi!</h2>
-                
-                <h3 class="text-center pt-5 mb-5">Login</h3>
- 
-                <div class="mb-3 text-center">
-                    <button type="button" class="btn registration-option selected" onclick="selectOption('client')">Client</button>
-                    <button type="button" class="btn registration-option" onclick="selectOption('taxi')">Driver</button>
-                </div>
+    <div id="taxi-section">
+        <div id="ride-book">
+            <div id="quote-text">
+                <h1 class="primary-text" id="quote-primary-text">
+                    Fast, Friendly, Reliable
+                </h1>
+                <h1 class="secondary-text">
+                    Your Ride, Your Smile!
+                </h1>
 
-                <form asp-action="LoginDriver" method="post" id="taxi-form" class="hidden">
-                    <div class="form-group">
-                        <label for="plateNumber">Plate Number:</label>
-                        <input type="text" class="form-control" id="taxi-plateNumber" name="plateNumber" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" class="form-control" id="taxi-password" name="password" required />
-                    </div>
-                    <div class="form-group text-center pt-1 mt-4">
-                        <button type="submit" class="btn btn-primary" onclick="clearFormInputs()">Login</button>
-                    </div>
-                    
-                    <p class="text-center mt-5">Don't have an account? <a href="/Home/Register">Register now</a></p>
+                <h6 class="info-text" id="mini-quote">Getting you where you want to go. Your satisfaction, our commitment.</h6>
 
+                <form asp-controller="Home" asp-action="Register">
+                    <button id="register-button">Register Now</button>
                 </form>
-
-                <form asp-action="LoginClient" method="post" id="client-form">
-                    <div class="form-group">
-                        <label for="phoneNumber">Phone Number:</label>
-                        <input type="text" class="form-control" id="client-phoneNumber" name="phoneNumber" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" class="form-control" id="client-password" name="password" required />
-                    </div>
-                    <div class="form-group text-center pt-1 mt-4">
-                        <button type="submit" class="btn btn-primary" onclick="clearFormInputs()">Login</button>
-                    </div>
-
-                    <p class="text-center mt-5">Don't have an account? <a href="/Home/Register">Register now</a></p>
-
-                </form>
-
             </div>
+
+            <img id="taxi-driver-illustration" src="~/images/Home/taxi-driver.svg" alt="taxi driver svg" />
 
         </div>
     </div>
 
-    <script type="text/javascript" src="~/js/login.js"></script>
+    <div id="our-clients">
+        <h1 class="primary-text" id="our-clients-primary">Our Clients</h1>
 
-    <script>
-        let errorMessage = "@ViewBag.ErrorMessage"
-        if (errorMessage != "") {
-            alert(errorMessage);
-        }
-    </script>
+        <h6 class="info-text" id="our-clients-description">We are honored to partner with businesses of all sizes, providing seamless transportation solutions for corporate events</h6>
+
+        <div id="client-logos">
+            <img class="client-logo" style="width: 4em" src="~/images/Home/logos/burgas.png" />
+            <img class="client-logo" src="~/images/Home/logos/addison-lee.png" />
+            <img class="client-logo" src="~/images/Home/logos/akasya.png" />
+            <img class="client-logo" src="~/images/Home/logos/burgasbus.png" />
+            <img class="client-logo" style="width: 4em" src="~/images/Home/logos/codingburgas.png" />
+            <img class="client-logo" src="~/images/Home/logos/top-rent-a-car.png" />
+            <img class="client-logo" src="~/images/Home/logos/yellow333.png" />
+        </div>
+
+    </div>
 
 </body>
-</html>
