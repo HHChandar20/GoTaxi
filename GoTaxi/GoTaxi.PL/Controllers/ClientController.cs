@@ -18,6 +18,10 @@ namespace GoTaxi.PL.Controllers
 
         private readonly IClientService _clientService;
 
+        // Get current user details from cookies
+        private string CurrentPhoneNumber => HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
+        private string? CurrentUserType => HttpContext.Request.Cookies["CurrentUserType"];
+
 
         // Constructor that injects the IClientService dependency
         public ClientController(IClientService clientService)
@@ -27,8 +31,15 @@ namespace GoTaxi.PL.Controllers
 
 
         // Action method for rendering the main client view
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Client()
         {
+
+            if (CurrentUserType == "Driver" || CurrentUserType == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return View();
         }
 
@@ -39,18 +50,9 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                if (locationData != null)
-                {
-                    // Get PhoneNumber from cookie
-                    string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                    _clientService.UpdateClientLocation(phoneNumber, locationData.Longitude, locationData.Latitude);
+                _clientService.UpdateClientLocation(CurrentPhoneNumber, locationData.Longitude, locationData.Latitude);
 
-                    return Json(new { success = true, message = "Location updated successfully" });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Invalid location data" });
-                }
+                return Json(new { success = true, message = "Location updated successfully" });
             }
             catch (Exception ex)
             {
@@ -66,8 +68,7 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-                _clientService.UpdateClientDestination(phoneNumber, destinationData.destination, destinationData.longitude, destinationData.latitude, destinationData.visibility);
+                _clientService.UpdateClientDestination(CurrentPhoneNumber, destinationData.destination, destinationData.longitude, destinationData.latitude, destinationData.visibility);
 
                 return Json(new { success = true, message = "Location updated successfully" });
             }
@@ -86,9 +87,7 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-
-                return Json(_clientService.GetClientByPhoneNumber(phoneNumber).Destination);
+                return Json(_clientService.GetClientByPhoneNumber(CurrentPhoneNumber).Destination);
             }
             catch (Exception)
             {
@@ -103,9 +102,7 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-
-                return Json(_clientService.ClientClaimedBy(phoneNumber));
+                return Json(_clientService.ClientClaimedBy(CurrentPhoneNumber));
             }
             catch (Exception ex)
             {
@@ -121,14 +118,12 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                string phoneNumber = HttpContext.Request.Cookies["CurrentPhoneNumber"]!;
-
-                return Json(_clientService.GetClientByPhoneNumber(phoneNumber).User!.IsVisible);
+                return Json(_clientService.GetClientByPhoneNumber(CurrentPhoneNumber).User!.IsVisible);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error checking client: {ex.Message}");
-                return Json(new { success = false, message = "Internal server error" });
+                return Json(false);
             }
         }
     }

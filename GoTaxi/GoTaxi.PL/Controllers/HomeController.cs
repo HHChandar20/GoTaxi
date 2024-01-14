@@ -16,6 +16,22 @@ namespace GoTaxi.PL.Controllers
             _clientService = clientService;
         }
 
+        private IActionResult RedirectBasedOnUserType(string? userType)
+        {
+            if (userType == "Client")
+            {
+                return RedirectToAction("Client", "Client");
+            }
+
+            if (userType == "Driver")
+            {
+                return RedirectToAction("Taxi", "Taxi");
+            }
+
+            return View();
+        }
+
+
         // Action method to display the home page
         public IActionResult Index()
         {
@@ -25,14 +41,28 @@ namespace GoTaxi.PL.Controllers
         // Action method to display the login page
         public IActionResult Login()
         {
+            string? userType = HttpContext.Request.Cookies["CurrentUserType"];
 
-            return View();
+            return RedirectBasedOnUserType(userType);
         }
 
         // Action method to display the registration page
         public IActionResult Register()
         {
-            return View();
+            string? userType = HttpContext.Request.Cookies["CurrentUserType"];
+
+            return RedirectBasedOnUserType(userType);
+        }
+
+        // Action method to log out
+        public IActionResult LogOutUser()
+        {
+            // Clear the cookies for user type and plate/phone number
+            HttpContext.Response.Cookies.Delete("CurrentUserType");
+            HttpContext.Response.Cookies.Delete("CurrentPlateNumber");
+            HttpContext.Response.Cookies.Delete("CurrentPhoneNumber");
+
+            return RedirectToAction("Index");
         }
 
 
