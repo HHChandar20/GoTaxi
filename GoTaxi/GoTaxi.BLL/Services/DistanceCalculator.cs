@@ -33,7 +33,7 @@ namespace GoTaxi.BLL.Services
         }
 
         // Convert degrees to radians
-        private static double DegreesToRadians(double degrees)
+        public static double DegreesToRadians(double degrees)
         {
             return degrees * Math.PI / 180;
         }

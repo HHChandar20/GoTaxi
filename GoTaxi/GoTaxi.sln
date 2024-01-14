@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.PL", "GoTaxi.PL\GoTaxi.PL.csproj", "{91B316F8-3076-4AFE-8E4A-B68477DAF535}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoTaxi.PL", "GoTaxi.PL\GoTaxi.PL.csproj", "{91B316F8-3076-4AFE-8E4A-B68477DAF535}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.BLL", "GoTaxi.BLL\GoTaxi.BLL.csproj", "{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoTaxi.BLL", "GoTaxi.BLL\GoTaxi.BLL.csproj", "{702F43EE-98FF-4A73-BBDC-09BF2DFFAEDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.DAL", "GoTaxi.DAL\GoTaxi.DAL.csproj", "{21531839-2C3B-44CA-9E22-98B7B37705BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoTaxi.DAL", "GoTaxi.DAL\GoTaxi.DAL.csproj", "{21531839-2C3B-44CA-9E22-98B7B37705BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTaxi.Tests", "GoTaxi.Tests\GoTaxi.Tests.csproj", "{C7F7F0B3-E526-489B-A095-15A643DDE975}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21531839-2C3B-44CA-9E22-98B7B37705BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7F7F0B3-E526-489B-A095-15A643DDE975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7F7F0B3-E526-489B-A095-15A643DDE975}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7F7F0B3-E526-489B-A095-15A643DDE975}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7F7F0B3-E526-489B-A095-15A643DDE975}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
