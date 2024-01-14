@@ -1,7 +1,11 @@
+using GoTaxi.BLL.Interfaces;
+using GoTaxi.BLL.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
 

@@ -1,32 +1,46 @@
-﻿using GoTaxi.PL.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using GoTaxi.BLL.Interfaces;
 
-namespace GoTaxi.PL.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+    private readonly IAccountService _accountService;
+
+    public HomeController(ILogger<HomeController> logger, IAccountService accountService)
     {
-        private readonly ILogger<HomeController> _logger;
+        _logger = logger;
+        _accountService = accountService;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+    public IActionResult Taxi()
+    {
+        return View();
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+    [HttpPost]
+    public IActionResult Login(string username, string password)
+    {
+        bool isAuthenticated = _accountService.AuthenticateAccount(username, password);
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        if (isAuthenticated)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return RedirectToAction("Taxi");
         }
+        else
+        {
+            // Return a message indicating account not found
+            return Json(new { success = false, message = "Account not found" });
+        }
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
     }
 }
