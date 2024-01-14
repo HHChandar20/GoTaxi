@@ -11,6 +11,7 @@ namespace GoTaxi.DAL.Models
         public string Email { get; set; }
         public string FullName { get; set; }
         public string Password { get; set; }
+        public bool? IsVisible { get; set; }
         public double Longitude { get; set; }
         public double Latitude { get; set; }
 
@@ -19,6 +20,7 @@ namespace GoTaxi.DAL.Models
             Email = "NotDefined";
             FullName = "NotDefined";
             Password = "NotDefined";
+            IsVisible = false;
             Longitude = 0.0;
             Latitude = 0.0;
         }

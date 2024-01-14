@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GoTaxi.DAL.Models
 {
@@ -14,7 +9,6 @@ namespace GoTaxi.DAL.Models
         public int Reports { get; set; }
         public string? Destination { get; set; }
         public string? ClaimedBy { get; set; }
-        public bool? IsVisible { get; set; }
 
         public Client()
         {
@@ -22,7 +16,6 @@ namespace GoTaxi.DAL.Models
             Reports = 0;
             Destination = null;
             ClaimedBy = null;
-            IsVisible = false;
         }
 
 

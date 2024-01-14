@@ -53,7 +53,8 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
-                return Json(_driverService.GetNearestDrivers(currentDriverLongitude, currentDriverLatitude));
+                List<Driver> nearestDrivers = _driverService.GetNearestDrivers(currentDriverLongitude, currentDriverLatitude);
+                return Json(nearestDrivers);
             }
             catch (Exception ex)
             {
@@ -83,6 +84,7 @@ namespace GoTaxi.PL.Controllers
         {
             try
             {
+                _driverService.SetCurrentDriverVisibility(true);
                 _clientService.ClaimClient(phoneNumber);
                 return Json(new { success = true, message = "Location updated successfully" });
 

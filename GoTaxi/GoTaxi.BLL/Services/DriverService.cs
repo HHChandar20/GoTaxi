@@ -19,6 +19,12 @@ namespace GoTaxi.BLL.Services
             return currentDriver;
         }
 
+        public void SetCurrentDriverVisibility(bool visibility)
+        {
+            currentDriver.IsVisible = visibility;
+            _repository.UpdateDriver(currentDriver);
+        }
+
         public List<Driver> GetDrivers()
         {
             return _repository.GetAllDrivers();
@@ -105,6 +111,11 @@ namespace GoTaxi.BLL.Services
 
         public List<Driver> GetNearestDrivers(double currentDriverLongitude, double currentDriverLatitude)
         {
+            if (currentDriver.IsVisible == true)
+            {
+                return new List<Driver>();
+            }
+
             List<Driver> drivers = _repository.GetAllDriversExceptCurrent(currentDriver.PlateNumber);
 
             if (drivers == null)
@@ -116,9 +127,10 @@ namespace GoTaxi.BLL.Services
 
             List<Driver> filteredLocations = drivers
             .Where(driver =>
+                driver.IsVisible == false &&
                 CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude) <= 60)
-            .OrderBy(client =>
-                CalculateDistance(currentDriverLongitude, currentDriverLatitude, client.Longitude, client.Latitude))
+            .OrderBy(driver =>
+                CalculateDistance(currentDriverLongitude, currentDriverLatitude, driver.Longitude, driver.Latitude))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 drivers, otherwise, get all available drivers.

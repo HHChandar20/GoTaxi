@@ -47,7 +47,6 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
-
         [HttpPost]
         public IActionResult UpdateDestination([FromBody] DestinationData destinationData)
         {
@@ -66,12 +65,41 @@ namespace GoTaxi.PL.Controllers
             }
         }
 
+
+        [HttpGet]
+        public IActionResult GetClientDestination()
+        {
+            try
+            {
+                return Json(_clientService.GetCurrentClient().Destination);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking client: {ex.Message}");
+                return Json(new { success = false, message = "Internal server error" });
+            }
+        }
+
         [HttpGet]
         public IActionResult ClientClaimedBy()
         {
             try
             {
                 return Json(_clientService.ClientClaimedBy());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking client: {ex.Message}");
+                return Json(new { success = false, message = "Internal server error" });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult IsClientVisible()
+        {
+            try
+            {
+                return Json(_clientService.GetCurrentClient().IsVisible);
             }
             catch (Exception ex)
             {

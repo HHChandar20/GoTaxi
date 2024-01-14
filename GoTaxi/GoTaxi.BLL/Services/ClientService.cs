@@ -7,7 +7,7 @@ namespace GoTaxi.BLL.Services
 {
     public class ClientService : IClientService
     {
-        public static Client? currentClient = new Client();
+        public static Client currentClient = new Client();
         private readonly ClientRepository _repository;
         private readonly IDriverService _driverService;
 
@@ -15,6 +15,11 @@ namespace GoTaxi.BLL.Services
         {
             _repository = repository;
             _driverService = driverService;
+        }
+
+        public Client GetCurrentClient()
+        {
+            return currentClient;
         }
 
         public List<Client> GetClients()

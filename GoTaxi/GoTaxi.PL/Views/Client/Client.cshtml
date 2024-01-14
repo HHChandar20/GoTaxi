@@ -89,10 +89,15 @@
 
     <script type="text/javascript">
 
+        let interval;
         let map;
         let marker;
         let driverMarker;
-        let sharingLocation = false;
+        let sharingLocation;
+
+        isClientVisible();
+
+
         const button = document.getElementById('locationButton');
         const input = document.getElementById('destination');
 
@@ -145,17 +150,7 @@
             if (!sharingLocation) {
                 // Start sharing location
                 sharingLocation = true;
-                button.innerHTML = 'Cancel Request';
-
-                interval = setInterval(function () {
-                    clientClaimedBy().then(driver => {
-                        if (driver != null) {
-                            updateDriverMarker(driver);
-                        }
-                        shareLocation();
-                    });
-                }, 6000); // Repeat every 6 seconds
-
+                startSharingLocation();
                 updateDestination(input.value, true);
                 console.log("Start");
 
@@ -171,11 +166,22 @@
             }
         }
 
+        function startSharingLocation() {
+            button.innerHTML = 'Cancel Request';
+            interval = setInterval(function () {
+                console.log("a");
+                clientClaimedBy().then(driver => {
+                    if (driver != null) updateDriverMarker(driver);
+                    shareLocation();
+                });
+            }, 6000); // Repeat every 6 seconds
+        }
+
         function clientClaimedBy() {
             return fetch(`/Client/ClientClaimedBy`)
                 .then(response => response.json())
                 .catch(error => {
-                    console.error('Error fetching driver:', error);
+                    console.error('Error fetching client:', error);
                 });
         }
 
@@ -231,7 +237,40 @@
             }
         }
 
+        function isClientVisible() {
+            fetch(`/Client/IsClientVisible`)
+                .then(response => response.json())
+                .then(visibility => {
+                    if (visibility != null) {
+                        console.log("Visibility: ", visibility);
+                        sharingLocation = visibility;
+
+                        if (sharingLocation) {
+                            startSharingLocation();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching client:', error);
+                });
+        }
+
+        function getClientDestination() {
+            fetch(`/Client/GetClientDestination`)
+                .then(response => response.json())
+                .then(destination => {
+                    if (destination != null) {
+                        console.log("Destination: ", destination);
+                        input.value = destination;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching client:', error);
+                });
+        }
+
         function initMap() {
+
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const userPosition = [position.coords.longitude, position.coords.latitude];
@@ -272,14 +311,13 @@
                 {
                     enableHighAccuracy: true
                 }
+
             );
+
+            getClientDestination();
         }
 
         window.onload = initMap;
-        window.onbeforeunload = function () {
-            updateDestination("", false);
-            sendLocationToServer(90, 90);
-        }
     </script>
 </body>
 

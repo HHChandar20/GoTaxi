@@ -93,4 +93,26 @@ public class HomeController : Controller
         }
     }
 
+    [HttpPost]
+    public IActionResult RegisterDriver(string plateNumber, string email, string fullName, string password)
+    {
+        ViewBag.ErrorMessage = "";
+
+        bool isExisting = _driverService.CheckDriver(plateNumber);
+
+        if (!isExisting)
+        {
+            _driverService.AddDriver(plateNumber, email, fullName, password);
+            return RedirectToAction("Index");
+        }
+        else
+        {
+            // Return a message indicating account is already registered
+            ViewBag.ErrorMessage = "Account is already registered";
+
+            // Render the Register view again with the error message
+            return View("Register");
+        }
+    }
+
 }
