@@ -6,7 +6,7 @@ let clientMarkers = [];
 
 let clientIsInTheCar = false;
 
-let claimedClient = 0;
+let claimedClient = "0";
 let claimedClientMarker;
 let destinationMarker;
 
@@ -209,6 +209,7 @@ function getNearestClients(currentPosition) {
         .then(response => response.json())
         .then(nearestClients => {
             if (Array.isArray(nearestClients)) {
+                console.log(nearestClients);
                 updateClientMarkers(nearestClients);
             }
             else {
@@ -255,10 +256,12 @@ function clearMarkers(phoneNumber) {
     });
 
     clientMarkers = clientMarkers.filter(marker => {
-        if (marker.clientPhoneNumber !== phoneNumber || clientIsInTheCar) {
+        if ((marker.clientPhoneNumber != phoneNumber) || clientIsInTheCar) {
             marker.remove();
             return false;  // Exclude this marker from the new array
         }
+
+        console.log(clientMarkers);
         return true;  // Include this marker in the new array
     });
 }
@@ -374,6 +377,7 @@ function checkClaimedClient() {
                 if (claimedClient != "0" && !clientIsInTheCar && !claimedClientMarker) {
                     addClientMarker(claimedClient);
                     claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === claimedClient.phoneNumber);
+                    console.log("as", claimedClientMarker)
                 }
 
                 resolve(); // Resolve the promise once the asynchronous operation is complete
@@ -392,9 +396,8 @@ function isInTheCar() {
             .then(result => {
                 clientIsInTheCar = JSON.parse(result);
 
-                if (clientIsInTheCar) {
-                    if (claimedClientMarker)
-                        claimedClientMarker.remove();
+                if (clientIsInTheCar === 1 && claimedClientMarker) {
+                    claimedClientMarker.remove();
                 }
 
                 resolve(); // Resolve the promise once the asynchronous operation is complete
@@ -433,18 +436,19 @@ function sendLocationToServer(longitude, latitude) {
 
 
 async function checkMarkers() {
-    await checkClaimedClient();
-    await isInTheCar();
-
-    if (claimedClient != "0") {
-        createRouteToClient();
-    }
+    await checkClaimedClient()
+        .then(() => isInTheCar())
+        .then(() => {
+            if (claimedClient !== "0") {
+                createRouteToClient();
+            }
+        });
 }
 
-function initMap() {
+async function initMap() {
     navigator.geolocation.getCurrentPosition(
         position => {
-            userPosition = [27.4051000, 42.456306]//[position.coords.longitude, position.coords.latitude];
+            const userPosition = [27.4051000, 42.456306]//[position.coords.longitude, position.coords.latitude];
             sendLocationToServer(userPosition[0], userPosition[1]);
 
             map = tt.map({
@@ -476,12 +480,12 @@ function initMap() {
 
             currentMarker.addTo(map);
 
-            checkMarkers();
 
             if (claimedClient == "0") {
                 getNearestDrivers(userPosition);
                 getNearestClients(userPosition);
             }
+
 
             setInterval(function () {
                 const currentPosition = [userPosition[0] -= 0.0005, userPosition[1]];
@@ -511,6 +515,7 @@ function initMap() {
                 }
 
             }, 3000); // Repeat every 3 seconds
+
         },
         error => {
             console.error('Error getting user location:', error);
@@ -519,6 +524,8 @@ function initMap() {
             enableHighAccuracy: true
         }
     );
+
+    await checkMarkers();
 }
 
 

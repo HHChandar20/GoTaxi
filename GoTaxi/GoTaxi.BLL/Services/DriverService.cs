@@ -51,7 +51,7 @@ namespace GoTaxi.BLL.Services
 
         public Driver? AuthenticateDriver(string plateNumber, string password)
         {
-            return _repository.GetAllDrivers().First(driver => driver.PlateNumber == plateNumber && driver.Password == password);
+            return _repository.GetAllDrivers().FirstOrDefault(driver => driver.PlateNumber == plateNumber && driver.Password == password);
         }
 
         public Driver ConvertToDriver(string plateNumber, string fullName, string email, string password)
@@ -64,6 +64,7 @@ namespace GoTaxi.BLL.Services
             driver.Password = password;
             driver.Longitude = 1.1000;
             driver.Latitude = 1.1000;
+            driver.IsVisible = true;
 
             return driver;
         }

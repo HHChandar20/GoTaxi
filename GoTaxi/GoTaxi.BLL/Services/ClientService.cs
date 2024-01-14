@@ -145,7 +145,6 @@ namespace GoTaxi.BLL.Services
             List<Client> filteredLocations = clients
             .Where(client =>
                 client.IsVisible == true &&
-                driver.IsVisible == true &&
                 (client.ClaimedBy == null || client.ClaimedBy == driver.PlateNumber) &&
                 CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
             .OrderBy(client =>
