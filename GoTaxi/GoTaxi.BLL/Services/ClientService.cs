@@ -26,34 +26,13 @@ namespace GoTaxi.BLL.Services
 
         public bool CheckClient(string phoneNumber)
         {
-            List<Client> clients = _repository.GetAllClients();
-
-            if (clients == null)
-            {
-                return false;
-            }
-
-            foreach (Client client in clients)
-            {
-                if (client.PhoneNumber == phoneNumber)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _repository.GetAllClients()?.Any(client => client.PhoneNumber == phoneNumber) ?? false;
         }
 
         public bool AuthenticateClient(string phoneNumber, string password)
         {
-            Client? client = _repository.GetAllClientsWithUsers().FirstOrDefault(client => client.PhoneNumber == phoneNumber && client.User?.Password == password);
-
-            if (client == null)
-            {
-                return false;
-            }
-
-            return true;
+            return _repository.GetAllClientsWithUsers()
+                .Any(client => client.PhoneNumber == phoneNumber && client.User?.Password == password);
         }
 
         public Client ConvertToClient(string phoneNumber, string fullName, string email, string password)
@@ -79,24 +58,20 @@ namespace GoTaxi.BLL.Services
             _repository.UpdateClient(ConvertToClient(phoneNumber, fullName, email, password));
         }
 
-        public void UpdateClientLocation(string phoneNumber, double newLongitude, double newLatitude)
+        public void UpdateClientLocation(string phoneNumber, double longitude, double latitude)
         {
             Client client = _repository.GetClientByPhoneNumber(phoneNumber);
 
             if (client != null && client.User != null && client.User.Location != null)
             {
-                client.User.Location.Longitude = newLongitude;
-                client.User.Location.Latitude = newLatitude;
+                client.User.Location.Longitude = longitude;
+                client.User.Location.Latitude = latitude;
 
                 _repository.UpdateClient(client);
             }
-            else
-            {
-                Console.WriteLine("Error updating client location");
-            }
         }
 
-        public void UpdateClientDestination(string phoneNumber, string? newDestination, double newLongitude, double newLatitude, bool newVisibility)
+        public void UpdateClientDestination(string phoneNumber, string? destination, double longitude, double latitude, bool visibility)
         {
             Client client = _repository.GetClientByPhoneNumber(phoneNumber);
 
@@ -107,29 +82,24 @@ namespace GoTaxi.BLL.Services
                 if (client.ClaimedBy != null)
                 {
                     driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy.PlateNumber);
-                    driver.User!.IsVisible = !newVisibility;
+                    driver.User!.IsVisible = !visibility;
 
-                    if (!newVisibility)
+                    // Client canceled the request
+                    if (!visibility)
                     {
-                        // Client canceled the request
                         _driverService.UpdateDriverVisibility(driver);
                         client.ClaimedBy = null;
                     }
                 }
 
-                client.Destination.Name = newDestination;
-                client.Destination.Location!.Longitude = newLongitude;
-                client.Destination.Location.Latitude = newLatitude;
-                client.User!.IsVisible = newVisibility;
+                client.Destination.Name = destination;
+                client.Destination.Location!.Longitude = longitude;
+                client.Destination.Location.Latitude = latitude;
+                client.User!.IsVisible = visibility;
 
                 _repository.UpdateClient(client);
             }
-            else
-            {
-                Console.WriteLine("Error updating client destination");
-            }
         }
-
 
         public void ClaimClient(string plateNumber, string phoneNumber)
         {
@@ -179,16 +149,16 @@ namespace GoTaxi.BLL.Services
 
             if (driver.User!.Location != null && client.User!.Location != null)
             {
-                return DistanceCalculator.CalculateDistance(driver.User.Location, client.User.Location) < 0.033; /// 33 m
+                return DistanceCalculator.CalculateDistance(driver.User.Location, client.User.Location) < DistanceCalculator.CarRange; // Distance 33 m
             }
 
             return false;
 
         }
 
-        public List<Client> GetNearestClients(string plateNumber, double currentLongitude, double currentLatitude)
+        public List<Client> GetNearestClients(string plateNumber, double longitude, double latitude)
         {
-            Location currentLocation = new Location(currentLongitude, currentLatitude);
+            Location currentLocation = new Location(longitude, latitude);
 
             Driver currentDriver = _driverService.GetDriverByPlateNumber(plateNumber);
             List<Client> clients = new List<Client>();
@@ -196,10 +166,6 @@ namespace GoTaxi.BLL.Services
 
             if (currentDriver.User!.IsVisible == false)
             {
-                if (GetClaimedClient(plateNumber) == null)
-                {
-                    return clients;
-                }
                 clients.Add(GetClaimedClient(plateNumber)!);
 
                 return clients;
@@ -207,18 +173,18 @@ namespace GoTaxi.BLL.Services
 
             clients = _repository.GetAllClientsWithUsers();
 
-            List<Client> filteredLocations = clients
+            List<Client> filteredClients = clients
             .Where(client =>
                 client.User!.IsVisible == true &&
                 client.ClaimedBy == null &&
-                DistanceCalculator.CalculateDistance(currentLocation, client.User.Location!) <= 60) // Max Distance 60 km
+                DistanceCalculator.CalculateDistance(currentLocation, client.User.Location!) <= DistanceCalculator.Range) // Max Distance 60 km
             .OrderBy(client =>
                 DistanceCalculator.CalculateDistance(currentLocation, client.User!.Location!))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 clients, otherwise, get all available clients.
-            int count = Math.Min(filteredLocations.Count, 10);
-            List<Client> nearestLocations = filteredLocations.GetRange(0, count);
+            int count = Math.Min(filteredClients.Count, 10);
+            List<Client> nearestLocations = filteredClients.GetRange(0, count);
 
             return nearestLocations;
         }

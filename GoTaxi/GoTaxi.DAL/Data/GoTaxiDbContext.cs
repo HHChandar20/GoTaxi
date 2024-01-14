@@ -15,13 +15,5 @@ namespace GoTaxi.DAL.Data
         public GoTaxiDbContext(DbContextOptions<GoTaxiDbContext> options) : base(options)
         {
         }
-
-        public GoTaxiDbContext() : base()
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
     }
 }
