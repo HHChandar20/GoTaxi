@@ -94,7 +94,7 @@ function startSharingLocation() {
     button.innerHTML = 'Cancel Request';
     interval = setInterval(function () {
         clientClaimedBy().then(driver => {
-            if (driver !== "0") {
+            if (driver != "0") {
                 updateDriverMarker(driver);
             }
             shareLocation();
@@ -241,6 +241,7 @@ function initMap() {
 
     );
 
+    isClientVisible();
     getClientDestination();
 }
 

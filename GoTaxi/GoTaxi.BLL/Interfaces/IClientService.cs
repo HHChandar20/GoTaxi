@@ -18,7 +18,7 @@ namespace GoTaxi.BLL.Interfaces
         public void UpdateClientLocation(Client client, double longitude, double latitude);
         public void UpdateClientDestination(Client client, string? newDestination, double newLongitude, double newLatitude, bool newVisibility);
         public void ClaimClient(Driver driver, string phoneNumber);
-        public bool IsInTheCar(Driver driver, Client client);
+        public bool IsInTheCar(string phoneNumber);
         public Client GetClaimedClient(Driver driver);
         public Driver? ClientClaimedBy(Client client);
         public List<Client> GetNearestClients(Driver driver, double currentClientLongitude, double currentClientLatitude);

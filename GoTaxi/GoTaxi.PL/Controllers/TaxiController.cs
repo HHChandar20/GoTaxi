@@ -120,22 +120,21 @@ namespace GoTaxi.PL.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching claimed client: {ex.Message}");
-                return Json("0");
+                return Json(null);
             }
         }
 
         [HttpGet]
-        public IActionResult IsInTheCar()
+        public IActionResult IsInTheCar(string phoneNumber)
         {
             try
             {
-                return Json("0");
-                //return Json(_clientService.IsInTheCar());
+                return Json(_clientService.IsInTheCar(phoneNumber));
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error checking if the client is in the car: {ex.Message}");
-                return Json("0");
+                return Json(false);
             }
         }
 

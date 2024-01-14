@@ -1,14 +1,15 @@
 ﻿let map;
 let currentMarker;
+let userPosition;
 
 let driverMarkers = [];
 let clientMarkers = [];
 
 let clientIsInTheCar = false;
 
-let claimedClient = "0";
-let claimedClientMarker;
-let destinationMarker;
+let claimedClient = null;
+let claimedClientMarker = null;
+let destinationMarker = null;
 
 
 function addDriverMarker(driver) {
@@ -209,7 +210,7 @@ function getNearestClients(currentPosition) {
         .then(response => response.json())
         .then(nearestClients => {
             if (Array.isArray(nearestClients)) {
-                console.log(nearestClients);
+
                 updateClientMarkers(nearestClients);
             }
             else {
@@ -242,6 +243,13 @@ function addDestinationMarker() {
     markerBorder.className = 'marker-border';
     markerBorder.style.background = 'orange';
 
+    let markerIcon = document.createElement('div');
+    markerIcon.className = 'marker-icon';
+    markerIcon.style.backgroundImage = 'url(/images/destination.png)';
+    markerIcon.style.backgroundSize = 'contain';
+    markerIcon.style.backgroundRepeat = 'no-repeat';
+    markerBorder.appendChild(markerIcon);
+
     destinationMarker = new tt.Marker({
         element: markerBorder
     }).setLngLat(destinationPosition).setPopup(markerPopup);
@@ -249,7 +257,7 @@ function addDestinationMarker() {
     destinationMarker.addTo(map);
 }
 
-function clearMarkers(phoneNumber) {
+function clearMarkers(phoneNumber = 0) {
     driverMarkers.forEach(marker => {
         marker.remove();
         driverMarkers.shift();
@@ -261,7 +269,6 @@ function clearMarkers(phoneNumber) {
             return false;  // Exclude this marker from the new array
         }
 
-        console.log(clientMarkers);
         return true;  // Include this marker in the new array
     });
 }
@@ -280,22 +287,26 @@ function deleteRoute() {
 
 function displayRoute(geoJSON) {
 
-    // Add the new 'route' source
-    map.addSource('route', {
-        'type': 'geojson',
-        'data': geoJSON
-    });
+    if (!map.getLayer('route')) {
 
-    // Add the new 'route' layer
-    map.addLayer({
-        'id': 'route',
-        'type': 'line',
-        'source': 'route',  // Use the 'route' source
-        'paint': {
-            'line-color': 'red',
-            'line-width': 5
-        }
-    });
+        map.addSource('route', {
+            'type': 'geojson',
+            'data': geoJSON
+        });
+
+        map.addLayer({
+            'id': 'route',
+            'type': 'line',
+            'source': 'route',
+            'paint': {
+                'line-color': 'red',
+                'line-width': 5
+            }
+        });
+
+    } else {
+        map.getSource('route').setData(geoJSON);
+    }
 }
 
 function claimClient(phoneNumber) {
@@ -306,7 +317,7 @@ function claimClient(phoneNumber) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                console.log('Location update successful:', xhr.responseText);
+
             } else {
                 console.error('Error updating location. Status code:', xhr.status);
             }
@@ -326,17 +337,26 @@ function claimClient(phoneNumber) {
 
 function createRouteToClient() {
 
-    deleteRoute();
-
-    if (clientIsInTheCar === true)
-        addDestinationMarker();
+    if (clientIsInTheCar) {
+        if (!destinationMarker)
+            addDestinationMarker();
+    }
+    else {
+        if (!claimedClientMarker) {
+            addClientMarker(claimedClient);
+            claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === claimedClient.phoneNumber);
+        }
+        else {
+            updateClientMarker(claimedClientMarker, claimedClient);
+        }
+    }
 
     if ((claimedClientMarker || destinationMarker) && currentMarker) {
 
         let longitude = 90;
         let latitude = 90;
 
-        if (clientIsInTheCar === true) {
+        if (clientIsInTheCar) {
             longitude = destinationMarker.getLngLat().lng;
             latitude = destinationMarker.getLngLat().lat;
         }
@@ -353,15 +373,18 @@ function createRouteToClient() {
             ]
         };
 
+        console.log(routeOptions);
+
         tt.services
             .calculateRoute(routeOptions)
             .then(response => {
-                // Add the new route layer
+
                 displayRoute(response.toGeoJson());
             })
             .catch(error => {
                 console.error('Error calculating route:', error);
             });
+
     } else {
         console.error('Claimed client marker or current driver marker not found.');
     }
@@ -373,13 +396,6 @@ function checkClaimedClient() {
             .then(response => response.json())
             .then(client => {
                 claimedClient = client;
-
-                if (claimedClient != "0" && !clientIsInTheCar && !claimedClientMarker) {
-                    addClientMarker(claimedClient);
-                    claimedClientMarker = clientMarkers.find(marker => marker.clientPhoneNumber === claimedClient.phoneNumber);
-                    console.log("as", claimedClientMarker)
-                }
-
                 resolve(); // Resolve the promise once the asynchronous operation is complete
             })
             .catch(error => {
@@ -391,14 +407,17 @@ function checkClaimedClient() {
 
 function isInTheCar() {
     return new Promise((resolve) => {
-        fetch(`/Taxi/IsInTheCar`)
+        fetch(`/Taxi/IsInTheCar?phoneNumber=${claimedClient.phoneNumber}`)
             .then(response => response.json())
             .then(result => {
                 clientIsInTheCar = JSON.parse(result);
+                console.log("In the car:", clientIsInTheCar);
 
-                if (clientIsInTheCar === 1 && claimedClientMarker) {
+                if (clientIsInTheCar === true && claimedClientMarker !== null) {
                     claimedClientMarker.remove();
+                    claimedClientMarker = null;
                 }
+                createRouteToClient();
 
                 resolve(); // Resolve the promise once the asynchronous operation is complete
             })
@@ -422,7 +441,6 @@ function sendLocationToServer(longitude, latitude) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                console.log('Location update successful:', xhr.responseText);
             } else {
                 console.error('Error updating location. Status code:', xhr.status);
             }
@@ -434,99 +452,142 @@ function sendLocationToServer(longitude, latitude) {
 
 }
 
-
 async function checkMarkers() {
     await checkClaimedClient()
-        .then(() => isInTheCar())
         .then(() => {
-            if (claimedClient !== "0") {
-                createRouteToClient();
+            if (claimedClient) {
+                isInTheCar();
             }
-        });
+        })
+}
+
+function getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                userPosition = [position.coords.longitude, position.coords.latitude];
+                sendLocationToServer(userPosition[0], userPosition[1]);
+                resolve(userPosition);
+            },
+            error => {
+                console.error('Error getting user location:', error);
+                reject(error);
+            },
+            {
+                enableHighAccuracy: true
+            }
+        );
+    });
+}
+
+function createMap(userPosition) {
+    map = tt.map({
+        key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
+        container: 'map',
+        center: userPosition,
+        zoom: 13
+    });
+    let div = document.createElement('div');
+    div.innerHTML = '<p>You</p>';
+
+    let popup = new tt.Popup({
+        closeButton: false,
+        offset: 25,
+        anchor: 'bottom'
+    }).setDOMContent(div);
+
+    let border = document.createElement('div');
+    border.className = 'marker-border';
+
+    let icon = document.createElement('div');
+    icon.className = 'marker-icon';
+    icon.style.backgroundImage = 'url(/images/taxi-icon.png)';
+    border.appendChild(icon);
+
+    currentMarker = new tt.Marker({
+        element: border
+    }).setLngLat(userPosition).setPopup(popup);
+
+    currentMarker.addTo(map);
 }
 
 async function initMap() {
-    navigator.geolocation.getCurrentPosition(
-        position => {
-            const userPosition = [27.4051000, 42.456306]//[position.coords.longitude, position.coords.latitude];
-            sendLocationToServer(userPosition[0], userPosition[1]);
+    await getCurrentLocation();
 
-            map = tt.map({
-                key: "MVjOYcUAh8yzcRi8zYnynWAhvqtASz8G",
-                container: 'map',
-                center: userPosition,
-                zoom: 13
-            });
-            let div = document.createElement('div');
-            div.innerHTML = '<p>You</p>';
+    checkMarkers();
+    setInterval(function () {
+        /* -= 0.0005 */
+        /* -= 0.0005 */
 
-            let popup = new tt.Popup({
-                closeButton: false,
-                offset: 25,
-                anchor: 'bottom'
-            }).setDOMContent(div);
+        navigator.geolocation.getCurrentPosition(
+            newPosition => {
+                const newDriverPosition = [userPosition[0], userPosition[1]];
 
-            let border = document.createElement('div');
-            border.className = 'marker-border';
+                currentMarker.setLngLat(userPosition);
+                sendLocationToServer(userPosition[0], userPosition[1]);
+            },
+            error => {
+                console.error('Error getting user location:', error);
+            },
+            {
+                enableHighAccuracy: true
+            }
+        );
 
-            let icon = document.createElement('div');
-            icon.className = 'marker-icon';
-            icon.style.backgroundImage = 'url(/images/taxi-icon.png)';
-            border.appendChild(icon);
+        console.log(claimedClientMarker)
 
-            currentMarker = new tt.Marker({
-                element: border
-            }).setLngLat(userPosition).setPopup(popup);
-
-            currentMarker.addTo(map);
-
-
-            if (claimedClient == "0") {
-                getNearestDrivers(userPosition);
-                getNearestClients(userPosition);
+        if (!clientIsInTheCar) {
+            if (destinationMarker) {
+                destinationMarker.remove();
             }
 
+            getNearestDrivers(userPosition);
+            getNearestClients(userPosition);
 
-            setInterval(function () {
-                const currentPosition = [userPosition[0] -= 0.0005, userPosition[1]];
-
-                navigator.geolocation.getCurrentPosition(
-                    newPosition => {
-                        const newDriverPosition = [userPosition[0] -= 0.0005, userPosition[1]];
-
-                        currentMarker.setLngLat(currentPosition);
-                        sendLocationToServer(currentPosition[0], currentPosition[1]);
-                    },
-                    error => {
-                        console.error('Error getting user location:', error);
-                    },
-                    {
-                        enableHighAccuracy: true
-                    }
-                );
-
-                deleteRoute();
-
-                checkMarkers();
-
-                if (claimedClient == "0") {
-                    getNearestDrivers(userPosition);
-                    getNearestClients(userPosition);
-                }
-
-            }, 3000); // Repeat every 3 seconds
-
-        },
-        error => {
-            console.error('Error getting user location:', error);
-        },
-        {
-            enableHighAccuracy: true
         }
-    );
 
-    await checkMarkers();
+        checkMarkers();
+
+        if (claimedClient === null) {
+            deleteRoute();
+            clientIsInTheCar = false;
+        }
+
+    }, 4000); // Repeat every 4 seconds
 }
 
+window.onload = function () {
+    getCurrentLocation().then(position => {
+        userPosition = position;
+        createMap(position);
+        initMap();
+    });
+};
 
-window.onload = initMap;
+window.addEventListener("keydown", function (event) {
+
+    if (event.key == "ArrowRight") {
+        userPosition[0] += 0.001;
+    }
+    else if (event.key == "ArrowLeft") {
+        userPosition[0] -= 0.001;
+    }
+    else if (event.key == "ArrowUp") {
+        userPosition[1] += 0.001;
+    }
+    else if (event.key == "ArrowDown") {
+        userPosition[1] -= 0.001;
+    }
+    else if (event.key == "d") {
+        userPosition[0] += 0.00001;
+    }
+    else if (event.key == "a") {
+        userPosition[0] -= 0.00001;
+    }
+    else if (event.key == "w") {
+        userPosition[1] += 0.00001;
+    }
+    else if (event.key == "s") {
+        userPosition[1] -= 0.00001;
+    }
+})

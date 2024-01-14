@@ -126,37 +126,42 @@ namespace GoTaxi.BLL.Services
             return _repository.GetAllClients().First(client => client.ClaimedBy == driver.PlateNumber);
         }
 
-        public bool IsInTheCar(Driver driver, Client client)
+        public bool IsInTheCar(string phoneNumber)
         {
-            return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.3; /// 300 m
+            Client client = GetClientByPhoneNumber(phoneNumber);
+            Driver driver = _driverService.GetDriverByPlateNumber(client.ClaimedBy!);
+
+            return CalculateDistance(driver.Longitude, driver.Latitude, client.Longitude, client.Latitude) < 0.003; /// 300 m
         }
 
-        public List<Client> GetNearestClients(Driver driver, double currentClientLongitude, double currentClientLatitude)
+        public List<Client> GetNearestClients(Driver driver, double currentLongitude, double currentLatitude)
         {
-            List<Client> clients = _repository.GetAllClients();
+            List<Client> clients = new List<Client>();
 
-            if (clients == null)
+            if (driver.IsVisible == false)
             {
-                return new List<Client>();
+                clients.Add(GetClaimedClient(driver));
+
+                return clients;
             }
 
-            //clients.Remove(currentClient);
+            clients = _repository.GetAllClients();
 
             List<Client> filteredLocations = clients
             .Where(client =>
                 client.IsVisible == true &&
-                (client.ClaimedBy == null || client.ClaimedBy == driver.PlateNumber) &&
-                CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
+                client.ClaimedBy == null &&
+                CalculateDistance(currentLongitude, currentLatitude, client.Longitude, client.Latitude) <= 60) // Max Distance 60 km
             .OrderBy(client =>
-                CalculateDistance(currentClientLongitude, currentClientLatitude, client.Longitude, client.Latitude))
+                CalculateDistance(currentLongitude, currentLatitude, client.Longitude, client.Latitude))
             .ToList();
 
             // Get the nearest 10 locations if there are at least 10 clients, otherwise, get all available clients.
             int count = Math.Min(filteredLocations.Count, 10);
             List<Client> nearestLocations = filteredLocations.GetRange(0, count);
-
             return nearestLocations;
         }
+
 
         public static double CalculateDistance(double longitude1, double latitude1, double longitude2, double latitude2)
         {

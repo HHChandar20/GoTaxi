@@ -55,6 +55,8 @@ namespace GoTaxi.DAL.Repositories
             {
                 existingDriver.Longitude = updatedDriver.Longitude;
                 existingDriver.Latitude = updatedDriver.Latitude;
+
+                _context.SaveChanges();
             }
         }
 
@@ -65,6 +67,8 @@ namespace GoTaxi.DAL.Repositories
             if (existingDriver != null)
             {
                 existingDriver.IsVisible = updatedDriver.IsVisible;
+
+                _context.SaveChanges();
             }
         }
     }
