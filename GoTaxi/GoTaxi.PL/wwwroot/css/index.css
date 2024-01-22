@@ -309,6 +309,21 @@ a, a:hover, a:focus, a:active {
 
 
 @media only screen and (max-width: 768px) {
+
+    .primary-text {
+        font-size: 3em;
+    }
+
+    .secondary-text {
+        font-size: 3em;
+    }
+
+    .info-text {
+        font-size: 1.3em;
+        padding: 0% 10% 0% 10%;
+        text-align: center;
+    }
+
     #ride-book {
         flex-direction: column;
         text-align: center;
