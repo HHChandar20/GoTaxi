@@ -48,13 +48,18 @@ Providing a user-friendly experience for both parties. Whether you're a client l
 
 <br>
 
+## Website
+You can visit the website here: <a href="https://gotaxi.azurewebsites.net/">GoTaxi</a> <img height="10" src="https://via.placeholder.com/10/FFC100?text=+" alt="color">
+
+<br>
+
 ## Markers Color Reference
 
 | Color             | Hex                                                                |
 | ----------------- | ------------------------------------------------------------------ |
-| Driver | ![#FFC100](https://via.placeholder.com/10/FFC100?text=+) #FFC100 |
-| Client| ![#ff0000](https://via.placeholder.com/10/ff0000?text=+) #FF0000 |
-| Destination|![#ccff00](https://via.placeholder.com/10/ccff00?text=)#CCFF00 |
+| Driver | ![#FFC100](https://via.placeholder.com/10/FFC100?text=+)   #FFC100 |
+| Client| ![#ff0000](https://via.placeholder.com/10/ff0000?text=+)   #FF0000 |
+| Destination|![#ccff00](https://via.placeholder.com/10/ccff00?text=)   #CCFF00 |
 
 
 <br>
@@ -93,4 +98,3 @@ Run
 ## Demo
 
 Video
-
