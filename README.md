@@ -3,7 +3,7 @@
 <h1 align="center">🚦 Transport Project 🚦</h1>
 
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196216322619621486/Screenshot_2024-01-14_203438-removebg-preview.png?ex=65b6d243&is=65a45d43&hm=9bc3871ae115281aed44d2f489a8334f17722332513e1448201f426daca0bc54&=&format=webp&quality=lossless" width="350">
+  <img src="https://media.discordapp.net/attachments/935809460809633832/1196216322619621486/Screenshot_2024-01-14_203438-removebg-preview.png?ex=662ecac3&is=661c55c3&hm=917680eaa24983bd4704adfa5a3833dfa19381befa82468a49cf23edc6c3676f&=&format=webp&quality=lossless" width="350">
 </p>
 
 ## 🚖 GoTaxi 🚖
@@ -67,8 +67,8 @@ You can visit the website here: <a href="https://gotaxi.azurewebsites.net/">GoTa
 ## Screenshots
 
 <p align="center" display="flex">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214971726581891/iphone-mockup-portrait.png?ex=65b6d101&is=65a45c01&hm=e4284d5f8fe0e8c39aac1d52b7218610ee2f580675deb70c317181adf7bf7309&=&format=webp&quality=lossless&width=345&height=651" width="200">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214972548653056/mac-mockup.png?ex=65b6d102&is=65a45c02&hm=ce9d78b2603916659ad3970677c1adb985ab04d94d9dc0659bd3e25436188ea5&=&format=webp&quality=lossless&width=852&height=556" width="750">
+  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214971726581891/iphone-mockup-portrait.png?ex=662ec981&is=661c5481&hm=8e031eaad7e97538651e920b913ce72a38e618ca9fd20a66591aed93e8a3eb4c&=&format=webp&quality=lossless&width=345&height=651" width="200">
+  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214972548653056/mac-mockup.png?ex=662ec982&is=661c5482&hm=3f45bb4ebfede93d0dd1fff30fa5a37bd0a94f3519e9990c78071b9fccaa8fe3&=&format=webp&quality=lossless&width=954&height=622" width="750">
 </p>
 
 <br>
@@ -92,9 +92,3 @@ Run
 ```bash
   dotnet run
 ```
-
-<br>
-
-## Demo
-
-Video
