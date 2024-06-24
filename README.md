@@ -3,7 +3,7 @@
 <h1 align="center">🚦 Transport Project 🚦</h1>
 
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196216322619621486/Screenshot_2024-01-14_203438-removebg-preview.png?ex=662ecac3&is=661c55c3&hm=917680eaa24983bd4704adfa5a3833dfa19381befa82468a49cf23edc6c3676f&=&format=webp&quality=lossless" width="350">
+  <img src="https://media.discordapp.net/attachments/935809460809633832/1196216322619621486/Screenshot_2024-01-14_203438-removebg-preview.png?ex=6679f043&is=66789ec3&hm=75ed0c60c34960dea3b158815e71ca75dd38d8f4ce4d325f61a642f91532447c&=&format=webp&quality=lossless" width="350">
 </p>
 
 ## 🚖 GoTaxi 🚖
@@ -67,8 +67,8 @@ You can visit the website here: <a href="https://gotaxi.azurewebsites.net/">GoTa
 ## Screenshots
 
 <p align="center" display="flex">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214971726581891/iphone-mockup-portrait.png?ex=662ec981&is=661c5481&hm=8e031eaad7e97538651e920b913ce72a38e618ca9fd20a66591aed93e8a3eb4c&=&format=webp&quality=lossless&width=345&height=651" width="200">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214972548653056/mac-mockup.png?ex=662ec982&is=661c5482&hm=3f45bb4ebfede93d0dd1fff30fa5a37bd0a94f3519e9990c78071b9fccaa8fe3&=&format=webp&quality=lossless&width=954&height=622" width="750">
+  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214971726581891/iphone-mockup-portrait.png?ex=6679ef01&is=66789d81&hm=ebf0dc9546b8bc0cbb759090a7971e87b54827963014a9eba50d47b097751bb5&=&format=webp&quality=lossless&width=345&height=651" width="200">
+  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214972548653056/mac-mockup.png?ex=6679ef02&is=66789d82&hm=79a7c92f17e2adea940af40112abecdccf99ce362372f08dc6c19a4d3ba75760&=&format=webp&quality=lossless&width=954&height=622" width="650">
 </p>
 
 <br>
