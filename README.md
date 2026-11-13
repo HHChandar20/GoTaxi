@@ -1,94 +1,175 @@
+<div align="center">
 
+# 🚕 GoTaxi
 
-<h1 align="center">🚦 Transport Project 🚦</h1>
+**A ride-hailing web app that connects riders with nearby taxi drivers in real time.**<br>
+Riders share their location and pick a destination; drivers see waiting riders on a live map, claim a ride and follow the route to the pickup.
 
-<p align="center">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196216322619621486/Screenshot_2024-01-14_203438-removebg-preview.png?ex=6679f043&is=66789ec3&hm=75ed0c60c34960dea3b158815e71ca75dd38d8f4ce4d325f61a642f91532447c&=&format=webp&quality=lossless" width="350">
+<p>
+<img src="https://img.shields.io/badge/.NET-7-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 7">
+<img src="https://img.shields.io/badge/ASP.NET%20Core-MVC-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt="ASP.NET Core MVC">
+<img src="https://img.shields.io/badge/EF%20Core-7-6DB33F?style=for-the-badge" alt="Entity Framework Core 7">
+<img src="https://img.shields.io/badge/SQL%20Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server">
+<img src="https://img.shields.io/badge/TomTom%20Maps-DF1B12?style=for-the-badge" alt="TomTom Maps">
+<img src="https://img.shields.io/badge/Tests-45%20passing-brightgreen?style=for-the-badge" alt="45 tests passing">
+<img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT license">
 </p>
 
-## 🚖 GoTaxi 🚖
-GoTaxi revolutionizes the way you find taxis, making the process quicker and more efficient than ever before. With our app, clients can seamlessly connect with available taxi drivers, ensuring prompt and reliable service. Say goodbye to long waits and uncertainty 🚕
+<a href="#features"><b>Features</b></a> ·
+<a href="#how-it-works"><b>How it works</b></a> ·
+<a href="#screenshots"><b>Screenshots</b></a> ·
+<a href="#architecture"><b>Architecture</b></a> ·
+<a href="#getting-started"><b>Getting started</b></a>
 
-Providing a user-friendly experience for both parties. Whether you're a client looking for a ride or a taxi driver ready to serve, GoTaxi has got you covered ✨
+<br><br>
 
-<br>
+<img src="docs/screenshots/hero.webp" alt="GoTaxi driver map with a route to a rider on a laptop, and the rider's map on a phone" width="100%">
+
+</div>
+
+## Overview
+
+GoTaxi has two sides. **Riders** sign in with their phone number, share their location and search for a destination. **Drivers** sign in with their plate number and see every waiting rider nearby on a dark live map, along with where each rider wants to go. When a driver claims a ride, GoTaxi draws the route to the pickup, tells the rider which taxi is coming, and detects when the rider is in the car.
 
 ## Features
 
-🧑🏽‍💻 - User Authentication: Log in as a client or a taxi driver to access the features
+<table>
+<tr>
+<td width="50%" valign="top">
 
-⚡ - Client Booking: Clients can enter their destination, share their location, and quickly find available taxi drivers
+### 🙋 For riders
+- Share your live location with one tap
+- Destination search with autocomplete, powered by OpenStreetMap's Nominatim
+- See which taxi accepted your ride and track it on the map
+- Cancel a request at any time
 
-🗺️ - Driver Map: Taxi drivers can view other drivers and active client requests, making the service efficient
+</td>
+<td width="50%" valign="top">
 
-📍 - Location Services: Utilizes the power of JS-navigator and Nominatim API to get accurate client locations
+### 🚖 For drivers
+- Live map of waiting riders and other taxis, nearest first
+- Each rider card shows their destination and report count
+- Claim a ride and get the driving route to the pickup
+- Location refreshes automatically while you drive
 
-<br>
+</td>
+</tr>
+<tr>
+<td valign="top">
 
-## Tech Stack
+### 📍 Location logic
+- Distances calculated with the haversine formula
+- Riders and drivers within 60 km are matched
+- GoTaxi detects pickup once the driver is within ~33 m of the rider
 
-**Client:**
-<code><img height="40" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/.NET_Core_Logo.svg/1024px-.NET_Core_Logo.svg.png" alt="ASP.NET"></code>
-<code><img height="40" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/JavaScript-logo.png/768px-JavaScript-logo.png" alt="JavaScript"></code>
-<code><img height="40" src="https://cdn.pixabay.com/photo/2017/08/05/11/16/logo-2582748_960_720.png" alt="HTML"></code>
-<code><img height="40" src="https://cdn.pixabay.com/photo/2017/08/05/11/16/logo-2582747_960_720.png" alt="CSS"></code>
-<code><img height="40" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Bootstrap_logo.svg/800px-Bootstrap_logo.svg.png" alt="Bootstrap"></code>
+</td>
+<td valign="top">
 
-**Server:** 
-<code><img height="40" src="https://seeklogo.com/images/C/c-sharp-c-logo-02F17714BA-seeklogo.com.png" alt="C#"></code>
-<code><img height="40" src="https://symbols.getvecta.com/stencil_27/79_sql-database-generic.494ff6320e.png" alt="SQL"></code>
+### 🧪 Quality
+- 45 NUnit tests covering services and repositories
+- EF Core in-memory database for fast, isolated tests
+- Separate presentation, business and data layers
 
-**Testing:** 
-<code><img height="40" src="https://avatars.githubusercontent.com/u/2678858?s=280&v=4" alt="NUnit"></code>
+</td>
+</tr>
+</table>
 
-**Design:** 
-<code><img height="40" src="https://i.pinimg.com/originals/9c/ea/ba/9ceaba69b7a9f89158ff953107978f3e.png" alt="Photoshop"></code>
-<code><img height="40" src="https://cdn.sanity.io/images/599r6htc/localized/46a76c802176eb17b04e12108de7e7e0f3736dc6-1024x1024.png?w=804&h=804&q=75&fit=max&auto=format" alt="Figma"></code>
-<code><img height="40" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Font_Awesome_logomark_blue.svg/1200px-Font_Awesome_logomark_blue.svg.png" alt="FontAwesome"></code>
+## How it works
 
-<br>
+```mermaid
+sequenceDiagram
+    actor R as Rider
+    participant G as GoTaxi
+    actor D as Driver
+    R->>G: Share location + pick destination
+    D->>G: Share location
+    G-->>D: Nearby riders, nearest first
+    D->>G: Claim ride
+    G-->>R: Your taxi (plate) is on the way
+    G-->>D: Route to pickup
+    D->>R: Arrives (within ~33 m)
+    G-->>D: Rider is in the car
+```
 
-## Website
-You can visit the website here: <a href="https://gotaxi.azurewebsites.net/">GoTaxi</a> <img height="10" src="https://via.placeholder.com/10/FFC100?text=+" alt="color">
+**Map legend**
 
-<br>
-
-## Markers Color Reference
-
-| Color             | Hex                                                                |
-| ----------------- | ------------------------------------------------------------------ |
-| Driver | ![#FFC100](https://via.placeholder.com/10/FFC100?text=+)   #FFC100 |
-| Client| ![#ff0000](https://via.placeholder.com/10/ff0000?text=+)   #FF0000 |
-| Destination|![#ccff00](https://via.placeholder.com/10/ccff00?text=)   #CCFF00 |
-
-
-<br>
+| Marker | Meaning |
+| :-- | :-- |
+| 🟡 Yellow | Taxi |
+| 🔴 Red | Rider waiting for pickup |
+| 🟢 Lime | Rider's destination |
 
 ## Screenshots
 
-<p align="center" display="flex">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214971726581891/iphone-mockup-portrait.png?ex=6679ef01&is=66789d81&hm=ebf0dc9546b8bc0cbb759090a7971e87b54827963014a9eba50d47b097751bb5&=&format=webp&quality=lossless&width=345&height=651" width="200">
-  <img src="https://media.discordapp.net/attachments/935809460809633832/1196214972548653056/mac-mockup.png?ex=6679ef02&is=66789d82&hm=79a7c92f17e2adea940af40112abecdccf99ce362372f08dc6c19a4d3ba75760&=&format=webp&quality=lossless&width=954&height=622" width="650">
+<p align="center">
+  <img src="docs/screenshots/frame-home.webp" alt="GoTaxi landing page" width="100%">
+  <br><sub><b>Landing page</b></sub>
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/phones.webp" alt="GoTaxi landing, login and register pages on phones" width="100%">
+  <br><sub><b>Fully responsive</b>: landing page, sign-in and registration for riders and drivers</sub>
+</p>
+
+## Architecture
+
+```mermaid
+flowchart LR
+    PL["<b>GoTaxi.PL</b><br/>MVC controllers · Razor views<br/>TomTom maps · Nominatim search"]
+    BLL["<b>GoTaxi.BLL</b><br/>ClientService · DriverService<br/>DistanceCalculator"]
+    DAL["<b>GoTaxi.DAL</b><br/>EF Core DbContext<br/>repositories · models"]
+    DB[("SQL Server")]
+    PL --> BLL --> DAL --> DB
+    T["<b>GoTaxi.Tests</b><br/>NUnit · EF Core InMemory"] -.-> BLL
+    T -.-> DAL
+```
+
+| Project | Responsibility |
+| :-- | :-- |
+| `GoTaxi.PL` | Controllers for riders (`ClientController`) and drivers (`TaxiController`), Razor views, map and location scripts |
+| `GoTaxi.BLL` | Matching, claiming and visibility rules behind `IClientService` and `IDriverService`; haversine distance |
+| `GoTaxi.DAL` | `GoTaxiDbContext`, `User`, `Client`, `Driver`, `Location` and `Destination` models, repositories |
+| `GoTaxi.Tests` | Service and repository tests against an in-memory database |
+
+## Getting started
+
+**Requirements:** [.NET 7 SDK](https://dotnet.microsoft.com/download/dotnet/7.0), SQL Server Express, and a free [TomTom API key](https://developer.tomtom.com/).
+
+```bash
+git clone https://github.com/HHChandar20/GoTaxi.git
+cd GoTaxi/GoTaxi
+```
+
+1. **Map key.** Put your TomTom key in `GoTaxi.PL/wwwroot/js/taxi.js` and `client.js` (the `key:` values).
+2. **Database.** The connection string in `GoTaxi.PL/Program.cs` points to `.\SQLEXPRESS`, database `GoTaxiDB`. Create the schema with EF Core migrations:
+
+   ```bash
+   dotnet tool install --global dotnet-ef --version 7.0.15
+   cd GoTaxi.PL
+   dotnet ef migrations add InitialCreate --project ../GoTaxi.DAL
+   dotnet ef database update --project ../GoTaxi.DAL
+   ```
+
+3. **Run.**
+
+   ```bash
+   dotnet run
+   ```
+
+Run the tests from the `GoTaxi` folder with `dotnet test`.
+
+## Tech stack
+
+**Backend:** C#, ASP.NET Core 7 MVC, Entity Framework Core, SQL Server<br>
+**Frontend:** Razor views, Bootstrap, JavaScript, TomTom Maps SDK (maps and routing), Nominatim geocoding, browser Geolocation API<br>
+**Testing:** NUnit, EF Core InMemory<br>
+**Design:** Figma, Photoshop
+
+## License
+
+Released under the [MIT License](LICENSE).
+
+<div align="center">
 <br>
-
-## Run Locally
-
-Clone the project
-
-```bash
-  git clone https://https://github.com/codingburgas/2324-technologies-11-transport-assignment-HHChandar20/
-```
-
-Go to the project directory
-
-```bash
-  cd GoTaxi.PL
-```
-
-Run
-
-```bash
-  dotnet run
-```
+<sub>Built by <a href="https://github.com/HHChandar20">Hakan Chandar</a> · 2024</sub>
+</div>
